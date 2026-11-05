@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="canonical" href="https://theveter.in/">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b14">
+
+  <title>Veter — An Independent Programming Language</title>
+  <meta name="description" content="Meet Veter, an independent programming-language project with .vtr source files, a developing compiler and runtime, documentation, learning resources and developer tools.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="Chengepally Harshith Reddy">
+  <meta name="creator" content="Chengepally Harshith Reddy">
+
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://theveter.in/assets/veter-native-logo.png">
+  <meta name="twitter:image" content="https://theveter.in/assets/veter-native-logo.png">
+  <meta property="og:title" content="Veter – Programming Language & Developer Tools">
+  <meta property="og:description" content="Explore the Veter language, read its documentation, try the browser demo and discover the growing developer toolkit.">
+  <meta property="og:url" content="https://theveter.in/">
+  <meta property="og:site_name" content="Veter">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Veter – Programming Language">
+  <meta name="twitter:description" content="Explore the language, documentation, browser demo and developer tools.">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://theveter.in/#organization",
+        "name": "Veter",
+        "url": "https://theveter.in/",
+        "description": "An independent programming language and developer tools project.",
+        "founder": {
+          "@id": "https://theveter.in/about.html#founder"
+        },
+        "sameAs": [
+          "https://github.com/harshith934764-dev/veter",
+          "https://www.instagram.com/buildwithveter/"
+        ]
+      },
+      {
+        "@type": "Person",
+        "@id": "https://theveter.in/about.html#founder",
+        "name": "Chengepally Harshith Reddy",
+        "alternateName": ["Harshith Reddy", "Harshith"],
+        "jobTitle": "Founder and Creator of Veter Programming Language",
+        "url": "https://theveter.in/about.html",
+        "sameAs": [
+          "https://github.com/harshith934764-dev",
+          "https://www.instagram.com/buildwithveter/"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://theveter.in/#website",
+        "name": "Veter",
+        "url": "https://theveter.in/",
+        "inLanguage": "en",
+        "publisher": {
+          "@id": "https://theveter.in/#organization"
+        }
+      },
+      {
+        "@type": "DefinedTerm",
+        "@id": "https://theveter.in/#veter-language",
+        "name": "Veter Programming Language",
+        "alternateName": "Veter",
+        "description": "An independently developed programming language project with its own .vtr source-file extension, compiler and learning resources.",
+        "url": "https://theveter.in/",
+        "inDefinedTermSet": "https://theveter.in/",
+        "creator": {
+          "@id": "https://theveter.in/about.html#founder"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg:#080b14; --panel:#101625; --panel2:#151e30; --text:#f4f7ff;
+      --muted:#a6b1c7; --blue:#69a7ff; --cyan:#54e5e5; --border:#253149;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.7}
+    a{color:inherit;text-decoration:none}
+    a:focus-visible,button:focus-visible,textarea:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+    .tag{letter-spacing:.04em}
+    .card{transition:border-color .2s ease,transform .2s ease}
+    .card:hover{transform:translateY(-2px)}
+    .container{width:min(1120px,92%);margin:auto}
+    header{position:sticky;top:0;z-index:10;background:rgba(8,11,20,.94);backdrop-filter:blur(15px);border-bottom:1px solid var(--border)}
+    nav{min-height:72px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+    .logo{font-size:25px;font-weight:850;letter-spacing:-1px}
+    .logo span{color:var(--cyan)}
+    .nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:18px;font-size:14px;color:var(--muted)}
+    .nav-links a:hover,footer a:hover{color:var(--cyan)}
+    .hero{text-align:center;padding:105px 0 85px;background:radial-gradient(ellipse at 50% 0%,#16365c 0%,transparent 58%)}
+    .tag{display:inline-block;padding:5px 13px;border:1px solid #31517a;border-radius:30px;color:var(--cyan);font-size:13px;margin-bottom:22px}
+    h1{font-size:clamp(42px,8vw,76px);line-height:1.08;letter-spacing:-3px;margin-bottom:22px}
+    .gradient{background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hero p{max-width:720px;margin:0 auto 30px;color:var(--muted);font-size:17px}
+    .hero .creator-credit{font-size:14px;margin-top:-12px;color:var(--muted)}
+    .creator-credit a{color:var(--cyan);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+    .actions{display:flex;justify-content:center;flex-wrap:wrap;gap:13px}
+    .btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:12px 21px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);color:white;font-weight:700;cursor:pointer;transition:.2s}
+    .btn:hover{transform:translateY(-2px);border-color:var(--cyan)}
+    .btn-primary{color:#07111b;background:linear-gradient(90deg,var(--blue),var(--cyan));border:none}
+    section{padding:72px 0}
+    .section-head{text-align:center;margin-bottom:35px}
+    .section-head h2{font-size:clamp(28px,5vw,42px);letter-spacing:-1px;margin-bottom:10px}
+    .section-head p{max-width:680px;margin:auto;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .card{background:linear-gradient(145deg,var(--panel),#0d1220);border:1px solid var(--border);border-radius:16px;padding:25px;min-width:0}
+    .card:hover{border-color:#42628c}
+    .card h3{font-size:20px;margin-bottom:9px}
+    .card p,.card li{font-size:14px;color:var(--muted)}
+    .card ul{padding-left:20px;margin:12px 0}
+    .card .btn{margin-top:18px}
+    .download-card{border-color:#315d77;background:linear-gradient(145deg,#11283a,#101625)}
+    .label{display:inline-block;font-size:12px;color:var(--cyan);background:#183241;padding:3px 9px;border-radius:20px;margin-bottom:12px}
+    .notice{border:1px solid var(--border);border-radius:12px;background:var(--panel);padding:17px 20px;color:var(--muted);font-size:14px;margin-top:22px}
+    .contact{text-align:center;background:radial-gradient(ellipse at 50% 100%,#132c47,transparent 70%)}
+    .contact p{color:var(--muted);margin-bottom:22px}
+    footer{border-top:1px solid var(--border);padding:28px 0;color:var(--muted);font-size:13px}
+    .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+    footer a{margin-left:14px}
+    .product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .product-card{padding:20px}
+    .product-image,.detail-image{display:block;width:100%;height:auto;object-fit:cover;border-radius:12px;border:1px solid var(--border);margin-bottom:18px}
+    .product-image{aspect-ratio:16/9}
+    .coming-art{min-height:190px;display:grid;place-items:center;font-size:76px;border-radius:12px;margin-bottom:18px;background:radial-gradient(circle at 50% 30%,#24558a,#111a2d 70%);border:1px solid var(--border)}
+    .product-card button:disabled{opacity:.65;cursor:not-allowed}
+    .product-detail{margin-top:32px;padding:28px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,var(--panel),#0d1220)}
+    .product-detail[hidden]{display:none}
+    .back-button{margin:0 0 22px}
+    .detail-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;align-items:start}
+    .detail-layout h2{font-size:clamp(30px,5vw,46px);margin:8px 0 14px}
+    .detail-layout h3{margin:22px 0 8px}
+    .detail-layout p,.detail-list{color:var(--muted)}
+    .detail-lead{font-size:18px}
+    .detail-list{padding-left:22px;margin-top:8px}
+    .detail-list li{margin:7px 0}
+    .detail-image{position:sticky;top:100px;margin:0}
+    .product-detail .notice{margin-top:22px}
+    .small-note{font-size:.82rem;opacity:.75;margin-top:12px}
+    .veter-playground{margin-top:26px;border:1px solid rgba(140,160,255,.22);border-radius:20px;overflow:hidden;background:#090f28;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+    .veter-playground-head{padding:18px 20px;display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid rgba(255,255,255,.1)}
+    .veter-playground-head strong{font-size:1.05rem}
+    .veter-playground-head span{font-size:.8rem;opacity:.72}
+    .veter-playground-grid{display:grid;grid-template-columns:1.1fr .9fr}
+    .veter-editor,.veter-console{min-width:0}
+    .veter-editor{border-right:1px solid rgba(255,255,255,.1)}
+    .veter-pane-title{padding:12px 18px;color:#b8c5ef;font-size:.82rem;background:rgba(255,255,255,.035)}
+    #veter-code{display:block;width:100%;min-height:245px;resize:vertical;border:0;outline:0;padding:20px;background:#080d20;color:#e8edff;font:14px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}
+    #veter-output{margin:0;padding:20px;min-height:245px;white-space:pre-wrap;overflow-wrap:anywhere;color:#a8f0c2;font:14px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace}
+    .veter-play-actions{padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1)}
+    .veter-play-note{font-size:.82rem;opacity:.72;flex:1 1 240px}
+    @media(max-width:760px){
+      .nav-links{gap:12px;justify-content:center}
+      nav{padding:13px 0;flex-direction:column}
+      .grid,.product-grid,.detail-layout{grid-template-columns:1fr}
+      .detail-image{position:static}
+      .hero{padding:75px 0 60px}
+      h1{letter-spacing:-1.5px}
+      section{padding:52px 0}
+    }
+    @media(max-width:700px){
+      .veter-playground-grid{grid-template-columns:1fr}
+      .veter-editor{border-right:0;border-bottom:1px solid rgba(255,255,255,.1)}
+      #veter-code,#veter-output{min-height:190px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="container" aria-label="Main navigation">
+      <a class="logo" href="#home" aria-label="Veter home">Veter<span>.</span></a>
+      <div class="nav-links">
+        <a href="#language">Language</a>
+        <a href="learn.html">Learn</a>
+        <a href="docs.html">Documentation</a>
+        <a href="reference.html">Reference</a>
+        <a href="#code-maker">Playground</a>
+        <a href="#downloads">Downloads</a>
+        <a href="#products">Projects</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container">
+        <span class="tag">AN INDEPENDENT PROGRAMMING LANGUAGE</span>
+        <h1>Build with <span class="gradient">Veter.</span><br>Think in your own syntax.</h1>
+        <p>Veter is an independently developed programming-language project with its own source format, language design, compiler experiments and developer tools. Explore how the language works, learn its syntax, and try a small program in the browser.</p>
+        <p class="creator-credit">Created by <a href="about.html">Chengepally Harshith Reddy</a> · Founder &amp; Creator of Veter</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="learn.html">Start learning →</a>
+          <a class="btn" href="docs.html">Read documentation</a>
+          <a class="btn" href="#code-maker">Try the browser demo</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="language-overview">
+      <div class="container">
+        <div class="section-head">
+          <h2>A language project, <span class="gradient">built from the foundations.</span></h2>
+          <p>Understand the language itself before exploring the wider Veter ecosystem.</p>
+        </div>
+        <div class="grid">
+          <article class="card"><span class="label">LANGUAGE DESIGN</span><h3>Syntax and semantics</h3><p>Learn how Veter source files are structured, how statements are interpreted, and how the language is intended to evolve.</p><a class="btn" href="reference.html">Explore language reference →</a></article>
+          <article class="card"><span class="label">IMPLEMENTATION</span><h3>Compiler and runtime</h3><p>Follow the compiler, execution model, diagnostics and implementation status. The implementation language is separate from Veter's own syntax.</p><a class="btn" href="docs.html#implementation">Understand the implementation →</a></article>
+          <article class="card"><span class="label">GET STARTED</span><h3>Write your first program</h3><p>Create a <code>.vtr</code> file, learn the core commands and try the documented browser-demo subset.</p><a class="btn" href="learn.html">Start the tutorial →</a></article>
+        </div>
+        <div class="notice"><strong>Version clarity:</strong> Veter is evolving. The native Core 1.0 prototype, the website browser demo and proposed language-standard features are different scopes. Documentation labels these separately so examples are not mistaken for implemented compiler features.</div>
+      </div>
+    </section>
+
+    <section id="products">
+      <div class="container">
+        <div class="section-head">
+          <h2>Explore <span class="gradient">Veter Products</span></h2>
+          <p>Discover the tools and technology being developed under the Veter project.</p>
+        </div>
+        <div class="grid product-grid">
+          <article class="card product-card">
+            <img class="product-image" src="assets/veteros-showcase.png" alt="Preview of the VeterOS Linux-based desktop" loading="lazy" width="800" height="450">
+            <span class="label">OPERATING SYSTEM</span>
+            <h3>VeterOS</h3>
+            <p>A Linux-based desktop operating system project focused on everyday computing, desktop tools and hardware support.</p>
+            <button class="btn btn-primary" type="button" onclick="showProduct('veteros')">Explore VeterOS →</button>
+          </article>
+          <article class="card product-card">
+            <div class="coming-art" role="img" aria-label="Keyboard symbol representing Veter programming language">⌨️</div>
+            <span class="label">PROGRAMMING LANGUAGE</span>
+            <h3>Veter Language</h3>
+            <p>Write programs and explore simple website-building workflows using Veter's own .vtr source syntax.</p>
+            <a class="btn" href="#language">Explore Veter Language →</a>
+          </article>
+          <article class="card product-card">
+            <div class="coming-art" role="img" aria-label="City skyline illustration representing VeterCity">🏙️</div>
+            <span class="label">COMING SOON</span>
+            <h3>VeterCity</h3>
+            <p>A future city-life simulation project. Development details and previews will be shared when ready.</p>
+            <button class="btn" type="button" disabled aria-disabled="true">Coming soon</button>
+          </article>
+        </div>
+
+        <section id="veteros-detail" class="product-detail" hidden>
+          <button class="btn back-button" type="button" onclick="hideProduct()">← Back to Products</button>
+          <div class="detail-layout">
+            <div>
+              <span class="label">PROJECT PREVIEW</span>
+              <h2>Meet <span class="gradient">VeterOS</span></h2>
+              <p class="detail-lead">A Linux-based operating system project exploring a modern desktop experience.</p>
+              <h3>What is VeterOS?</h3>
+              <p>VeterOS is an independent operating system project. Its goal is to bring desktop tools, system settings and useful everyday computing features together in one environment.</p>
+              <h3>Project areas</h3>
+              <ul class="detail-list">
+                <li>Desktop interface and system settings</li>
+                <li>File management and everyday applications</li>
+                <li>Networking, audio and Bluetooth support</li>
+                <li>Hardware compatibility exploration</li>
+                <li>Future developer and AI features</li>
+              </ul>
+            </div>
+            <img class="detail-image" src="assets/veteros-showcase.png" alt="VeterOS desktop preview" loading="lazy" width="800" height="450">
+          </div>
+          <button class="btn back-button" type="button" onclick="hideProduct()">← Back to Products</button>
+        </section>
+      </div>
+    </section>
+
+    <section id="downloads">
+      <div class="container">
+        <div class="section-head">
+          <h2>Veter Downloads</h2>
+          <p>Get the available VeterOS image and explore the Veter development tools.</p>
+        </div>
+        <div class="grid">
+          <article class="card download-card">
+            <span class="label">WINDOWS DESKTOP APP · VERSION 1.0.0</span>
+            <h3>Veter Studio</h3>
+            <p>Install the Veter desktop editor on Windows and create, open, save and run supported <code>.vtr</code> programs.</p>
+            <p><strong>Installer:</strong> Windows 10/11 · 64-bit</p>
+            <a class="btn btn-primary" href="downloads/VeterStudioSetup-1.0.0-x64.exe" download>Download Veter Studio ↓</a>
+            <p class="small-note">Early release. Please review the installation notes and report any issues.</p>
+          </article>
+          <article class="card download-card">
+            <span class="label">ISO IMAGE</span>
+            <h3>VeterOS Live ISO</h3>
+            <p>File: live-image-amd64.hybrid.iso</p>
+            <p>Reported file size: 2.34 GB</p>
+            <a class="btn btn-primary" href="https://drive.google.com/uc?export=download&amp;id=1yD9RgUQCYrbg09wnC9mxKN6wduk8UX2P" target="_blank" rel="noopener noreferrer">Download VeterOS ↓</a>
+          </article>
+          <article class="card download-card">
+            <span class="label">WINDOWS DESKTOP · NATIVE PREVIEW</span>
+            <h3>Veter Native Runtime 1.0</h3>
+            <p>Download the Windows prototype to open supported <code>.vtr</code> projects in a separate Veter desktop window.</p>
+            <p><strong>Includes:</strong> runtime source, build script, example project and Veter app icon.</p>
+            <a class="btn btn-primary" href="Veter-Native-Runtime-1.0-Windows.zip" download>Download for Windows ↓</a>
+            <p class="small-note">Requires MSYS2 UCRT64 GCC to build. Early prototype: some controls are visual placeholders; see README for details.</p>
+          </article>
+          <article class="card">
+            <span class="label">LANGUAGE PROJECT</span>
+            <h3>Veter Language</h3>
+            <p>Write programs in Veter syntax and work with .vtr source files.</p>
+            <a class="btn" href="#language">Explore Veter Language →</a>
+          </article>
+        </div>
+        <div class="notice"><strong>Before installing:</strong> Test the ISO in a virtual machine first. Back up important files before installing an operating system. The Google Drive download requires sharing to be set to “Anyone with the link — Viewer”.</div>
+      </div>
+    </section>
+
+    <section id="language">
+      <div class="container">
+        <div class="section-head">
+          <h2>Learn <span class="gradient">Veter Language</span></h2>
+          <p>An original programming language with its own .vtr source files. Try the browser-based Veter Code Maker below.</p>
+        </div>
+        <div class="card">
+          <h3>About Veter Language</h3>
+          <p>Veter Language includes a compiler, core programming features and a simple website-building workflow. Write projects in Veter syntax and run them with the Veter compiler. The browser playground below supports a documented subset of the language.</p>
+        </div>
+        <div class="veter-playground" id="code-maker">
+          <div class="veter-playground-head"><strong>⌨️ Veter Code Maker</strong><span>Desktop and mobile browser</span></div>
+          <div class="veter-playground-grid">
+            <div class="veter-editor">
+              <div class="veter-pane-title">YOUR VETER PROGRAM · sample.vtr</div>
+              <textarea id="veter-code" spellcheck="false" aria-label="Veter source code">make name "Veter Language"
+make score 10 + 5 * 2
+say "Hello from " + name
+say score</textarea>
+            </div>
+            <div class="veter-console">
+              <div class="veter-pane-title">PROGRAM OUTPUT</div>
+              <pre id="veter-output" aria-live="polite">Press Run to try your Veter program.</pre>
+            </div>
+          </div>
+          <div class="veter-play-actions">
+            <button class="btn btn-primary" type="button" id="veter-run">▶ Run code</button>
+            <button class="btn" type="button" id="veter-reset">Reset</button>
+            <button class="btn" type="button" id="veter-save">↓ Save .vtr</button>
+            <button class="btn" type="button" id="veter-open">↑ Open .vtr</button>
+            <input id="veter-file" type="file" accept=".vtr,text/plain" hidden>
+            <span class="veter-play-note">Create a Veter source file, run it here, and save your work as a .vtr file. The browser runner supports variables, text output, strings and basic arithmetic.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="library">
+      <div class="container">
+        <div class="section-head">
+          <h2>Learn and build with Veter</h2>
+          <p>Start learning and building with Veter through documentation, examples and tools.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>📘 Official Veter Learning Guide</h3>
+            <p>Learn Veter Language step by step. Explore its syntax, examples, getting started instructions and frequently asked questions.</p>
+            <a class="btn btn-primary" href="/learn.html">Open Learning Guide →</a>
+          </article>
+          <article class="card">
+            <h3>📚 Language documentation</h3>
+            <p>Browse the language overview, implementation notes, compatibility guidance and language reference.</p>
+            <a class="btn" href="docs.html">Open documentation →</a>
+          </article>
+          <article class="card">
+            <h3>⌨️ Code Maker</h3>
+            <p>Write, run and save your own Veter programs in the browser.</p>
+            <a class="btn" href="#code-maker">Open Code Maker →</a>
+          </article>
+          <article class="card">
+            <h3>🚀 Build with Veter</h3>
+            <p>Create .vtr source files and explore the language through practical examples.</p>
+            <a class="btn" href="#language">Explore the language →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="container">
+        <div class="section-head">
+          <h2>Connect with <span class="gradient">Veter</span></h2>
+          <p>Questions, feedback and collaboration ideas are welcome.</p>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary" href="mailto:harshith934764@gmail.com">✉ Email Veter</a>
+          <a class="btn" href="https://wa.me/919347648599" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          <a class="btn" href="https://www.instagram.com/buildwithveter/" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div>© 2026 Veter Project. Built independently.</div>
+      <div>
+        <a href="#home">Home ↑</a>
+        <a href="docs.html">Documentation</a>
+        <a href="reference.html">Reference</a>
+        <a href="#downloads">Downloads</a>
+        <a href="#contact">Contact</a>
+        <a href="about.html">Founder</a>
+        <a href="https://www.instagram.com/buildwithveter/" target="_blank" rel="noopener noreferrer">Instagram @buildwithveter</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function showProduct(product) {
+      if (product !== "veteros") return;
+      const detail = document.getElementById("veteros-detail");
+      detail.hidden = false;
+      detail.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function hideProduct() {
+      const detail = document.getElementById("veteros-detail");
+      detail.hidden = true;
+      document.getElementById("products").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // Browser learning runner for the documented subset of Veter syntax.
+    (function () {
+      const starter = 'make name "Veter Language"\nmake score 10 + 5 * 2\nsay "Hello from " + name\nsay score';
+      const editor = document.getElementById("veter-code");
+      const output = document.getElementById("veter-output");
+
+      function tokenize(expr) {
+        const out = [];
+        let i = 0;
+        while (i < expr.length) {
+          if (/\s/.test(expr[i])) { i++; continue; }
+          if (expr[i] === '"' || expr[i] === "'") {
+            const q = expr[i++];
+            let v = "";
+            while (i < expr.length && expr[i] !== q) {
+              if (expr[i] === "\\" && i + 1 < expr.length) { i++; v += expr[i++]; }
+              else v += expr[i++];
+            }
+            if (expr[i] !== q) throw Error("Unclosed string");
+            i++;
+            out.push({ t: "value", v });
+            continue;
+          }
+          const m = expr.slice(i).match(/^(?:\d+(?:\.\d+)?|[A-Za-z_][A-Za-z0-9_]*|\+|-|\*|\/|%|\(|\))/);
+          if (!m) throw Error("Unexpected character: " + expr[i]);
+          out.push({ t: /^\d/.test(m[0]) ? "number" : /^[A-Za-z_]/.test(m[0]) ? "name" : "op", v: m[0] });
+          i += m[0].length;
+        }
+        return out;
+      }
+
+      function valueOf(expr, vars) {
+        const ts = tokenize(expr);
+        let p = 0;
+        function atom() {
+          const x = ts[p++];
+          if (!x) throw Error("Expected a value");
+          if (x.t === "value") return x.v;
+          if (x.t === "number") return Number(x.v);
+          if (x.t === "name") {
+            if (!Object.prototype.hasOwnProperty.call(vars, x.v)) throw Error("Unknown variable: " + x.v);
+            return vars[x.v];
+          }
+          if (x.v === "(") {
+            const v = add();
+            if (!ts[p] || ts[p++].v !== ")") throw Error("Missing )");
+            return v;
+          }
+          if (x.v === "-") return -Number(atom());
+          throw Error("Unexpected token: " + x.v);
+        }
+        function mul() {
+          let a = atom();
+          while (ts[p] && ["*", "/", "%"].includes(ts[p].v)) {
+            const op = ts[p++].v, b = Number(atom());
+            if ((op === "/" || op === "%") && b === 0) throw Error("Division by zero");
+            a = op === "*" ? Number(a) * b : op === "/" ? Number(a) / b : Number(a) % b;
+          }
+          return a;
+        }
+        function add() {
+          let a = mul();
+          while (ts[p] && ["+", "-"].includes(ts[p].v)) {
+            const op = ts[p++].v, b = mul();
+            a = op === "+"
+              ? (typeof a === "string" || typeof b === "string" ? String(a) + String(b) : Number(a) + Number(b))
+              : Number(a) - Number(b);
+          }
+          return a;
+        }
+        const v = add();
+        if (p !== ts.length) throw Error("Could not understand expression near " + ts[p].v);
+        return v;
+      }
+
+      document.getElementById("veter-run").addEventListener("click", () => {
+        try {
+          const vars = Object.create(null), lines = editor.value.split(/\r?\n/), logs = [];
+          for (let n = 0; n < lines.length; n++) {
+            const line = lines[n].trim();
+            if (!line || line.startsWith("#")) continue;
+            let m = line.match(/^(make|set)\s+([A-Za-z_][A-Za-z0-9_]*)\s+(.+)$/);
+            if (m) { vars[m[2]] = valueOf(m[3], vars); continue; }
+            m = line.match(/^(say|show)\s+(.+)$/);
+            if (m) { logs.push(String(valueOf(m[2], vars))); continue; }
+            throw Error("Line " + (n + 1) + ": browser runner supports make, set, say and show.");
+          }
+          output.textContent = logs.length ? logs.join("\n") : "Program finished with no output.";
+        } catch (e) {
+          output.textContent = "Veter error: " + e.message;
+        }
+      });
+
+      document.getElementById("veter-reset").addEventListener("click", () => {
+        editor.value = starter;
+        output.textContent = "Example restored. Press Run to execute it.";
+      });
+
+      document.getElementById("veter-save").addEventListener("click", () => {
+        const blob = new Blob([editor.value], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "my-veter-project.vtr";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      const fileInput = document.getElementById("veter-file");
+      document.getElementById("veter-open").addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", async () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        try {
+          editor.value = await file.text();
+          output.textContent = "Loaded " + file.name + ". Press Run code to execute it.";
+        } catch (e) {
+          output.textContent = "Could not open this file.";
+        }
+        fileInput.value = "";
+      });
+    })();
+  </script>
+</body>
+</html>

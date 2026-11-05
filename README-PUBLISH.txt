@@ -1,17 +1,35 @@
-VETER STUDIO WEBSITE UPDATE — INSTALLER INCLUDED
+VETER WEBSITE UPDATE — LANGUAGE PLATFORM EDITION
 
-This package contains:
-- index.html (homepage with the Veter Studio download card)
-- downloads/VeterStudioSetup-1.0.0-x64.exe (Windows installer)
+This package contains the full static website and existing downloadable assets.
 
-Publish both together to the ROOT of your website so the final structure is:
-  /index.html
-  /downloads/VeterStudioSetup-1.0.0-x64.exe
+Updated website pages:
+- index.html       Language-first homepage, product overview and browser demo
+- learn.html       Structured beginner learning path
+- docs.html        Documentation hub: design, implementation, compatibility and workflow
+- reference.html   Language command reference for the documented Core 1.0 prototype
+- about.html       Founder/project information with updated navigation
+- sitemap.xml      Includes the new documentation and reference pages
 
-Then test:
-  https://theveter.in/downloads/VeterStudioSetup-1.0.0-x64.exe
+Existing assets and downloads are preserved:
+- assets/
+- downloads/
+- Veter-Native-Runtime-1.0-Windows.zip
+- VETER_LANGUAGE_SPECIFICATION.md
 
-Also open https://theveter.in and click the Veter Studio download button.
+DEPLOYMENT
+Upload the contents of the veter-main folder to the ROOT of https://theveter.in/.
+Keep the folder structure intact. In particular, do not rename or move assets/ or downloads/.
 
-This package does not deploy to your hosting account. Upload the files using your hosting dashboard, GitHub Pages repository, or current deployment workflow.
-Before announcing publicly, test the downloaded installer on a clean Windows 10/11 64-bit PC if possible.
+After deployment, test these URLs:
+- https://theveter.in/
+- https://theveter.in/learn.html
+- https://theveter.in/docs.html
+- https://theveter.in/reference.html
+- https://theveter.in/about.html
+- https://theveter.in/sitemap.xml
+
+IMPORTANT IMPLEMENTATION NOTES
+- The homepage browser playground is a limited JavaScript demonstration, not the native Veter compiler.
+- The language reference labels commands documented by the supplied Core 1.0 prototype.
+- The proposed language specification remains a proposal; do not describe every proposed feature as implemented.
+- This package does not deploy to your hosting account. Upload through your current hosting/GitHub deployment workflow.

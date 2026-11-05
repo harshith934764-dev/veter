@@ -6,6 +6,8 @@ Veter is an independently developed programming-language project created to make
 
 🌐 **Official Website:** https://theveter.in/  
 📘 **Learning Guide:** https://theveter.in/learn.html
+- **Documentation:** https://theveter.in/docs.html
+- **Language Reference:** https://theveter.in/reference.html
 
 ## ✨ About Veter
 
