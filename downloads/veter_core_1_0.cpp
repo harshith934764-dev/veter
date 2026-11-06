@@ -289,6 +289,7 @@ public:
                 case Op::ReadInput:{std::string s;if(!std::getline(in,s))throw std::runtime_error("Line "+std::to_string(i.line)+": input ended");vars[i.text]=s;break;}
                 case Op::Add:{Value b=pop(),a=pop();if(a.index()==0&&b.index()==0)stack.emplace_back(std::get<long long>(a)+std::get<long long>(b));else if(a.index()==1&&b.index()==1)stack.emplace_back(std::get<std::string>(a)+std::get<std::string>(b));else throw std::runtime_error("Line "+std::to_string(i.line)+": '+' requires two numbers or two strings");break;}
                 case Op::Sub:case Op::Mul:case Op::Div:case Op::Mod:{auto b=num(pop(),i.line),a=num(pop(),i.line);if(i.op==Op::Sub)stack.emplace_back(a-b);else if(i.op==Op::Mul)stack.emplace_back(a*b);else{if(!b)throw std::runtime_error("Line "+std::to_string(i.line)+": division by zero");if(i.op==Op::Div)stack.emplace_back(a/b);else stack.emplace_back(a%b);}break;}
+                case Op::Neg:{const auto x=num(pop(),i.line);if(x==std::numeric_limits<long long>::min())throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in negation");stack.emplace_back(-x);break;}
                 case Op::Eq:case Op::Ne:case Op::Lt:case Op::Le:case Op::Gt:case Op::Ge:{
                     Value b=pop(),a=pop();int c=compare(a,b,i.line);bool r=i.op==Op::Eq?c==0:i.op==Op::Ne?c!=0:i.op==Op::Lt?c<0:i.op==Op::Le?c<=0:i.op==Op::Gt?c>0:c>=0;stack.emplace_back((long long)(r?1:0));break;}
                 case Op::BoolAnd:case Op::BoolOr:{
