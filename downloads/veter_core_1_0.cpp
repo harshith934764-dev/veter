@@ -82,7 +82,7 @@ static std::vector<Token> lex_line(const std::string& s, int line) {
 
 using Value=std::variant<long long,std::string>;
 enum class Op { PushInt, PushString, Load, Store, ReadInput, Add, Sub, Mul, Div, Mod,
-                Eq, Ne, Lt, Le, Gt, Ge, BoolAnd, BoolOr, BoolNot, Print, JumpIfFalse, Jump, LoopCheck, Call, Return, Halt };
+                Eq, Ne, Lt, Le, Gt, Ge, Neg, BoolAnd, BoolOr, BoolNot, Print, JumpIfFalse, Jump, LoopCheck, Call, Return, Halt };
 struct Ins { Op op; long long number=0; std::string text; int target=0; int line=1; };
 
 class Compiler {
@@ -116,7 +116,8 @@ private:
     int precedence(TK k){if(k==TK::Plus||k==TK::Minus)return 10;if(k==TK::Star||k==TK::Slash||k==TK::Percent)return 20;return -1;}
     std::size_t expr_pos_=0;
     void atom(const std::vector<Token>& t,int line){
-        if(t[expr_pos_].kind==TK::Number){emit(Op::PushInt,std::stoll(t[expr_pos_].text),"",0,line);++expr_pos_;}
+        if(t[expr_pos_].kind==TK::Minus){++expr_pos_;atom(t,line);emit(Op::Neg,0,"",0,line);}
+        else if(t[expr_pos_].kind==TK::Number){try{emit(Op::PushInt,std::stoll(t[expr_pos_].text),"",0,line);}catch(const std::exception&){throw std::runtime_error("Line "+std::to_string(line)+": integer literal is outside the signed 64-bit range");}++expr_pos_;}
         else if(t[expr_pos_].kind==TK::String){emit(Op::PushString,0,t[expr_pos_].text,0,line);++expr_pos_;}
         else if(t[expr_pos_].kind==TK::Word){emit(Op::Load,0,t[expr_pos_].text,0,line);++expr_pos_;}
         else if(t[expr_pos_].kind==TK::LParen){
@@ -269,12 +270,10 @@ public:
             const auto&s=std::get<std::string>(v);try{std::size_t n=0;auto x=std::stoll(s,&n);if(n==s.size())return x;}catch(...){}
             throw std::runtime_error("Line "+std::to_string(line)+": expected a number");
         };
-        auto compare=[&](Value a,Value b,int line){
-            if(a.index()==b.index()){
-                if(std::holds_alternative<long long>(a)){auto x=std::get<long long>(a),y=std::get<long long>(b);return x<y?-1:x>y?1:0;}
-                const auto&x=std::get<std::string>(a);const auto&y=std::get<std::string>(b);return x<y?-1:x>y?1:0;
-            }
-            return num(a,line)<num(b,line)?-1:num(a,line)>num(b,line)?1:0;
+        auto compare=[&](const Value& a,const Value& b,int line){
+            if(a.index()!=b.index()) throw std::runtime_error("Line "+std::to_string(line)+": cannot compare a number with text");
+            if(std::holds_alternative<long long>(a)){const auto x=std::get<long long>(a),y=std::get<long long>(b);return x<y?-1:x>y?1:0;}
+            const auto& x=std::get<std::string>(a);const auto& y=std::get<std::string>(b);return x<y?-1:x>y?1:0;
         };
         std::unordered_map<std::size_t,long long> loop_remaining;
         std::vector<std::size_t> return_addresses;
@@ -286,8 +285,9 @@ public:
                 case Op::Load:{auto it=vars.find(i.text);if(it==vars.end())throw std::runtime_error("Line "+std::to_string(i.line)+": undefined variable '"+i.text+"'");stack.push_back(it->second);break;}
                 case Op::Store:vars[i.text]=pop();break;
                 case Op::ReadInput:{std::string s;if(!std::getline(in,s))throw std::runtime_error("Line "+std::to_string(i.line)+": input ended");vars[i.text]=s;break;}
-                case Op::Add:{Value b=pop(),a=pop();if(a.index()==0&&b.index()==0)stack.emplace_back(std::get<long long>(a)+std::get<long long>(b));else if(a.index()==1&&b.index()==1)stack.emplace_back(std::get<std::string>(a)+std::get<std::string>(b));else throw std::runtime_error("Line "+std::to_string(i.line)+": '+' requires two numbers or two strings");break;}
-                case Op::Sub:case Op::Mul:case Op::Div:case Op::Mod:{auto b=num(pop(),i.line),a=num(pop(),i.line);if(i.op==Op::Sub)stack.emplace_back(a-b);else if(i.op==Op::Mul)stack.emplace_back(a*b);else{if(!b)throw std::runtime_error("Line "+std::to_string(i.line)+": division by zero");if(i.op==Op::Div)stack.emplace_back(a/b);else stack.emplace_back(a%b);}break;}
+                case Op::Add:{Value b=pop(),a=pop();if(a.index()==0&&b.index()==0){auto x=std::get<long long>(a),y=std::get<long long>(b);if((y>0&&x>std::numeric_limits<long long>::max()-y)||(y<0&&x<std::numeric_limits<long long>::min()-y))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in addition");stack.emplace_back(x+y);}else if(a.index()==1&&b.index()==1)stack.emplace_back(std::get<std::string>(a)+std::get<std::string>(b));else throw std::runtime_error("Line "+std::to_string(i.line)+": '+' requires two numbers or two strings");break;}
+                case Op::Sub:case Op::Mul:case Op::Div:case Op::Mod:{auto b=num(pop(),i.line),a=num(pop(),i.line);if(i.op==Op::Sub){if((b<0&&a>std::numeric_limits<long long>::max()+b)||(b>0&&a<std::numeric_limits<long long>::min()+b))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in subtraction");stack.emplace_back(a-b);}else if(i.op==Op::Mul){if(a!=0&&b!=0){auto lo=std::numeric_limits<long long>::min(),hi=std::numeric_limits<long long>::max();if((a==-1&&b==lo)||(b==-1&&a==lo)||(a>0?(b>0?a>hi/b:b<lo/a):(b>0?a<lo/b:a<hi/b)))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in multiplication");}stack.emplace_back(a*b);}else{if(!b)throw std::runtime_error("Line "+std::to_string(i.line)+": division by zero");if(a==std::numeric_limits<long long>::min()&&b==-1)throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in division");if(i.op==Op::Div)stack.emplace_back(a/b);else stack.emplace_back(a%b);}break;}
+                case Op::Neg:{const auto x=num(pop(),i.line);if(x==std::numeric_limits<long long>::min())throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in negation");stack.emplace_back(-x);break;}
                 case Op::Eq:case Op::Ne:case Op::Lt:case Op::Le:case Op::Gt:case Op::Ge:{
                     Value b=pop(),a=pop();int c=compare(a,b,i.line);bool r=i.op==Op::Eq?c==0:i.op==Op::Ne?c!=0:i.op==Op::Lt?c<0:i.op==Op::Le?c<=0:i.op==Op::Gt?c>0:c>=0;stack.emplace_back((long long)(r?1:0));break;}
                 case Op::BoolAnd:case Op::BoolOr:{
@@ -327,7 +327,7 @@ static bool emit_listing(const std::string&p,const std::vector<Ins>&code){
         case Op::PushInt:f<<"PUSH_INT "<<i.number;break;case Op::PushString:f<<"PUSH_STRING \""<<escape_listing(i.text)<<"\"";break;
         case Op::Load:f<<"LOAD "<<i.text;break;case Op::Store:f<<"STORE "<<i.text;break;case Op::ReadInput:f<<"READ_INPUT "<<i.text;break;
         case Op::Add:f<<"ADD";break;case Op::Sub:f<<"SUB";break;case Op::Mul:f<<"MUL";break;case Op::Div:f<<"DIV";break;case Op::Mod:f<<"MOD";break;
-        case Op::Eq:f<<"EQ";break;case Op::Ne:f<<"NE";break;case Op::Lt:f<<"LT";break;case Op::Le:f<<"LE";break;case Op::Gt:f<<"GT";break;case Op::Ge:f<<"GE";break;case Op::BoolAnd:f<<"AND";break;case Op::BoolOr:f<<"OR";break;case Op::BoolNot:f<<"NOT";break;
+        case Op::Eq:f<<"EQ";break;case Op::Ne:f<<"NE";break;case Op::Lt:f<<"LT";break;case Op::Le:f<<"LE";break;case Op::Gt:f<<"GT";break;case Op::Ge:f<<"GE";break;case Op::Neg:f<<"NEG";break;case Op::BoolAnd:f<<"AND";break;case Op::BoolOr:f<<"OR";break;case Op::BoolNot:f<<"NOT";break;
         case Op::Print:f<<"PRINT";break;case Op::JumpIfFalse:f<<"JUMP_IF_FALSE "<<i.target;break;case Op::Jump:f<<"JUMP "<<i.target;break;case Op::LoopCheck:f<<"LOOP_CHECK "<<i.target;break;case Op::Call:f<<"CALL "<<i.text<<" "<<i.target;break;case Op::Return:f<<"RETURN";break;case Op::Halt:f<<"HALT";break;}f<<'\n';}
     return(bool)f;
 }
