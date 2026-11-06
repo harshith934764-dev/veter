@@ -270,12 +270,10 @@ public:
             const auto&s=std::get<std::string>(v);try{std::size_t n=0;auto x=std::stoll(s,&n);if(n==s.size())return x;}catch(...){}
             throw std::runtime_error("Line "+std::to_string(line)+": expected a number");
         };
-        auto compare=[&](Value a,Value b,int line){
-            if(a.index()==b.index()){
-                if(std::holds_alternative<long long>(a)){auto x=std::get<long long>(a),y=std::get<long long>(b);return x<y?-1:x>y?1:0;}
-                const auto&x=std::get<std::string>(a);const auto&y=std::get<std::string>(b);return x<y?-1:x>y?1:0;
-            }
-            return num(a,line)<num(b,line)?-1:num(a,line)>num(b,line)?1:0;
+        auto compare=[&](const Value& a,const Value& b,int line){
+            if(a.index()!=b.index()) throw std::runtime_error("Line "+std::to_string(line)+": cannot compare a number with text");
+            if(std::holds_alternative<long long>(a)){const auto x=std::get<long long>(a),y=std::get<long long>(b);return x<y?-1:x>y?1:0;}
+            const auto& x=std::get<std::string>(a);const auto& y=std::get<std::string>(b);return x<y?-1:x>y?1:0;
         };
         std::unordered_map<std::size_t,long long> loop_remaining;
         std::vector<std::size_t> return_addresses;
