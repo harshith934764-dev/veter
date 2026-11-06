@@ -51,3 +51,13 @@ Suggestions, feedback, and ideas from developers are welcome.
 ---
 
 © 2026 Veter Project. All rights reserved.
+
+## Core 1.0 compiler tests
+
+The Core 1.0 console compiler has a regression suite. With Python 3 and a C++20 `g++` compiler installed, run from the repository root:
+
+```bash
+python tests/test_core_1_0.py
+```
+
+The suite covers arithmetic, negative values, comparisons, logical conditions, loops, input, and selected runtime errors. It does not certify every Veter runtime or planned language feature. See [`tests/README.md`](tests/README.md) for details.
