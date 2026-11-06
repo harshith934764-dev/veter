@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b14">
+  <title>Veter Core 1.0 Technical Guide | Install, Compile and Run .vtr</title>
+  <meta name="description" content="A practical technical guide to the documented Veter Core 1.0 C++20 prototype: Windows setup, compiler build command, running .vtr files, supported syntax and troubleshooting.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://theveter.in/technical-guide.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Veter">
+  <meta property="og:title" content="Veter Core 1.0 Technical Guide">
+  <meta property="og:description" content="Build the documented C++20 prototype and run your first Veter .vtr program.">
+  <meta property="og:url" content="https://theveter.in/technical-guide.html">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"TechArticle",
+    "headline":"Veter Core 1.0 Technical Guide",
+    "description":"Version-specific instructions for the documented Veter Core 1.0 prototype compiler.",
+    "mainEntityOfPage":"https://theveter.in/technical-guide.html",
+    "publisher":{"@type":"Organization","name":"Veter","url":"https://theveter.in/"},
+    "about":{"@type":"SoftwareApplication","name":"Veter Core 1.0 prototype","applicationCategory":"DeveloperApplication","operatingSystem":"Windows, Linux, macOS (where a compatible C++20 compiler is available)"}
+  }
+  </script>
+  <style>
+    :root{color-scheme:dark;--bg:#080b14;--panel:#101625;--text:#f4f7ff;--muted:#a6b1c7;--cyan:#54e5e5;--line:#253149;--amber:#ffd58a}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 system-ui,sans-serif}
+    a{color:var(--cyan)}.wrap{width:min(960px,92%);margin:auto}header,footer{border-bottom:1px solid var(--line);padding:18px 0}footer{border:0;border-top:1px solid var(--line);color:var(--muted);margin-top:44px}
+    nav{display:flex;gap:18px;flex-wrap:wrap}nav a{text-decoration:none}.hero{padding:58px 0 28px}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.14em}
+    h1{font-size:clamp(36px,6vw,56px);line-height:1.1;margin:12px 0}h2{font-size:25px;margin:36px 0 10px}h3{font-size:18px;margin:22px 0 8px}
+    p,li{color:var(--muted)}pre{overflow:auto;background:#050914;border:1px solid var(--line);border-radius:12px;padding:18px;color:#d9f7ff;font:14px/1.7 ui-monospace,monospace}code{color:#b8f4ff}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px;margin:18px 0}.note{border-left:3px solid var(--amber);background:#211c12;padding:14px 17px;border-radius:0 10px 10px 0;color:var(--muted);margin:20px 0}
+    .steps{counter-reset:step}.step{border-top:1px solid var(--line);padding:18px 0}.step h3{margin:0 0 8px}
+  </style>
+</head>
+<body>
+<header><nav class="wrap" aria-label="Main navigation"><a href="/">Home</a><a href="/learn.html">Learn</a><a href="/docs.html">Documentation</a><a href="/reference.html">Language reference</a><a href="/faq.html">FAQ</a><a href="https://github.com/harshith934764-dev/veter">GitHub source</a></nav></header>
+<main class="wrap">
+  <div class="hero"><div class="eyebrow">VERSION-SPECIFIC TECHNICAL GUIDE</div><h1>Build and run <span style="color:var(--cyan)">Veter Core 1.0.</span></h1><p>This guide follows the compiler source, test program and README currently published in the Veter repository. It covers the Core 1.0 front-end prototype, not every proposed feature in the draft language specification.</p></div>
+  <div class="note">Important version note: the repository contains multiple Veter experiments. These instructions apply to <code>downloads/veter_core_1_0.cpp</code> and its matching <code>.vtr</code> test file. They are not instructions for every Veter release or for the separate Veter Studio installer.</div>
+  <section><h2>1. Get the source files</h2><p>Open the <a href="https://github.com/harshith934764-dev/veter/tree/main/downloads">downloads folder on GitHub</a>. Get these two files:</p><ul><li><a href="https://github.com/harshith934764-dev/veter/blob/main/downloads/veter_core_1_0.cpp"><code>veter_core_1_0.cpp</code></a> — C++20 compiler source.</li><li><a href="https://github.com/harshith934764-dev/veter/blob/main/downloads/veter_core_1_0_test.vtr"><code>veter_core_1_0_test.vtr</code></a> — sample Veter program.</li></ul><p>Keep both files in the same working folder.</p></section>
+  <section><h2>2. Install a C++20 compiler</h2><p>The published prototype README uses <code>g++</code> with C++20. On Windows, one option is the MSYS2 UCRT64 environment with its MinGW-w64 GCC toolchain. Open the UCRT64 terminal after installing the toolchain and check that <code>g++</code> is available:</p><pre><code>g++ --version</code></pre><p>On Linux or macOS, use a compatible GCC or Clang C++20 toolchain. Package installation commands depend on your operating system and distribution.</p></section>
+  <section><h2>3. Compile the Veter prototype</h2><p>In the terminal, change to the folder containing <code>veter_core_1_0.cpp</code>, then run the documented build command:</p><pre><code>g++ -std=c++20 -Wall -Wextra -pedantic veter_core_1_0.cpp -o veter</code></pre><p>On Windows, if your compiler creates an executable named <code>veter.exe</code>, use that filename in the next step.</p></section>
+  <section><h2>4. Run a Veter program</h2><p>Run the included sample file using the executable you just built:</p><pre><code># Linux / macOS / Git Bash when output is named veter
+./veter veter_core_1_0_test.vtr
+
+# Windows Git Bash when output is named veter.exe
+./veter.exe veter_core_1_0_test.vtr</code></pre><p>The sample file demonstrates variable storage, output, a conditional block, a counted loop and a condition-controlled loop. The command forms are listed below.</p></section>
+  <section><h2>5. Core 1.0 prototype syntax</h2><div class="panel"><h3>Store a value and display it</h3><pre><code>remember score as 95
+display score</code></pre><p><code>remember name as expression</code> stores a value. <code>display expression</code> prints a value.</p></div><div class="panel"><h3>Update a value</h3><pre><code>remember score as 95
+revise score as score + 5
+display score</code></pre><p><code>revise name as expression</code> updates a previously stored value.</p></div><div class="panel"><h3>Choose a condition</h3><pre><code>remember score as 72
+choose when score >= 50
+    display "passed"
+else choose
+    display "try again"
+close choice</code></pre><p>The documented block starts with <code>choose when</code>, optionally uses <code>else choose</code>, and ends with <code>close choice</code>.</p></div><div class="panel"><h3>Repeat a fixed number of rounds</h3><pre><code>remember n as 1
+repeat 3 rounds
+    display n
+    revise n as n + 1
+close cycle</code></pre><p><code>repeat N rounds</code> starts the counted loop and <code>close cycle</code> ends it.</p></div><div class="panel"><h3>Read input</h3><pre><code>ask for name
+display name</code></pre><p>The prototype README documents <code>ask for name</code> for reading a line of input into a variable.</p></div></section>
+  <section><h2>6. Troubleshooting</h2><div class="steps"><div class="step"><h3><code>g++: command not found</code></h3><p>Your terminal cannot find the C++ compiler. Install or open a terminal configured with a C++20 toolchain, then check <code>g++ --version</code>.</p></div><div class="step"><h3><code>veter_core_1_0.cpp: No such file</code></h3><p>The terminal is in a different folder from the source file. Use <code>cd</code> to move into the folder where you saved the file, or provide the correct path.</p></div><div class="step"><h3><code>veter: No such file</code></h3><p>The compile step may not have created the executable in the current folder, or the executable may be named <code>veter.exe</code>. Check the compiler output and folder contents.</p></div><div class="step"><h3><code>unterminated string</code> or unexpected token</h3><p>Check quotation marks, spelling and the syntax for the exact Core 1.0 prototype. Use the supplied sample program as a known reference.</p></div></div></section>
+  <section><h2>7. What this prototype does not promise</h2><p>The Core 1.0 README describes an early prototype that translates the newer readable command forms into the existing compiler instruction pipeline. It is not a stable language release. The published notes call for a more formal grammar, improved diagnostics and automated regression tests.</p><p>Do not assume that frontend frameworks, backend servers, databases, package management, production deployment, functions or every feature in the draft specification are available in this prototype.</p></section>
+  <section><h2>8. Source and further reading</h2><ul><li><a href="https://github.com/harshith934764-dev/veter/blob/main/downloads/Veter_Core_1_0_README.md">Core 1.0 prototype README</a></li><li><a href="https://github.com/harshith934764-dev/veter/blob/main/downloads/veter_core_1_0.cpp">Compiler source code</a></li><li><a href="https://github.com/harshith934764-dev/veter/blob/main/downloads/veter_core_1_0_test.vtr">Sample test program</a></li><li><a href="/reference.html">Language reference</a></li><li><a href="/VETER_LANGUAGE_SPECIFICATION.md">Draft language specification — proposed features are labelled</a></li><li><a href="https://github.com/harshith934764-dev/veter">Veter GitHub repository</a></li></ul></section>
+</main>
+<footer><div class="wrap">© 2026 Veter Project · <a href="/">theveter.in</a></div></footer>
+</body>
+</html>
