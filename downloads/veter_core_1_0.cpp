@@ -82,7 +82,7 @@ static std::vector<Token> lex_line(const std::string& s, int line) {
 
 using Value=std::variant<long long,std::string>;
 enum class Op { PushInt, PushString, Load, Store, ReadInput, Add, Sub, Mul, Div, Mod,
-                Eq, Ne, Lt, Le, Gt, Ge, BoolAnd, BoolOr, BoolNot, Print, JumpIfFalse, Jump, LoopCheck, Call, Return, Halt };
+                Eq, Ne, Lt, Le, Gt, Ge, Neg, BoolAnd, BoolOr, BoolNot, Print, JumpIfFalse, Jump, LoopCheck, Call, Return, Halt };
 struct Ins { Op op; long long number=0; std::string text; int target=0; int line=1; };
 
 class Compiler {
@@ -116,7 +116,8 @@ private:
     int precedence(TK k){if(k==TK::Plus||k==TK::Minus)return 10;if(k==TK::Star||k==TK::Slash||k==TK::Percent)return 20;return -1;}
     std::size_t expr_pos_=0;
     void atom(const std::vector<Token>& t,int line){
-        if(t[expr_pos_].kind==TK::Number){emit(Op::PushInt,std::stoll(t[expr_pos_].text),"",0,line);++expr_pos_;}
+        if(t[expr_pos_].kind==TK::Minus){++expr_pos_;atom(t,line);emit(Op::Neg,0,"",0,line);}
+        else if(t[expr_pos_].kind==TK::Number){try{emit(Op::PushInt,std::stoll(t[expr_pos_].text),"",0,line);}catch(const std::exception&){throw std::runtime_error("Line "+std::to_string(line)+": integer literal is outside the signed 64-bit range");}++expr_pos_;}
         else if(t[expr_pos_].kind==TK::String){emit(Op::PushString,0,t[expr_pos_].text,0,line);++expr_pos_;}
         else if(t[expr_pos_].kind==TK::Word){emit(Op::Load,0,t[expr_pos_].text,0,line);++expr_pos_;}
         else if(t[expr_pos_].kind==TK::LParen){
@@ -327,7 +328,7 @@ static bool emit_listing(const std::string&p,const std::vector<Ins>&code){
         case Op::PushInt:f<<"PUSH_INT "<<i.number;break;case Op::PushString:f<<"PUSH_STRING \""<<escape_listing(i.text)<<"\"";break;
         case Op::Load:f<<"LOAD "<<i.text;break;case Op::Store:f<<"STORE "<<i.text;break;case Op::ReadInput:f<<"READ_INPUT "<<i.text;break;
         case Op::Add:f<<"ADD";break;case Op::Sub:f<<"SUB";break;case Op::Mul:f<<"MUL";break;case Op::Div:f<<"DIV";break;case Op::Mod:f<<"MOD";break;
-        case Op::Eq:f<<"EQ";break;case Op::Ne:f<<"NE";break;case Op::Lt:f<<"LT";break;case Op::Le:f<<"LE";break;case Op::Gt:f<<"GT";break;case Op::Ge:f<<"GE";break;case Op::BoolAnd:f<<"AND";break;case Op::BoolOr:f<<"OR";break;case Op::BoolNot:f<<"NOT";break;
+        case Op::Eq:f<<"EQ";break;case Op::Ne:f<<"NE";break;case Op::Lt:f<<"LT";break;case Op::Le:f<<"LE";break;case Op::Gt:f<<"GT";break;case Op::Ge:f<<"GE";break;case Op::Neg:f<<"NEG";break;case Op::BoolAnd:f<<"AND";break;case Op::BoolOr:f<<"OR";break;case Op::BoolNot:f<<"NOT";break;
         case Op::Print:f<<"PRINT";break;case Op::JumpIfFalse:f<<"JUMP_IF_FALSE "<<i.target;break;case Op::Jump:f<<"JUMP "<<i.target;break;case Op::LoopCheck:f<<"LOOP_CHECK "<<i.target;break;case Op::Call:f<<"CALL "<<i.text<<" "<<i.target;break;case Op::Return:f<<"RETURN";break;case Op::Halt:f<<"HALT";break;}f<<'\n';}
     return(bool)f;
 }
