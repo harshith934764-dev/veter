@@ -119,7 +119,7 @@ async function sendFriendRequest(uid) {
     const existing = prior?.[0];
     if (existing?.status === "accepted") { status("You are already connected."); return; }
     if (existing?.status === "pending") { status(existing.sender_uid === me.uid ? "Friend request already sent." : "This person has already sent you a request."); return; }
-    if (existing?.status === "rejected") { const {error} = await client.from("social_friend_requests").delete().eq("id",existing.id); if (error) throw error; }
+    if (existing?.status === "rejected") { status("This friend request was previously declined."); return; }
     const {error} = await client.from("social_friend_requests").insert({sender_uid:me.uid,receiver_uid:uid,status:"pending"});
     if (error) throw error;
     status("Friend request sent!");
@@ -567,7 +567,11 @@ $("chat-list").addEventListener("click",e => {
 $("message-form").addEventListener("submit",sendMessage);
 $("post-form").addEventListener("submit",publishPost);
 $("feed-list").addEventListener("click",handleFeedAction);
+$("feed-list").addEventListener("change",handleFeedAction);
 $("feed-list").addEventListener("submit",handleFeedAction);
+$("saved-list").addEventListener("click",handleFeedAction);
+$("saved-list").addEventListener("change",handleFeedAction);
+$("saved-list").addEventListener("submit",handleFeedAction);
 $("post-body").addEventListener("input",e => $("post-char-count").textContent = String(e.target.value.length));
 $("post-photo").addEventListener("change",e => {
   const file = e.target.files?.[0];
@@ -610,7 +614,7 @@ try { applyTheme(localStorage.getItem("veter-social-theme") || "dark"); } catch 
     const profile = await saveProfile(user);
     showSignedIn(user,profile);
     status("Welcome back, " + profile.display_name + "!");
-    await Promise.all([loadPeople(),loadConversations(),loadFeed()]);
+    await Promise.all([loadPeople(),loadConversations(),loadFeed(),loadFriendRequests(),loadNotifications()]);
   } catch(e) {
     showSignedOut();
     status("Google sign-in worked, but the database connection needs attention: " + friendly(e),true);
