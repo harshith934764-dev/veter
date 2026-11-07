@@ -569,6 +569,9 @@ async function uploadPostPhoto(file) {
   if (error) throw error;
   return client.storage.from("social-photos").getPublicUrl(path).data.publicUrl;
 }
+const dailySparks = [["Small wins count 🌱","What is one small win you had today?"],["Teach us something 💡","What is one useful thing you learned recently?"],["Dream it. Build it. 🚀","If you could build one app, what would it do?"],["Your local story 🌍","What is one thing you love about your city?"],["Kindness challenge 💚","Share one kind thing someone did for you."]];
+function renderDailySpark(){const spark=dailySparks[Math.floor(Date.now()/86400000)%dailySparks.length];$("daily-spark-title").textContent=spark[0];$("daily-spark-text").textContent=spark[1];}
+function renderTrendingTopics(posts){const counts=new Map();for(const post of posts||[]){const tags=(String(post.body||"").toLowerCase().match(/#[\\p{L}\\p{N}_]{2,30}/gu)||[]);for(const tag of new Set(tags))counts.set(tag,(counts.get(tag)||0)+1);}const top=[...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);$("trending-tags").innerHTML=top.length?top.map(([tag,count])=>'<button type="button" data-trending-tag="'+esc(tag)+'">'+esc(tag)+' <small>'+count+'</small></button>').join(""):'<span class="trending-empty">No hashtags yet. Add one to your next post!</span>';}
 async function loadFeed(hostId = "feed-list", savedOnly = false) {
   if (!me) return;
   const host = $(hostId);
@@ -586,6 +589,7 @@ async function loadFeed(hostId = "feed-list", savedOnly = false) {
     const {data: posts,error} = await postsQuery;
     if (error) throw error;
     if (!posts?.length) { host.innerHTML = '<p class="empty-state">No posts yet. Be the first to share something with the community! 🌱</p>'; return; }
+    if (hostId === "feed-list") renderTrendingTopics(posts);
     const ids = posts.map(p => p.id);
     const authorIds = [...new Set(posts.map(p => p.author_uid))];
     const [{data: profiles,error: profileError},{data: likes,error: likesError},{data: comments,error: commentsError},{data: reactions,error: reactionsError},{data: saves,error: savesError}] = await Promise.all([
@@ -1131,7 +1135,7 @@ $("incoming-friends").addEventListener("click",async e => {
 $("ai-character-list").addEventListener("click",e=>{const b=e.target.closest("[data-ai-character]");if(b)chooseAiCharacter(b.dataset.aiCharacter);});
 $("ai-message-form").addEventListener("submit",sendAiMessage);
 $("ai-prompts").addEventListener("click",e=>{const b=e.target.closest("[data-ai-prompt]");if(b){$("ai-message-input").value=b.dataset.aiPrompt;$("ai-message-form").requestSubmit();}});
-renderAiRoster();renderAiChat();
+renderDailySpark();renderAiRoster();renderAiChat();
 $("following-list").addEventListener("click",e=>{const b=e.target.closest("[data-unfollow-user]");if(b)toggleFollow(b.dataset.unfollowUser).catch(err=>status(friendly(err),true));else {const chat=e.target.closest("[data-chat-user]");if(chat)openConversation(chat.dataset.chatUser);}});
 $("following-refresh")?.addEventListener("click",()=>loadPeople());
 $("people-list").addEventListener("click",e => {
@@ -1151,6 +1155,8 @@ $("post-form").addEventListener("submit",publishPost);
 $("feed-sort")?.addEventListener("change",e=>{feedSortMode=e.target.value;loadFeed();});
 $("feed-refresh")?.addEventListener("click",()=>loadFeed());
 $("feed-search")?.addEventListener("input",applyFeedSearch);
+$("trending-tags")?.addEventListener("click",e=>{const b=e.target.closest("[data-trending-tag]");if(!b)return;switchView("feed");$("feed-search").value=b.dataset.trendingTag;applyFeedSearch();});
+$("use-daily-spark")?.addEventListener("click",()=>{$("post-body").value=$("daily-spark-text").textContent+"\n\n";$("post-char-count").textContent=String($("post-body").value.length);$("post-body").focus();$("post-body").scrollIntoView({behavior:"smooth",block:"center"});});
 $("feed-search-clear")?.addEventListener("click",()=>{$("feed-search").value="";applyFeedSearch();$("feed-search").focus();});
 $("feed-list").addEventListener("click",handleFeedAction);
 $("feed-list").addEventListener("change",handleFeedAction);
