@@ -107,6 +107,7 @@ function showSignedOut() {
 function switchView(name) {
   document.querySelectorAll(".social-tab").forEach(b => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".social-view").forEach(v => v.hidden = v.id !== "view-" + name);
+  if (name === "feed") loadFeed();
   if (name === "chats") loadConversations();
   if (name === "discover") loadPeople();
 }
@@ -173,6 +174,88 @@ async function openConversation(partnerUid) {
     status("Private conversation opened.");
   } catch (e) { status(friendly(e), true); }
 }
+async function loadFeed() {
+  if (!me) return;
+  const host = $("feed-list");
+  host.innerHTML = '<p class="empty-state">Loading community posts…</p>';
+  try {
+    const client = await getDb();
+    const {data: posts,error} = await client.from("social_posts").select("*").order("created_at",{ascending:false}).limit(60);
+    if (error) throw error;
+    if (!posts?.length) { host.innerHTML = '<p class="empty-state">No posts yet. Be the first to share something with the community! 🌱</p>'; return; }
+    const ids = posts.map(p => p.id);
+    const authorIds = [...new Set(posts.map(p => p.author_uid))];
+    const [{data: profiles,error: profileError},{data: likes,error: likesError}] = await Promise.all([
+      client.from("user_profiles").select("uid,display_name,avatar_url,username").in("uid",authorIds),
+      client.from("social_post_likes").select("post_id,user_uid").in("post_id",ids)
+    ]);
+    if (profileError) throw profileError;
+    if (likesError) throw likesError;
+    const byId = new Map((profiles || []).map(p => [p.uid,p]));
+    const likesByPost = new Map();
+    for (const like of likes || []) {
+      if (!likesByPost.has(like.post_id)) likesByPost.set(like.post_id,[]);
+      likesByPost.get(like.post_id).push(like.user_uid);
+    }
+    host.innerHTML = posts.map(post => {
+      const author = byId.get(post.author_uid) || {display_name:"Veter member"};
+      const likedBy = likesByPost.get(post.id) || [];
+      const mine = post.author_uid === me.uid;
+      return `<article class="feed-post" data-post-id="${esc(post.id)}">
+        <div class="feed-author"><img src="${avatar(author)}" alt=""><div><b>${esc(author.display_name)}</b><small>${author.username ? "@"+esc(author.username)+" · " : ""}${new Date(post.created_at).toLocaleString()}</small></div>${mine ? '<button class="post-delete" data-delete-post>Delete</button>' : ""}</div>
+        <p class="feed-body">${esc(post.body)}</p>
+        <div class="feed-actions"><button data-like-post class="${likedBy.includes(me.uid) ? "liked" : ""}">${likedBy.includes(me.uid) ? "♥ Liked" : "♡ Like"} · ${likedBy.length}</button><button data-comment-post>💬 Comment</button></div>
+      </article>`;
+    }).join("");
+  } catch (e) { host.innerHTML = '<p class="empty-state">Could not load posts.</p>'; status(friendly(e),true); }
+}
+async function publishPost(event) {
+  event.preventDefault();
+  const body = $("post-body").value.trim();
+  if (!body) return;
+  const button = $("post-form").querySelector("button");
+  button.disabled = true;
+  try {
+    const client = await getDb();
+    const {error} = await client.from("social_posts").insert({author_uid:me.uid,body});
+    if (error) throw error;
+    $("post-body").value = "";
+    $("post-char-count").textContent = "0";
+    status("Your post is live in the Veter community!");
+    await loadFeed();
+  } catch (e) { status(friendly(e),true); }
+  finally { button.disabled = false; }
+}
+async function handleFeedAction(event) {
+  const card = event.target.closest("[data-post-id]");
+  if (!card) return;
+  const postId = card.dataset.postId;
+  try {
+    const client = await getDb();
+    if (event.target.closest("[data-like-post]")) {
+      const {data: existing,error: readError} = await client.from("social_post_likes").select("post_id").eq("post_id",postId).eq("user_uid",me.uid).maybeSingle();
+      if (readError) throw readError;
+      const result = existing
+        ? await client.from("social_post_likes").delete().eq("post_id",postId).eq("user_uid",me.uid)
+        : await client.from("social_post_likes").insert({post_id:postId,user_uid:me.uid});
+      if (result.error) throw result.error;
+      await loadFeed();
+    } else if (event.target.closest("[data-comment-post]")) {
+      const body = prompt("Write a comment (up to 500 characters):");
+      if (!body?.trim()) return;
+      const {error} = await client.from("social_post_comments").insert({post_id:postId,author_uid:me.uid,body:body.trim()});
+      if (error) throw error;
+      status("Comment added. Thanks for joining the conversation!");
+    } else if (event.target.closest("[data-delete-post]")) {
+      if (!confirm("Delete your post? This cannot be undone.")) return;
+      const {error} = await client.from("social_posts").delete().eq("id",postId).eq("author_uid",me.uid);
+      if (error) throw error;
+      await loadFeed();
+      status("Your post was deleted.");
+    }
+  } catch (e) { status(friendly(e),true); }
+}
+
 async function loadConversations() {
   if (!me) return;
   try {
@@ -323,6 +406,9 @@ $("chat-list").addEventListener("click",e => {
   if (button) openConversation(button.dataset.openChat);
 });
 $("message-form").addEventListener("submit",sendMessage);
+$("post-form").addEventListener("submit",publishPost);
+$("feed-list").addEventListener("click",handleFeedAction);
+$("post-body").addEventListener("input",e => $("post-char-count").textContent = String(e.target.value.length));
 $("profile-form").addEventListener("submit",saveMyProfile);
 $("block-chat").addEventListener("click",blockPartner);
 $("report-chat").addEventListener("click",reportPartner);
@@ -339,7 +425,7 @@ onAuthStateChanged(auth, async user => {
     const profile = await saveProfile(user);
     showSignedIn(user,profile);
     status("Welcome back, " + profile.display_name + "!");
-    await Promise.all([loadPeople(),loadConversations()]);
+    await Promise.all([loadPeople(),loadConversations(),loadFeed()]);
   } catch(e) {
     showSignedOut();
     status("Google sign-in worked, but the database connection needs attention: " + friendly(e),true);
