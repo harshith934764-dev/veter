@@ -226,7 +226,8 @@ private:
             std::string metadata;
             for(const auto& param:params){if(!metadata.empty())metadata+='|';metadata+=param;}
             functions_[name]={static_cast<int>(code_.size()),params};
-            emit(Op::Jump,0,metadata,0,line);
+            const int entry=static_cast<int>(code_.size());
+            emit(Op::Jump,entry+1,metadata,0,line);
             blocks_.push_back({Block::Function,skip,0,line,name,{}});
         } else if(isword(0,"run")){
             if(count()<2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'run function_name(arguments)'");
@@ -386,7 +387,7 @@ public:
                     const auto& entry=code_.at(static_cast<std::size_t>(i.target));
                     std::istringstream names(entry.text); std::string param;
                     for(const auto& arg:args){if(!std::getline(names,param,'|')) throw std::runtime_error("Function parameter metadata is invalid");frame.locals[param]=arg;}
-                    frames.push_back(std::move(frame)); ip=static_cast<std::size_t>(i.target);break;
+                    frames.push_back(std::move(frame)); ip=static_cast<std::size_t>(i.target)+1;break;
                 }
                 case Op::Return:{
                     Value result=i.number ? pop() : Value{0LL};
