@@ -82,7 +82,8 @@ static std::vector<Token> lex_line(const std::string& s, int line) {
     return out;
 }
 
-using Value=std::variant<long long,std::string,std::shared_ptr<std::vector<Value>>>;
+using ArrayItem=std::variant<long long,std::string>;
+using Value=std::variant<long long,std::string,std::shared_ptr<std::vector<ArrayItem>>>;
 enum class Op { PushInt, PushString, Load, Store, ReadInput, Add, Sub, Mul, Div, Mod,
                 Eq, Ne, Lt, Le, Gt, Ge, Neg, BoolAnd, BoolOr, BoolNot, Print, JumpIfFalse, Jump, LoopCheck, Call, Return, Pop, Halt };
 struct Ins { Op op; long long number=0; std::string text; int target=0; int line=1; };
@@ -375,7 +376,7 @@ public:
                     break;
                 }
                 case Op::BoolNot:{auto a=num(pop(),i.line);stack.emplace_back((long long)(a==0));break;}
-                case Op::Print:{Value v=pop();if(v.index()==0)out<<std::get<long long>(v);else if(v.index()==1)out<<std::get<std::string>(v);else {out<<"[";const auto& a=*std::get<std::shared_ptr<std::vector<Value>>>(v);for(std::size_t n=0;n<a.size();++n){if(n)out<<", ";if(a[n].index()==0)out<<std::get<long long>(a[n]);else if(a[n].index()==1)out<<std::get<std::string>(a[n]);else out<<"[...]";}out<<"]";}out<<'\n';break;}
+                case Op::Print:{Value v=pop();if(v.index()==0)out<<std::get<long long>(v);else if(v.index()==1)out<<std::get<std::string>(v);else {out<<"[";const auto& a=*std::get<std::shared_ptr<std::vector<ArrayItem>>>(v);for(std::size_t n=0;n<a.size();++n){if(n)out<<", ";if(a[n].index()==0)out<<std::get<long long>(a[n]);else if(a[n].index()==1)out<<std::get<std::string>(a[n]);else out<<"[...]";}out<<"]";}out<<'\n';break;}
                 case Op::JumpIfFalse:{auto v=pop();if(num(v,i.line)==0)ip=(std::size_t)i.target;break;}
                 case Op::Jump:ip=(std::size_t)i.target;break;
                 case Op::LoopCheck:{
@@ -392,14 +393,14 @@ public:
                 case Op::Call:{
                     if(i.number<0 || static_cast<std::size_t>(i.number)>stack.size()) throw std::runtime_error("Line "+std::to_string(i.line)+": not enough function arguments");
                     std::vector<Value> args;for(long long n=0;n<i.number;++n)args.push_back(pop());std::reverse(args.begin(),args.end());
-                    if(i.text=="array"){stack.emplace_back(std::make_shared<std::vector<Value>>(std::move(args)));break;}
+                    if(i.text=="array"){stack.emplace_back(std::make_shared<std::vector<ArrayItem>>([&](){std::vector<ArrayItem> a;for(const auto& v:args){if(v.index()==2)throw std::runtime_error("nested arrays are not supported yet");if(v.index()==0)a.emplace_back(std::get<long long>(v));else a.emplace_back(std::get<std::string>(v));}return a;}()));break;}
                     if(i.text=="length"||i.text=="upper"||i.text=="lower"){
                         if(args.size()!=1)throw std::runtime_error("Function '"+i.text+"' expects 1 argument");
-                        if(i.text=="length"){if(args[0].index()==1)stack.emplace_back((long long)std::get<std::string>(args[0]).size());else if(args[0].index()==2)stack.emplace_back((long long)std::get<std::shared_ptr<std::vector<Value>>>(args[0])->size());else throw std::runtime_error("length() expects text or an array");}
+                        if(i.text=="length"){if(args[0].index()==1)stack.emplace_back((long long)std::get<std::string>(args[0]).size());else if(args[0].index()==2)stack.emplace_back((long long)std::get<std::shared_ptr<std::vector<ArrayItem>>>(args[0])->size());else throw std::runtime_error("length() expects text or an array");}
                         else {if(args[0].index()!=1)throw std::runtime_error(i.text+"() expects text");std::string v=std::get<std::string>(args[0]);for(char& c:v)c=static_cast<char>(i.text=="upper"?std::toupper(static_cast<unsigned char>(c)):std::tolower(static_cast<unsigned char>(c)));stack.emplace_back(v);}break;
                     }
                     if(i.text=="contains"){if(args.size()!=2||args[0].index()!=1||args[1].index()!=1)throw std::runtime_error("contains() expects two text arguments");stack.emplace_back((long long)(std::get<std::string>(args[0]).find(std::get<std::string>(args[1]))!=std::string::npos));break;}
-                    if(i.text=="at"){if(args.size()!=2||args[0].index()!=2)throw std::runtime_error("at() expects an array and an index");long long index=num(args[1],i.line);const auto& a=*std::get<std::shared_ptr<std::vector<Value>>>(args[0]);if(index<0||static_cast<std::size_t>(index)>=a.size())throw std::runtime_error("array index out of range");stack.push_back(a[static_cast<std::size_t>(index)]);break;}
+                    if(i.text=="at"){if(args.size()!=2||args[0].index()!=2)throw std::runtime_error("at() expects an array and an index");long long index=num(args[1],i.line);const auto& a=*std::get<std::shared_ptr<std::vector<Value>>>(args[0]);if(index<0||static_cast<std::size_t>(index)>=a.size())throw std::runtime_error("array index out of range");if(a[static_cast<std::size_t>(index)].index()==0)stack.emplace_back(std::get<long long>(a[static_cast<std::size_t>(index)]));else stack.emplace_back(std::get<std::string>(a[static_cast<std::size_t>(index)]));break;}
                     CallFrame frame;frame.return_ip=ip;frame.stack_base=stack.size();
                     const auto& entry=code_.at(static_cast<std::size_t>(i.target));std::istringstream names(entry.text);std::string param;
                     for(const auto& arg:args){if(!std::getline(names,param,'|'))throw std::runtime_error("Function parameter metadata is invalid");frame.locals[param]=arg;}
