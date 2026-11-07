@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b14">
+  <meta name="description" content="The official Veter ecosystem roadmap: language, compiler, Studio, web tools, AI, security and cloud plans, with clear implementation stages.">
+  <link rel="canonical" href="https://theveter.in/roadmap.html">
+  <title>Veter Ecosystem Roadmap | Official</title>
+  <link rel="stylesheet" href="/premium.css?v=1">
+  <style>
+    :root{--bg:#080b14;--panel:#101625;--muted:#a6b1c7;--cyan:#54e5e5;--border:#253149}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f4f7ff;font:16px/1.75 system-ui,sans-serif}
+    a{color:var(--cyan);text-decoration:none}.wrap{width:min(1080px,92%);margin:auto}
+    header{position:sticky;top:0;background:#080b14ed;border-bottom:1px solid var(--border);z-index:5}
+    nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+    .brand{font-size:24px;font-weight:900;color:#fff}.brand span{color:var(--cyan)}
+    nav div{display:flex;gap:16px;flex-wrap:wrap;font-size:14px}
+    .hero{padding:76px 0 48px;background:radial-gradient(ellipse at 20% 0%,#16365c,transparent 60%)}
+    .eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.14em}
+    h1{font-size:clamp(38px,6vw,64px);line-height:1.08;letter-spacing:-2px;margin:12px 0}
+    .hero p,.muted{color:var(--muted);max-width:780px}
+    .notice{margin:22px 0;padding:16px 18px;border:1px solid var(--border);border-left:3px solid var(--cyan);border-radius:12px;background:var(--panel);color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:12px 0 70px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px}
+    .card h2{margin:8px 0;font-size:22px}.card p,.card li{color:var(--muted)}
+    .card ul{padding-left:20px;margin:12px 0}.status{display:inline-block;border-radius:30px;padding:3px 10px;font-size:11px;font-weight:800;letter-spacing:.04em}
+    .now{background:#143a2c;color:#9ee8c1}.next{background:#17334a;color:#9edfff}.later{background:#45351a;color:#ffd58a}
+    .wide{grid-column:1/-1}.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .step{border:1px solid var(--border);border-radius:12px;padding:15px;background:#0b1220}
+    .step strong{display:block;margin-bottom:6px}.step p{font-size:13px;margin:0;color:var(--muted)}
+    footer{border-top:1px solid var(--border);padding:24px 0;color:var(--muted);font-size:13px}
+    @media(max-width:720px){nav{padding:12px 0;align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  </style>
+</head>
+<body>
+<header><nav class="wrap"><a class="brand" href="/">VETER<span>.</span></a><div><a href="/">Home</a><a href="learn.html">Learn</a><a href="docs.html">Docs</a><a href="reference.html">Reference</a><a href="technical-guide.html">Technical guide</a><a href="roadmap.html">Roadmap</a></div></nav></header>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">THE VETER PROJECT · BUILD PLAN</div>
+    <h1>One ecosystem.<br><span style="color:var(--cyan)">Many ways to build.</span></h1>
+    <p>Veter's long-term direction is an original programming language and a connected set of developer tools. This roadmap turns that ambition into practical stages, starting with a dependable language and compiler.</p>
+    <div class="notice"><strong>Honest status:</strong> This page describes the development plan, not a list of released features. A feature is only complete when it is implemented, tested and documented in a public release. Existing prototype capabilities remain version-specific.</div>
+  </section>
+  <section class="grid">
+    <article class="card"><span class="status now">FOUNDATION FIRST</span><h2>01 · Veter Language</h2><p>Make the language predictable, readable and independently designed.</p><ul><li>Define a versioned language specification</li><li>Consistent values, types and operators</li><li>Functions, modules and clear scope rules</li><li>Useful errors with file and line information</li><li>Stable standard library and compatibility policy</li></ul></article>
+    <article class="card"><span class="status now">FOUNDATION FIRST</span><h2>02 · Compiler and Runtime</h2><p>Build a reliable engine that can be tested and improved safely.</p><ul><li>Lexer, parser and semantic validation</li><li>Well-defined intermediate representation</li><li>Runtime and standard library boundaries</li><li>Automated regression and conformance tests</li><li>Reproducible builds and release versioning</li></ul></article>
+    <article class="card"><span class="status next">NEXT STAGE</span><h2>03 · Veter Studio</h2><p>A focused desktop workspace for writing, running and debugging .vtr projects.</p><ul><li>Editor, project explorer and syntax highlighting</li><li>Diagnostics and compiler output panel</li><li>Run and debug workflows</li><li>Project templates and build settings</li><li>Windows packaging and installation</li></ul></article>
+    <article class="card"><span class="status next">NEXT STAGE</span><h2>04 · Developer Tools</h2><p>Make projects easier to maintain and share.</p><ul><li>Package and dependency manager</li><li>Formatter and linter</li><li>Test runner and documentation generator</li><li>Git-friendly project structure</li><li>Published examples and starter projects</li></ul></article>
+    <article class="card"><span class="status later">LONG-TERM</span><h2>05 · Web Development</h2><p>Explore a coherent path from Veter code to web applications.</p><ul><li>HTTP server and routing libraries</li><li>API and data validation tools</li><li>Database drivers and migrations</li><li>Authentication building blocks</li><li>Frontend integration experiments</li></ul></article>
+    <article class="card"><span class="status later">LONG-TERM</span><h2>06 · Veter AI</h2><p>AI assistance should help developers understand and improve their code.</p><ul><li>Explain selected code</li><li>Suggest fixes with user review</li><li>Generate tests and starter examples</li><li>Keep AI suggestions separate from compiler truth</li><li>Protect source code and user privacy</li></ul></article>
+    <article class="card"><span class="status later">LONG-TERM</span><h2>07 · Security and Quality</h2><p>Build trust into the developer workflow.</p><ul><li>Dependency risk reporting</li><li>Secure defaults and permission boundaries</li><li>Input validation guidance</li><li>Release checks and signed artifacts</li><li>Responsible vulnerability reporting</li></ul></article>
+    <article class="card"><span class="status later">LONG-TERM</span><h2>08 · Cloud and Community</h2><p>Connect developers without making cloud services mandatory.</p><ul><li>Online playground and shareable examples</li><li>Optional project sync and collaboration</li><li>Package registry and community templates</li><li>Hosting integrations and deployment guides</li><li>Community contributions and governance</li></ul></article>
+    <article class="card wide"><span class="eyebrow">DELIVERY ORDER</span><h2>Build in stages, prove each stage works.</h2><div class="steps"><div class="step"><strong>Stage A · Stabilize</strong><p>Specify the core language and lock down compiler tests.</p></div><div class="step"><strong>Stage B · Create</strong><p>Make Studio useful with real compiler integration.</p></div><div class="step"><strong>Stage C · Extend</strong><p>Add packages, libraries and practical application tools.</p></div><div class="step"><strong>Stage D · Connect</strong><p>Explore web, AI and cloud features after the foundation is solid.</p></div></div><p class="muted">The order may change as engineering results and community feedback become clear. Reliability comes before feature count.</p></article>
+    <article class="card wide"><h2>How progress will be measured</h2><ul><li>Every released feature has tests and documentation.</li><li>Examples run on the stated compiler version.</li><li>Breaking changes are recorded in release notes.</li><li>Security and compatibility are reviewed before stable releases.</li><li>Planned features are clearly labelled until they actually ship.</li></ul><p>Explore the <a href="docs.html">documentation</a>, <a href="reference.html">language reference</a> and <a href="https://github.com/harshith934764-dev/veter">public source repository</a>.</p></article>
+  </section>
+</main>
+<footer><div class="wrap">© 2026 Veter Project · <a href="/">Home</a> · <a href="https://github.com/harshith934764-dev/veter">GitHub</a></div></footer>
+</body>
+</html>
