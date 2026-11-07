@@ -452,7 +452,7 @@ static std::string load_project_source(const std::filesystem::path& path,
                     throw std::runtime_error("Include path cannot use '.' or '..' segments");
             const auto child=(normalized.parent_path()/relative).lexically_normal();
             output << load_project_source(child,included,depth+1);
-        } else output << line << '\\n';
+        } else output << line << '\n';
     }
     return output.str();
 }
