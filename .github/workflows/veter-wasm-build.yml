@@ -1,0 +1,43 @@
+name: Veter WebAssembly build
+
+on:
+  push:
+    branches: [main, feature/veter-webassembly-build]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  wasm-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: Build Veter compiler for WebAssembly
+        run: |
+          mkdir -p build/wasm
+          em++ downloads/veter_core_1_0.cpp \
+            -std=c++20 -O2 \
+            -sMODULARIZE=1 \
+            -sEXPORT_NAME=createVeterModule \
+            -sENVIRONMENT=node \
+            -sALLOW_MEMORY_GROWTH=1 \
+            -sEXIT_RUNTIME=0 \
+            -sEXPORTED_RUNTIME_METHODS='["FS","callMain"]' \
+            -o build/wasm/veterc.js
+
+      - name: Smoke test the WebAssembly compiler
+        run: node tests/wasm_smoke_test.cjs
+
+      - name: Upload WebAssembly compiler bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: veter-compiler-webassembly
+          path: |
+            build/wasm/veterc.js
+            build/wasm/veterc.wasm
+          if-no-files-found: error
