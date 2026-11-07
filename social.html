@@ -55,7 +55,8 @@
 <section class="social-app-shell" id="social-app" hidden>
 <aside class="social-sidebar">
 <div class="social-me"><img id="my-avatar" alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="><div><b id="my-name">Your profile</b><small id="my-email"></small></div></div>
-<button class="social-tab active" data-view="discover">🌍 Discover people</button>
+<button class="social-tab active" data-view="discover">🌍 Explore</button>
+<button class="social-tab" data-view="following">➕ Following <span id="following-count"></span></button>
 <button class="social-tab" data-view="feed">📰 Community feed</button>
 <button class="social-tab" data-view="vibes">✨ Veter Vibes <span id="vibe-count"></span></button>
 <button class="social-tab" data-view="friends">👥 Friends <span id="friend-count"></span></button>
@@ -77,6 +78,10 @@
 <div class="add-by-id-panel"><div><b>Add a friend by Veter ID</b><small>Enter their exact Veter username, for example @harshith_01</small></div><form id="add-by-id-form"><input id="friend-veter-id" type="text" maxlength="25" autocomplete="off" placeholder="@username" aria-label="Veter username" required><button type="submit">Send request</button></form></div>
 <p class="demo-disclaimer">Some profiles are fictional demo previews to show how Veter Social works. They are not real people and cannot receive messages or friend requests.</p>
 <div class="people-grid" id="people-list"><p class="empty-state">Loading people…</p></div>
+</section>
+<section class="social-view" id="view-following" hidden>
+<div class="social-view-head"><div><div class="social-kicker">YOUR NETWORK</div><h2>People you follow</h2><p>Keep up with creators and friends you choose to follow.</p></div><button type="button" class="small-action" id="following-refresh">↻ Refresh</button></div>
+<div class="people-grid" id="following-list"><p class="empty-state">Loading your following list…</p></div>
 </section>
 <section class="social-view" id="view-feed" hidden>
 <div class="social-view-head"><div><div class="social-kicker">SHARE SOMETHING GOOD</div><h2>Community feed</h2><p>Post updates, celebrate wins and share ideas with Veter members.</p></div><div class="feed-tools"><label class="feed-sort-label">Sort posts <select id="feed-sort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="popular">Most liked</option></select></label><button type="button" class="small-action" id="feed-refresh">↻ Refresh</button></div></div>
