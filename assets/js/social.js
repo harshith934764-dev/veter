@@ -667,3 +667,105 @@ async function sendGroupMessage(event) {
   } catch(e) { status(friendly(e),true); }
 }
 
+$("google-sign-in").addEventListener("click", async () => {
+  const button = $("google-sign-in");
+  button.disabled = true;
+  status("Opening Google sign-in…");
+  try {
+    await signInWithPopup(auth,new GoogleAuthProvider());
+  } catch(e) { status(friendly(e),true); }
+  finally { button.disabled = false; }
+});
+$("sign-out").addEventListener("click", async () => {
+  try { await signOut(auth); status("You are signed out."); }
+  catch(e) { status(friendly(e),true); }
+});
+document.querySelectorAll(".social-tab").forEach(b => b.addEventListener("click",() => switchView(b.dataset.view)));
+
+$("theme-toggle").addEventListener("click",() => applyTheme(themeMode === "dark" ? "light" : "dark"));
+$("mark-notifications-read").addEventListener("click",markNotificationsRead);
+$("incoming-friends").addEventListener("click",async e => {
+  const button = e.target.closest("[data-friend-response]");
+  if (!button) return;
+  button.disabled = true;
+  try { const client = await getDb(); const {error} = await client.from("social_friend_requests").update({status:button.dataset.friendResponse,updated_at:new Date().toISOString()}).eq("id",button.dataset.requestId); if (error) throw error; status(button.dataset.friendResponse === "accepted" ? "Friend request accepted!" : "Friend request declined."); await Promise.all([loadFriendRequests(),loadPeople(),loadNotifications()]); }
+  catch(err) { status(friendly(err),true); button.disabled = false; }
+});
+$("people-list").addEventListener("click",e => {
+  const friendButton = e.target.closest("[data-friend-user]");
+  if (friendButton) { sendFriendRequest(friendButton.dataset.friendUser); return; }
+  const button = e.target.closest("[data-chat-user]");
+  if (button) openConversation(button.dataset.chatUser);
+});
+$("chat-list").addEventListener("click",e => {
+  const button = e.target.closest("[data-open-chat]");
+  if (button) openConversation(button.dataset.openChat);
+});
+$("message-form").addEventListener("submit",sendMessage);
+$("post-form").addEventListener("submit",publishPost);
+$("feed-list").addEventListener("click",handleFeedAction);
+$("feed-list").addEventListener("change",handleFeedAction);
+$("feed-list").addEventListener("submit",handleFeedAction);
+$("saved-list").addEventListener("click",handleFeedAction);
+$("saved-list").addEventListener("change",handleFeedAction);
+$("saved-list").addEventListener("submit",handleFeedAction);
+$("post-body").addEventListener("input",e => $("post-char-count").textContent = String(e.target.value.length));
+$("post-photo").addEventListener("change",e => {
+  const file = e.target.files?.[0];
+  if (!file) { clearPostPhoto(); return; }
+  const allowed = ["image/jpeg","image/png","image/webp","image/gif"];
+  if (!allowed.includes(file.type) || file.size > 8 * 1024 * 1024) {
+    clearPostPhoto();
+    status("Choose a JPG, PNG, WEBP or GIF image up to 8 MB.",true);
+    return;
+  }
+  selectedPostPhoto = file;
+  $("photo-file-name").textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (selectedPostPhoto !== file) return;
+    $("photo-preview").src = String(reader.result);
+    $("photo-preview-wrap").hidden = false;
+    status("Photo ready to preview.");
+  };
+  reader.onerror = () => {
+    clearPostPhoto();
+    status("Could not preview this photo. Please choose it again.",true);
+  };
+  reader.readAsDataURL(file);
+});
+$("remove-photo").addEventListener("click",clearPostPhoto);
+$("profile-form").addEventListener("submit",saveMyProfile);
+$("add-by-id-form").addEventListener("submit",sendFriendRequestByUsername);
+$("copy-veter-id").addEventListener("click",copyVeterId);
+$("share-profile").addEventListener("click",shareMyProfile);
+$("create-group").addEventListener("click",createGroup);
+$("group-list").addEventListener("click",e=>{const b=e.target.closest("[data-open-group]");if(b)openGroup(b.dataset.openGroup);});
+$("group-message-form").addEventListener("submit",sendGroupMessage);
+$("message-input").addEventListener("input",()=>{broadcastTyping(true);clearTimeout(typingStopTimer);typingStopTimer=setTimeout(()=>broadcastTyping(false),1100);});
+$("block-chat").addEventListener("click",blockPartner);
+$("report-chat").addEventListener("click",reportPartner);
+$("people-search").addEventListener("input",e => {
+  const q = e.target.value.toLowerCase().trim();
+  renderPeople(cachedPeople.filter(p => [p.display_name,p.username,p.country,p.bio].some(v => (v || "").toLowerCase().includes(q))));
+});
+
+try { applyTheme(localStorage.getItem("veter-social-theme") || "dark"); } catch { applyTheme("dark"); }
+onAuthStateChanged(auth, async user => {
+  me = user;
+  if (!user) { showSignedOut(); status("Sign in to join Veter Social."); return; }
+  try {
+    status("Signed in. Preparing your profile…");
+    const profile = await saveProfile(user);
+    showSignedIn(user,profile);
+    status("Welcome back, " + profile.display_name + "!");
+    await Promise.all([loadPeople(),loadConversations(),loadFeed(),loadFriendRequests(),loadNotifications(),loadGroups(),startPresence()]);
+    await openSharedProfileIfRequested();
+  } catch(e) {
+    showSignedOut();
+    status("Google sign-in worked, but the database connection needs attention: " + friendly(e),true);
+  }
+});
+window.addEventListener("beforeunload",() => {
+  if (messageChannel && db) db.removeChannel(messageChannel);
+});
