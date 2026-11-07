@@ -406,14 +406,18 @@ function switchView(name) {
 async function loadPeople() {
   try {
     const client = await getDb();
-    const [{data: profiles,error}, {data: blocks,error: blockError}, {data: requests,error: requestError}] = await Promise.all([
+    const [{data: profiles,error}, {data: blocks,error: blockError}, {data: requests,error: requestError}, {data: demoProfiles,error: demoError}] = await Promise.all([
       client.from("user_profiles").select("uid,display_name,avatar_url,country,bio,username,is_verified").neq("uid",me.uid).order("updated_at",{ascending:false}).limit(60),
       client.from("blocks").select("blocked_uid").eq("blocker_uid",me.uid),
-      client.from("social_friend_requests").select("id,sender_uid,receiver_uid,status").or(`sender_uid.eq.${me.uid},receiver_uid.eq.${me.uid}`)
+      client.from("social_friend_requests").select("id,sender_uid,receiver_uid,status").or(`sender_uid.eq.${me.uid},receiver_uid.eq.${me.uid}`),
+      client.from("social_demo_profiles").select("id,display_name,avatar_url,country,city,bio,username,is_demo").eq("is_demo",true).limit(30)
     ]);
     if (error) throw error; if (blockError) throw blockError; if (requestError) throw requestError;
+    if (demoError) throw demoError;
     const blocked = new Set((blocks || []).map(x => x.blocked_uid));
-    cachedPeople = (profiles || []).filter(p => !blocked.has(p.uid));
+    const realProfiles = (profiles || []).filter(p => !blocked.has(p.uid));
+    const previews = (demoProfiles || []).map(p => ({...p,uid:"demo:"+p.id,is_demo:true}));
+    cachedPeople = [...realProfiles,...previews];
     window.veterFriendRequests = requests || [];
     renderPeople(cachedPeople);
   } catch (e) { status(friendly(e), true); }
@@ -426,11 +430,11 @@ function renderPeople(profiles) {
     Number(!!a.country && a.country === $("profile-country").value.trim())
   );
   host.innerHTML = sortedProfiles.map(p => `
-    <article class="person-card">
+    <article class="person-card ${p.is_demo ? "demo-person-card" : ""}">
       <img src="${avatar(p)}" alt="" loading="lazy">
-      <div class="person-info"><b>${esc(p.display_name)}${p.is_verified ? ' <span class="verified-badge" title="Verified Veter profile">✓</span>' : ""}</b><small>${esc([p.username ? "@"+p.username : "",p.country].filter(Boolean).join(" · ") || "Veter member")}</small><small data-online-user="${esc(p.uid)}" class="presence-label">Checking status…</small>
+      <div class="person-info"><b>${esc(p.display_name)}${p.is_verified ? ' <span class="verified-badge" title="Verified Veter profile">✓</span>' : ""}${p.is_demo ? ' <span class="demo-profile-badge">DEMO</span>' : ""}</b><small>${esc([p.username ? "@"+p.username : "",p.city || p.country].filter(Boolean).join(" · ") || "Veter member")}</small>${p.is_demo ? '<small class="demo-note">Fictional preview profile · not a real user</small>' : '<small data-online-user="'+esc(p.uid)+'" class="presence-label">Checking status…</small>'}
       <p>${esc(p.bio || "Ready to meet new people.")}</p></div>
-      <div class="person-actions"><button data-friend-user="${esc(p.uid)}">Add friend</button><button data-chat-user="${esc(p.uid)}">Message</button></div>
+      <div class="person-actions">${p.is_demo ? '<span class="demo-preview-label">Preview only</span>' : '<button data-friend-user="'+esc(p.uid)+'">Add friend</button><button data-chat-user="'+esc(p.uid)+'">Message</button>'}</div>
     </article>`).join("");
 }
 async function openConversation(partnerUid) {
