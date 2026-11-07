@@ -9,6 +9,7 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
+#include <memory>
 
 // Veter Compiler v0.8 — C++20
 // Features: integers, strings, input, arithmetic precedence, comparisons, logical AND/OR/NOT,
@@ -81,7 +82,7 @@ static std::vector<Token> lex_line(const std::string& s, int line) {
     return out;
 }
 
-using Value=std::variant<long long,std::string>;
+using Value=std::variant<long long,std::string,std::shared_ptr<std::vector<Value>>>;
 enum class Op { PushInt, PushString, Load, Store, ReadInput, Add, Sub, Mul, Div, Mod,
                 Eq, Ne, Lt, Le, Gt, Ge, Neg, BoolAnd, BoolOr, BoolNot, Print, JumpIfFalse, Jump, LoopCheck, Call, Return, Pop, Halt };
 struct Ins { Op op; long long number=0; std::string text; int target=0; int line=1; };
@@ -98,7 +99,11 @@ public:
         code_.push_back({Op::Halt,0,"",0, lines_.empty()?1:lines_.back().n});
         for (const auto& call : pending_calls_) {
             auto it = functions_.find(call.name);
-            if (it == functions_.end()) throw std::runtime_error("Unknown function '" + call.name + "'");
+            if (it == functions_.end()) {
+                static const std::vector<std::string> builtins={"array","at","length","upper","lower","contains"};
+                if(std::find(builtins.begin(),builtins.end(),call.name)!=builtins.end()) continue;
+                throw std::runtime_error("Unknown function '" + call.name + "'");
+            }
             if (static_cast<int>(it->second.params.size()) != call.argc)
                 throw std::runtime_error("Function '" + call.name + "' expects " +
                     std::to_string(it->second.params.size()) + " argument(s), got " + std::to_string(call.argc));
@@ -354,11 +359,11 @@ public:
                 }
                 case Op::Store:{
                     Value value=pop();
-                    if(!frames.empty() && frames.back().locals.count(i.text)) frames.back().locals[i.text]=std::move(value);
+                    if(!frames.empty()) frames.back().locals[i.text]=std::move(value);
                     else vars[i.text]=std::move(value);
                     break;
                 }
-                case Op::ReadInput:{std::string s;if(!std::getline(in,s))throw std::runtime_error("Line "+std::to_string(i.line)+": input ended");if(!frames.empty()&&frames.back().locals.count(i.text))frames.back().locals[i.text]=s;else vars[i.text]=s;break;}
+                case Op::ReadInput:{std::string s;if(!std::getline(in,s))throw std::runtime_error("Line "+std::to_string(i.line)+": input ended");if(!frames.empty())frames.back().locals[i.text]=s;else vars[i.text]=s;break;}
                 case Op::Add:{Value b=pop(),a=pop();if(a.index()==0&&b.index()==0){auto x=std::get<long long>(a),y=std::get<long long>(b);if((y>0&&x>std::numeric_limits<long long>::max()-y)||(y<0&&x<std::numeric_limits<long long>::min()-y))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in addition");stack.emplace_back(x+y);}else if(a.index()==1&&b.index()==1)stack.emplace_back(std::get<std::string>(a)+std::get<std::string>(b));else throw std::runtime_error("Line "+std::to_string(i.line)+": '+' requires two numbers or two strings");break;}
                 case Op::Sub:case Op::Mul:case Op::Div:case Op::Mod:{auto b=num(pop(),i.line),a=num(pop(),i.line);if(i.op==Op::Sub){if((b<0&&a>std::numeric_limits<long long>::max()+b)||(b>0&&a<std::numeric_limits<long long>::min()+b))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in subtraction");stack.emplace_back(a-b);}else if(i.op==Op::Mul){if(a!=0&&b!=0){auto lo=std::numeric_limits<long long>::min(),hi=std::numeric_limits<long long>::max();if((a==-1&&b==lo)||(b==-1&&a==lo)||(a>0?(b>0?a>hi/b:b<lo/a):(b>0?a<lo/b:a<hi/b)))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in multiplication");}stack.emplace_back(a*b);}else{if(!b)throw std::runtime_error("Line "+std::to_string(i.line)+": division by zero");if(a==std::numeric_limits<long long>::min()&&b==-1)throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in division");if(i.op==Op::Div)stack.emplace_back(a/b);else stack.emplace_back(a%b);}break;}
                 case Op::Neg:{const auto x=num(pop(),i.line);if(x==std::numeric_limits<long long>::min())throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in negation");stack.emplace_back(-x);break;}
@@ -370,7 +375,7 @@ public:
                     break;
                 }
                 case Op::BoolNot:{auto a=num(pop(),i.line);stack.emplace_back((long long)(a==0));break;}
-                case Op::Print:{Value v=pop();if(v.index()==0)out<<std::get<long long>(v);else out<<std::get<std::string>(v);out<<'\n';break;}
+                case Op::Print:{Value v=pop();if(v.index()==0)out<<std::get<long long>(v);else if(v.index()==1)out<<std::get<std::string>(v);else {out<<"[";const auto& a=*std::get<std::shared_ptr<std::vector<Value>>>(v);for(std::size_t n=0;n<a.size();++n){if(n)out<<", ";if(a[n].index()==0)out<<std::get<long long>(a[n]);else if(a[n].index()==1)out<<std::get<std::string>(a[n]);else out<<"[...]";}out<<"]";}out<<'\n';break;}
                 case Op::JumpIfFalse:{auto v=pop();if(num(v,i.line)==0)ip=(std::size_t)i.target;break;}
                 case Op::Jump:ip=(std::size_t)i.target;break;
                 case Op::LoopCheck:{
@@ -386,15 +391,19 @@ public:
                 }
                 case Op::Call:{
                     if(i.number<0 || static_cast<std::size_t>(i.number)>stack.size()) throw std::runtime_error("Line "+std::to_string(i.line)+": not enough function arguments");
-                    CallFrame frame; frame.return_ip=ip; frame.stack_base=stack.size()-static_cast<std::size_t>(i.number);
-                    std::vector<Value> args;
-                    for(long long n=0;n<i.number;++n) args.push_back(pop());
-                    std::reverse(args.begin(),args.end());
-                    // Parameter names are encoded on the function-entry jump instruction.
-                    const auto& entry=code_.at(static_cast<std::size_t>(i.target));
-                    std::istringstream names(entry.text); std::string param;
-                    for(const auto& arg:args){if(!std::getline(names,param,'|')) throw std::runtime_error("Function parameter metadata is invalid");frame.locals[param]=arg;}
-                    frames.push_back(std::move(frame)); ip=static_cast<std::size_t>(i.target)+1;break;
+                    std::vector<Value> args;for(long long n=0;n<i.number;++n)args.push_back(pop());std::reverse(args.begin(),args.end());
+                    if(i.text=="array"){stack.emplace_back(std::make_shared<std::vector<Value>>(std::move(args)));break;}
+                    if(i.text=="length"||i.text=="upper"||i.text=="lower"){
+                        if(args.size()!=1)throw std::runtime_error("Function '"+i.text+"' expects 1 argument");
+                        if(i.text=="length"){if(args[0].index()==1)stack.emplace_back((long long)std::get<std::string>(args[0]).size());else if(args[0].index()==2)stack.emplace_back((long long)std::get<std::shared_ptr<std::vector<Value>>>(args[0])->size());else throw std::runtime_error("length() expects text or an array");}
+                        else {if(args[0].index()!=1)throw std::runtime_error(i.text+"() expects text");std::string v=std::get<std::string>(args[0]);for(char& c:v)c=static_cast<char>(i.text=="upper"?std::toupper(static_cast<unsigned char>(c)):std::tolower(static_cast<unsigned char>(c)));stack.emplace_back(v);}break;
+                    }
+                    if(i.text=="contains"){if(args.size()!=2||args[0].index()!=1||args[1].index()!=1)throw std::runtime_error("contains() expects two text arguments");stack.emplace_back((long long)(std::get<std::string>(args[0]).find(std::get<std::string>(args[1]))!=std::string::npos));break;}
+                    if(i.text=="at"){if(args.size()!=2||args[0].index()!=2)throw std::runtime_error("at() expects an array and an index");long long index=num(args[1],i.line);const auto& a=*std::get<std::shared_ptr<std::vector<Value>>>(args[0]);if(index<0||static_cast<std::size_t>(index)>=a.size())throw std::runtime_error("array index out of range");stack.push_back(a[static_cast<std::size_t>(index)]);break;}
+                    CallFrame frame;frame.return_ip=ip;frame.stack_base=stack.size();
+                    const auto& entry=code_.at(static_cast<std::size_t>(i.target));std::istringstream names(entry.text);std::string param;
+                    for(const auto& arg:args){if(!std::getline(names,param,'|'))throw std::runtime_error("Function parameter metadata is invalid");frame.locals[param]=arg;}
+                    frames.push_back(std::move(frame));ip=static_cast<std::size_t>(i.target)+1;break;
                 }
                 case Op::Return:{
                     Value result=i.number ? pop() : Value{0LL};
