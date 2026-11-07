@@ -611,7 +611,21 @@ async function loadFeed(hostId = "feed-list", savedOnly = false) {
         }).join("") || '<p class="no-comments">No comments yet.</p>'}</div>
       </article>`;
     }).join("");
+    applyFeedSearch();
   } catch (e) { host.innerHTML = '<p class="empty-state">Could not load posts.</p>'; status(friendly(e),true); }
+}
+function applyFeedSearch() {
+  const field = $("feed-search");
+  const host = $("feed-list");
+  if (!field || !host) return;
+  const q = field.value.trim().toLowerCase();
+  let shown = 0;
+  host.querySelectorAll("[data-post-id]").forEach(card => {
+    const match = !q || card.textContent.toLowerCase().includes(q);
+    card.hidden = !match;
+    if (match) shown++;
+  });
+  $("feed-search-hint").textContent = q ? shown + " matching post(s) in the loaded feed." : "Search the posts currently loaded in your feed.";
 }
 async function publishPost(event) {
   event.preventDefault();
@@ -1104,6 +1118,8 @@ $("message-form").addEventListener("submit",sendMessage);
 $("post-form").addEventListener("submit",publishPost);
 $("feed-sort")?.addEventListener("change",e=>{feedSortMode=e.target.value;loadFeed();});
 $("feed-refresh")?.addEventListener("click",()=>loadFeed());
+$("feed-search")?.addEventListener("input",applyFeedSearch);
+$("feed-search-clear")?.addEventListener("click",()=>{$("feed-search").value="";applyFeedSearch();$("feed-search").focus();});
 $("feed-list").addEventListener("click",handleFeedAction);
 $("feed-list").addEventListener("change",handleFeedAction);
 $("feed-list").addEventListener("submit",handleFeedAction);
