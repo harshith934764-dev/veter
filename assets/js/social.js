@@ -587,6 +587,48 @@ async function openSharedProfileIfRequested() {
     status("You are viewing the shared profile of " + data.display_name + ".");
   } catch(e) { status(friendly(e),true); }
 }
+async function saveMyProfile(event) {
+  event.preventDefault();
+  if (!me) { status("Please sign in before saving your profile.", true); return; }
+  const button = $("profile-form").querySelector('button[type="submit"]');
+  const displayName = $("profile-name").value.trim();
+  const username = $("profile-username").value.trim().replace(/^@/, "").toLowerCase();
+  const country = $("profile-country").value.trim();
+  const bio = $("profile-bio").value.trim();
+  const avatarUrl = $("profile-avatar").value.trim();
+  if (!displayName || displayName.length > 40) {
+    status("Display name must be between 1 and 40 characters.", true); return;
+  }
+  if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
+    status("Username must be 3–24 characters: lowercase letters, numbers or underscores.", true); return;
+  }
+  if (avatarUrl) {
+    try { const parsed = new URL(avatarUrl); if (parsed.protocol !== "https:") throw new Error(); }
+    catch { status("Profile photo must use a valid HTTPS URL.", true); return; }
+  }
+  button.disabled = true;
+  try {
+    const client = await getDb();
+    const { data, error } = await client.from("user_profiles").update({
+      display_name: displayName,
+      username: username || null,
+      country,
+      bio,
+      avatar_url: avatarUrl || null,
+      updated_at: new Date().toISOString()
+    }).eq("uid", me.uid).select().single();
+    if (error) throw error;
+    showSignedIn(me, data);
+    status("Your Veter profile has been saved.");
+    await loadPeople();
+  } catch (error) {
+    if (error?.code === "23505") status("That username is already taken. Please choose another.", true);
+    else status(friendly(error), true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 async function copyVeterId() {
   const id = $("my-veter-id").textContent.trim();
   if (!id || id.startsWith("Generating") || id.includes("refresh")) { status("Your Veter ID is still being prepared.",true); return; }
