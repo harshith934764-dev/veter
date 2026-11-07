@@ -438,7 +438,7 @@ static std::string load_project_source(const std::filesystem::path& path,
     const std::string source=read_file(key);
     std::istringstream input(source); std::ostringstream output; std::string line;
     while(std::getline(input,line)) {
-        const std::string trimmed=trim_copy(line);
+        const auto first=line.find_first_not_of(" \\t\\r");\n        const std::string trimmed=first==std::string::npos ? "" : line.substr(first);
         if(trimmed.rfind("include ",0)==0) {
             if(trimmed.size()<11 || trimmed[8]!='"' || trimmed.back()!='"')
                 throw std::runtime_error("Use include \"relative-file.vtr\"");
