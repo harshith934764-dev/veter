@@ -263,19 +263,27 @@ async function loadFeed() {
   host.innerHTML = '<p class="empty-state">Loading community posts…</p>';
   try {
     const client = await getDb();
-    const {data: posts,error} = await client.from("social_posts").select("*").order("created_at",{ascending:false}).limit(60);
+    let postsQuery = client.from('social_posts').select('*').order('created_at',{ascending:false}).limit(60);
+    if (savedOnly) {
+      const {data: savedRows,error: savedError} = await client.from('social_post_saves').select('post_id').eq('user_uid',me.uid);
+      if (savedError) throw savedError;
+      const savedIds = (savedRows || []).map(x => x.post_id);
+      if (!savedIds.length) { host.innerHTML = '<p class="empty-state">No saved posts yet. Tap Save on a post to keep it here.</p>'; return; }
+      postsQuery = client.from('social_posts').select('*').in('id',savedIds).order('created_at',{ascending:false});
+    }
+    const {data: posts,error} = await postsQuery;
     if (error) throw error;
     if (!posts?.length) { host.innerHTML = '<p class="empty-state">No posts yet. Be the first to share something with the community! 🌱</p>'; return; }
     const ids = posts.map(p => p.id);
     const authorIds = [...new Set(posts.map(p => p.author_uid))];
-    const [{data: profiles,error: profileError},{data: likes,error: likesError},{data: comments,error: commentsError}] = await Promise.all([
+    const [{data: profiles,error: profileError},{data: likes,error: likesError},{data: comments,error: commentsError},{data: reactions,error: reactionsError},{data: saves,error: savesError}] = await Promise.all([
       client.from("user_profiles").select("uid,display_name,avatar_url,username").in("uid",authorIds),
       client.from("social_post_likes").select("post_id,user_uid").in("post_id",ids),
       client.from("social_post_comments").select("id,post_id,author_uid,body,created_at").in("post_id",ids).order("created_at",{ascending:true})
     ]);
     if (profileError) throw profileError;
     if (likesError) throw likesError;
-    if (commentsError) throw commentsError;
+    if (commentsError) throw commentsError;\n    if (reactionsError) throw reactionsError; if (savesError) throw savesError;
     const commentAuthors = [...new Set((comments || []).map(c => c.author_uid))];
     let commentProfiles = [];
     if (commentAuthors.length) {
@@ -285,7 +293,7 @@ async function loadFeed() {
     }
     const byId = new Map([...(profiles || []), ...commentProfiles].map(p => [p.uid,p]));
     const likesByPost = new Map();
-    const commentsByPost = new Map();
+    const commentsByPost = new Map();\n    const reactionsByPost = new Map();\n    const savedIds = new Set((saves || []).map(x => x.post_id));\n    for (const r of reactions || []) { if (!reactionsByPost.has(r.post_id)) reactionsByPost.set(r.post_id,[]); reactionsByPost.get(r.post_id).push(r); }
     for (const like of likes || []) {
       if (!likesByPost.has(like.post_id)) likesByPost.set(like.post_id,[]);
       likesByPost.get(like.post_id).push(like.user_uid);
@@ -297,12 +305,12 @@ async function loadFeed() {
     host.innerHTML = posts.map(post => {
       const author = byId.get(post.author_uid) || {display_name:"Veter member"};
       const likedBy = likesByPost.get(post.id) || [];
-      const mine = post.author_uid === me.uid;
+      const mine = post.author_uid === me.uid;\n      const myReaction = (reactionsByPost.get(post.id) || []).find(x => x.user_uid === me.uid)?.reaction || "";
       return `<article class="feed-post" data-post-id="${esc(post.id)}">
         <div class="feed-author"><img src="${avatar(author)}" alt=""><div><b>${esc(author.display_name)}</b><small>${author.username ? "@"+esc(author.username)+" · " : ""}${new Date(post.created_at).toLocaleString()}</small></div>${mine ? '<button class="post-delete" data-delete-post>Delete</button>' : ""}</div>
         <p class="feed-body">${esc(post.body)}</p>
         ${post.image_url ? '<img class="feed-photo" src="' + esc(post.image_url) + '" alt="Photo shared by ' + esc(author.display_name) + '" loading="lazy">' : ""}
-        <div class="feed-actions"><button data-like-post class="${likedBy.includes(me.uid) ? "liked" : ""}">${likedBy.includes(me.uid) ? "♥ Liked" : "♡ Like"} · ${likedBy.length}</button><button data-comment-post>💬 Comment · ${(commentsByPost.get(post.id) || []).length}</button></div>
+        <div class="feed-actions"><button data-like-post class="${likedBy.includes(me.uid) ? "liked" : ""}">${likedBy.includes(me.uid) ? "♥ Liked" : "♡ Like"} · ${likedBy.length}</button><button data-comment-post>💬 Comment · ${(commentsByPost.get(post.id) || []).length}</button><button data-save-post>${savedIds.has(post.id) ? "🔖 Saved" : "🔖 Save"}</button></div><div class="reaction-bar"><select data-reaction aria-label="Choose a reaction"><option value="">React…</option><option value="like" ${myReaction==="like"?"selected":""}>👍 Like</option><option value="love" ${myReaction==="love"?"selected":""}>❤️ Love</option><option value="haha" ${myReaction==="haha"?"selected":""}>😂 Haha</option><option value="wow" ${myReaction==="wow"?"selected":""}>😮 Wow</option><option value="sad" ${myReaction==="sad"?"selected":""}>😢 Sad</option><option value="angry" ${myReaction==="angry"?"selected":""}>😡 Angry</option></select><span>${(reactionsByPost.get(post.id)||[]).length} reactions</span></div>
         <form class="social-comment-form" data-comment-form hidden><textarea maxlength="500" rows="2" placeholder="Write a comment..." aria-label="Write a comment"></textarea><button type="submit">Post comment</button></form>
         <div class="post-comments">${(commentsByPost.get(post.id) || []).map(comment => {
           const commenter = byId.get(comment.author_uid) || {display_name:"Veter member"};
@@ -336,6 +344,20 @@ async function handleFeedAction(event) {
   const card = event.target.closest("[data-post-id]");
   if (!card) return;
   const postId = card.dataset.postId;
+  if (event.type === "change" && event.target.matches("[data-reaction]")) {
+    try { const client = await getDb(); const reaction = event.target.value;
+      if (!reaction) { const {error} = await client.from("social_post_reactions").delete().eq("post_id",postId).eq("user_uid",me.uid); if (error) throw error; }
+      else { const {error} = await client.from("social_post_reactions").upsert({post_id:postId,user_uid:me.uid,reaction},{onConflict:"post_id,user_uid"}); if (error) throw error; }
+      const savedView = !!event.target.closest("#saved-list"); await loadFeed(savedView ? "saved-list" : "feed-list",savedView);
+    } catch(e) { status(friendly(e),true); } return;
+  }
+  if (event.type === "click" && event.target.closest("[data-save-post]")) {
+    try { const client = await getDb(); const {data: existing,error: readError} = await client.from("social_post_saves").select("post_id").eq("post_id",postId).eq("user_uid",me.uid).maybeSingle(); if (readError) throw readError;
+      if (existing) { const {error} = await client.from("social_post_saves").delete().eq("post_id",postId).eq("user_uid",me.uid); if (error) throw error; }
+      else { const {error} = await client.from("social_post_saves").insert({post_id:postId,user_uid:me.uid}); if (error) throw error; }
+      status(existing ? "Post removed from saved posts." : "Post saved."); await loadFeed(); if (!$("view-saved").hidden) await loadFeed("saved-list",true);
+    } catch(e) { status(friendly(e),true); } return;
+  }
   if (event.type === "click" && event.target.closest("[data-comment-post]")) {
     const form = card.querySelector("[data-comment-form]");
     if (!form) return;
