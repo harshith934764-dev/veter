@@ -340,6 +340,9 @@
               <option value="starter">Getting started</option>
               <option value="calculator">Simple calculator</option>
               <option value="profile">Text and variables</option>
+              <option value="rectangle">Rectangle calculator</option>
+              <option value="remainder">Remainder calculator</option>
+              <option value="invoice">Simple invoice</option>
             </select>
             <span id="veter-line-count" style="font-size:.8rem;color:#a6b1c7">4 lines</span>
           </div>
@@ -452,7 +455,10 @@ say score</textarea>
       const examples = {
         starter,
         calculator: 'make price 120\nmake quantity 3\nmake total price * quantity\nsay "Total price:"\nsay total',
-        profile: 'make name "Veter learner"\nmake goal "Build something great"\nsay "Hello, " + name\nsay goal'
+        profile: 'make name "Veter learner"\nmake goal "Build something great"\nsay "Hello, " + name\nsay goal',
+        rectangle: 'make length 12\nmake width 5\nmake area length * width\nsay "Rectangle area:"\nsay area',
+        remainder: 'make total 17\nmake groups 5\nmake left total % groups\nsay "Items left over:"\nsay left',
+        invoice: 'make item "Notebook"\nmake price 45\nmake quantity 4\nmake total price * quantity\nsay item\nsay "Amount:"\nsay total'
       };
       const lineCount = document.getElementById("veter-line-count");
       function updateLineCount() {
