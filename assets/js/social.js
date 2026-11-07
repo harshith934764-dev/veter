@@ -25,6 +25,11 @@ let activePartner = null;
 let messageChannel = null;
 let cachedPeople = [];
 let themeMode = "dark";
+let presenceChannel = null;
+let typingChannel = null;
+let activeGroup = null;
+let groupChannel = null;
+let typingStopTimer = null;
 
 function status(message, error = false) {
   const node = $("app-status") || $("auth-status");
@@ -94,6 +99,23 @@ function showSignedIn(user, profile) {
   $("profile-country").value = profile.country || "";
   $("profile-bio").value = profile.bio || "";
   $("profile-avatar").value = profile.avatar_url || "";
+  $("my-veter-id").textContent = profile.veter_id || "ID will appear after refresh";
+  $("profile-username").dataset.savedUsername = profile.username || "";
+}
+async function startPresence() {
+  const client = await getDb();
+  if (presenceChannel) client.removeChannel(presenceChannel);
+  presenceChannel = client.channel("veter-social-presence",{config:{presence:{key:me.uid}}});
+  presenceChannel.on("presence",{event:"sync"},() => {
+    const state = presenceChannel.presenceState();
+    window.veterOnlineUsers = new Set(Object.keys(state));
+    document.querySelectorAll("[data-online-user]").forEach(node => {
+      const online = window.veterOnlineUsers.has(node.dataset.onlineUser);
+      node.textContent = online ? "● Online" : "Offline";
+      node.classList.toggle("is-online",online);
+    });
+  });
+  await presenceChannel.subscribe(async state => { if (state === "SUBSCRIBED") await presenceChannel.track({uid:me.uid,online_at:new Date().toISOString()}); });
 }
 function showSignedOut() {
   $("social-welcome").hidden = false;
@@ -213,7 +235,7 @@ async function loadPeople() {
   try {
     const client = await getDb();
     const [{data: profiles,error}, {data: blocks,error: blockError}, {data: requests,error: requestError}] = await Promise.all([
-      client.from("user_profiles").select("uid,display_name,avatar_url,country,bio,username").neq("uid",me.uid).order("updated_at",{ascending:false}).limit(60),
+      client.from("user_profiles").select("uid,display_name,avatar_url,country,bio,username,is_verified").neq("uid",me.uid).order("updated_at",{ascending:false}).limit(60),
       client.from("blocks").select("blocked_uid").eq("blocker_uid",me.uid),
       client.from("social_friend_requests").select("id,sender_uid,receiver_uid,status").or(`sender_uid.eq.${me.uid},receiver_uid.eq.${me.uid}`)
     ]);
@@ -227,10 +249,10 @@ async function loadPeople() {
 function renderPeople(profiles) {
   const host = $("people-list");
   if (!profiles.length) { host.innerHTML = '<p class="empty-state">No other profiles yet. Invite a friend to join Veter Social.</p>'; return; }
-  host.innerHTML = profiles.map(p => `
+  const sortedProfiles = [...profiles].sort((a,b) => Number(!!b.country && b.country === $("profile-country").value.trim()) - Number(!!a.country && a.country === $("profile-country").value.trim()));\n  host.innerHTML = sortedProfiles.map(p => `
     <article class="person-card">
       <img src="${avatar(p)}" alt="" loading="lazy">
-      <div class="person-info"><b>${esc(p.display_name)}</b><small>${esc([p.username ? "@"+p.username : "",p.country].filter(Boolean).join(" · ") || "Veter member")}</small>
+      <div class="person-info"><b>${esc(p.display_name)}${p.is_verified ? " <span class=\\"verified-badge\\" title=\\"Verified Veter profile\\">✓</span>" : ""}</b><small>${esc([p.username ? "@"+p.username : "",p.country].filter(Boolean).join(" · ") || "Veter member")}</small><small data-online-user="${esc(p.uid)}" class="presence-label">Checking status…</small>
       <p>${esc(p.bio || "Ready to meet new people.")}</p></div>
       <div class="person-actions"><button data-friend-user="${esc(p.uid)}">Add friend</button><button data-chat-user="${esc(p.uid)}">Message</button></div>
     </article>`).join("");
@@ -487,9 +509,9 @@ async function loadMessages() {
 }
 function renderMessage(m) {
   const mine = m.sender_uid === me.uid;
-  return `<div class="message-row ${mine ? "mine" : ""}" data-message-id="${esc(m.id)}"><div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div></div>`;
+  return `<div class="message-row ${mine ? "mine" : ""}" data-message-id="${esc(m.id)}"><div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}${mine ? " · "+(m.seen_at ? "Seen ✓✓" : m.delivered_at ? "Delivered ✓✓" : "Sent ✓") : ""}</small></div></div>`;
 }
-function subscribeMessages() {
+function subscribeTyping() {\n  if (typingChannel && db) db.removeChannel(typingChannel);\n  typingChannel = db.channel("veter-typing-"+activeConversation.id);\n  typingChannel.on("broadcast",{event:"typing"},payload => {\n    if (payload.payload?.uid !== me.uid) $("chat-presence").textContent = payload.payload?.typing ? "Typing…" : "Private chat";\n  }).subscribe();\n}\nasync function broadcastTyping(isTyping) {\n  if (!typingChannel) return;\n  await typingChannel.send({type:"broadcast",event:"typing",payload:{uid:me.uid,typing:isTyping}});\n}\nfunction subscribeMessages() {
   if (messageChannel && db) db.removeChannel(messageChannel);
   messageChannel = db.channel("veter-chat-" + activeConversation.id)
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation.id},payload => {
@@ -504,7 +526,7 @@ function subscribeMessages() {
       }
     }).subscribe();
 }
-async function sendMessage(event) {
+async function clientMarkDelivered(id) {\n  try { const client = await getDb(); await client.from("messages").update({delivered_at:new Date().toISOString()}).eq("id",id); } catch {}\n}\nasync function sendMessage(event) {
   event.preventDefault();
   const body = $("message-input").value.trim();
   if (!body || !activeConversation) return;
@@ -522,7 +544,22 @@ async function sendMessage(event) {
   } catch (e) { status(friendly(e), true); }
   finally { $("message-input").disabled = false; $("message-input").focus(); }
 }
-async function saveMyProfile(event) {
+async function copyVeterId() {
+  const id = $("my-veter-id").textContent.trim();
+  if (!id || id.startsWith("Generating") || id.includes("refresh")) { status("Your Veter ID is still being prepared.",true); return; }
+  try { await navigator.clipboard.writeText(id); status("Veter ID copied!"); } catch { status("Could not copy automatically. Select and copy your ID.",true); }
+}
+async function shareMyProfile() {
+  const client = await getDb();
+  const {data,error} = await client.from("user_profiles").select("username,veter_id").eq("uid",me.uid).single();
+  if (error) { status(friendly(error),true); return; }
+  const url = new URL("/social.html",location.origin);
+  if (data.username) url.searchParams.set("user",data.username);
+  else url.searchParams.set("veter",data.veter_id);
+  try { await navigator.clipboard.writeText(url.toString()); status("Profile link copied. Share it with your friends!"); }
+  catch { status(url.toString()); }
+}
+async function loadGroups() {\n  const client = await getDb();\n  const {data:members,error} = await client.from("social_group_members").select("group_id,role").eq("user_uid",me.uid);\n  if (error) throw error;\n  const ids=(members||[]).map(x=>x.group_id);\n  if (!ids.length) { $("group-list").innerHTML="<p class=\\"empty-state\\">No groups yet. Create one with your friends.</p>"; return; }\n  const {data:groups,error:groupError}=await client.from("social_groups").select("id,title,description").in("id",ids);\n  if(groupError) throw groupError;\n  $("group-list").innerHTML=(groups||[]).map(g=>`<button class=\\"chat-list-item\\" data-open-group=\\"${esc(g.id)}\\"><span><b>${esc(g.title)}</b><small>${esc(g.description||"Group chat")}</small></span></button>`).join("");\n}\nasync function createGroup() {\n  const title=prompt("Give your group a name (2–60 characters):"); if(!title) return;\n  const description=prompt("Short group description (optional):")||"";\n  try { const client=await getDb(); const {data:group,error}=await client.from("social_groups").insert({owner_uid:me.uid,title:title.trim(),description:description.slice(0,240)}).select().single(); if(error) throw error;\n    const {error:memberError}=await client.from("social_group_members").insert({group_id:group.id,user_uid:me.uid,role:"owner"}); if(memberError) throw memberError;\n    await loadGroups(); await openGroup(group.id); status("Your group is ready!");\n  } catch(e) { status(friendly(e),true); }\n}\nasync function openGroup(id) {\n  try { const client=await getDb(); const {data:group,error}=await client.from("social_groups").select("*").eq("id",id).single(); if(error) throw error; activeGroup=group; $("group-empty").hidden=true; $("active-group").hidden=false; $("group-chat-name").textContent=group.title;\n    const {data:msgs,error:msgError}=await client.from("social_group_messages").select("*").eq("group_id",id).order("created_at").limit(200); if(msgError) throw msgError;\n    $("group-messages").innerHTML=(msgs||[]).map(m=>`<div class=\\"message-row ${m.sender_uid===me.uid?"mine":""}\\"><div class=\\"message-bubble\\">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString()}</small></div></div>`).join("");\n    if(groupChannel) client.removeChannel(groupChannel); groupChannel=client.channel("veter-group-"+id).on("postgres_changes",{event:"INSERT",schema:"public",table:"social_group_messages",filter:"group_id=eq."+id},payload=>{const m=payload.new; const node=document.createElement("div"); node.className="message-row "+(m.sender_uid===me.uid?"mine":""); node.innerHTML=`<div class=\\"message-bubble\\">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString()}</small></div>`; $("group-messages").appendChild(node);}).subscribe();\n    switchView("groups");\n  } catch(e) { status(friendly(e),true); }\n}\nasync function sendGroupMessage(event) { event.preventDefault(); const body=$("group-message-input").value.trim(); if(!body||!activeGroup)return; try { const client=await getDb(); const {error}=await client.from("social_group_messages").insert({group_id:activeGroup.id,sender_uid:me.uid,body}); if(error) throw error; $("group-message-input").value=""; } catch(e) { status(friendly(e),true); } }\nasync function saveMyProfile(event) {
   event.preventDefault();
   const username = $("profile-username").value.trim().toLowerCase().replace(/^@/,"");
   if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
@@ -644,7 +681,7 @@ $("post-photo").addEventListener("change",e => {
 });
 $("remove-photo").addEventListener("click",clearPostPhoto);
 $("profile-form").addEventListener("submit",saveMyProfile);
-$("add-by-id-form").addEventListener("submit",sendFriendRequestByUsername);
+$("add-by-id-form").addEventListener("submit",sendFriendRequestByUsername);\n$("copy-veter-id").addEventListener("click",copyVeterId);\n$("share-profile").addEventListener("click",shareMyProfile);\n$("create-group").addEventListener("click",createGroup);\n$("group-list").addEventListener("click",e=>{const b=e.target.closest("[data-open-group]");if(b)openGroup(b.dataset.openGroup);});\n$("group-message-form").addEventListener("submit",sendGroupMessage);\n$("message-input").addEventListener("input",()=>{broadcastTyping(true);clearTimeout(typingStopTimer);typingStopTimer=setTimeout(()=>broadcastTyping(false),1100);});
 $("block-chat").addEventListener("click",blockPartner);
 $("report-chat").addEventListener("click",reportPartner);
 $("people-search").addEventListener("input",e => {
@@ -661,7 +698,7 @@ onAuthStateChanged(auth, async user => {
     const profile = await saveProfile(user);
     showSignedIn(user,profile);
     status("Welcome back, " + profile.display_name + "!");
-    await Promise.all([loadPeople(),loadConversations(),loadFeed(),loadFriendRequests(),loadNotifications()]);
+    await Promise.all([loadPeople(),loadConversations(),loadFeed(),loadFriendRequests(),loadNotifications(),loadGroups(),startPresence()]);
   } catch(e) {
     showSignedOut();
     status("Google sign-in worked, but the database connection needs attention: " + friendly(e),true);
