@@ -230,13 +230,18 @@ private:
             emit(Op::Jump,0,metadata,entry+1,line);
             blocks_.push_back({Block::Function,skip,0,line,name,{}});
         } else if(isword(0,"run")){
-            if(count()<2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'run function_name(arguments)'");
-            expr_pos_=1;
-            std::vector<Token> expression_tokens=cur().t;
-            // Compile a call expression, then discard its returned value for statement form.
-            atom(expression_tokens,line);
-            require_end(expr_pos_);
-            emit(Op::Pop,0,"",0,line);
+            if(count()==2 && tok(1).kind==TK::Word){
+                const std::string name=tok(1).text;
+                int at=static_cast<int>(code_.size()); emit(Op::Call,0,name,0,line);
+                pending_calls_.push_back({at,name,0});
+            } else {
+                if(count()<2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'run function_name(arguments)'");
+                expr_pos_=1;
+                // Compile a call expression, then discard its returned value for statement form.
+                atom(cur().t,line);
+                require_end(expr_pos_);
+                emit(Op::Pop,0,"",0,line);
+            }
         } else if(isword(0,"give")){
             if(count()<2) throw std::runtime_error("Line "+std::to_string(line)+": use 'give value' inside a function");
             auto end=compile_expr(1,line); require_end(end);
