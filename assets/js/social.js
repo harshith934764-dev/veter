@@ -458,13 +458,13 @@ function renderPeople(profiles) {
   const followed = new Set(follows.filter(x=>x.follower_uid===me.uid).map(x=>x.following_uid));
   const followerCounts = new Map();
   for (const row of follows) followerCounts.set(row.following_uid,(followerCounts.get(row.following_uid)||0)+1);
-  host.innerHTML = sortedProfiles.map(p => 
-    <article class="person-card ${p.is_demo ? "demo-person-card" : ""}">
-      <img src="${avatar(p)}" alt="" loading="lazy">
-      <div class="person-info"><b>${esc(p.display_name)}${p.is_verified ? ' <span class="verified-badge" title="Verified Veter profile">✓</span>' : ""}${p.is_demo ? ' <span class="demo-profile-badge">DEMO</span>' : ""}</b><small>${esc([p.username ? "@"+p.username : "",p.city || p.country].filter(Boolean).join(" · ") || "Veter member")}</small>${p.is_demo ? '<small class="demo-note">Fictional preview profile · not a real user</small>' : '<small data-online-user="'+esc(p.uid)+'" class="presence-label">Checking status…</small>'}
-      <p>${esc(p.bio || "Ready to meet new people.")}</p><small class="follow-count">${followerCounts.get(p.uid)||0} followers</small></div>
-      <div class="person-actions">${p.is_demo ? '<span class="demo-preview-label">Preview only</span>' : '<button data-friend-user="'+esc(p.uid)+'">Add friend</button><button data-chat-user="'+esc(p.uid)+'">Message</button>'}</div>
-    </article>`).join("");
+  host.innerHTML = sortedProfiles.map(p => {
+    const isFollowing = followed.has(p.uid);
+    const actions = p.is_demo
+      ? '<span class="demo-preview-label">Preview only</span>'
+      : '<button data-follow-user="'+esc(p.uid)+'">'+(isFollowing ? 'Following ✓' : '＋ Follow')+'</button><button data-friend-user="'+esc(p.uid)+'">Add friend</button><button data-chat-user="'+esc(p.uid)+'">Message</button>';
+    return '<article class="person-card '+(p.is_demo ? 'demo-person-card' : '')+'"><img src="'+avatar(p)+'" alt="" loading="lazy"><div class="person-info"><b>'+esc(p.display_name)+(p.is_verified ? ' <span class="verified-badge">✓</span>' : '')+(p.is_demo ? ' <span class="demo-profile-badge">DEMO</span>' : '')+'</b><small>'+esc([p.username ? '@'+p.username : '',p.city || p.country].filter(Boolean).join(' · ') || 'Veter member')+'</small>'+(p.is_demo ? '<small class="demo-note">Fictional preview profile · not a real user</small>' : '<small data-online-user="'+esc(p.uid)+'" class="presence-label">Checking status…</small>')+'<p>'+esc(p.bio || 'Ready to meet new people.')+'</p><small class="follow-count">'+(followerCounts.get(p.uid)||0)+' followers</small></div><div class="person-actions">'+actions+'</div></article>';
+  }).join("");
 }
 async function openConversation(partnerUid) {
   try {
