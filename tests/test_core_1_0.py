@@ -176,6 +176,39 @@ class VeterCoreTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("expects 2 argument(s), got 1", result.stderr)
 
+    def test_arrays_and_index_access(self):
+        result = self.run_veter(
+            'remember scores as array(10, 20, 30)\n'
+            'display length(scores)\n'
+            'display at(scores, 1)\n'
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "3\n20\n")
+
+    def test_string_builtins(self):
+        result = self.run_veter(
+            'display upper("veter")\n'
+            'display lower("HELLO")\n'
+            'display length("language")\n'
+            'display contains("veter language", "lang")\n'
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "VETER\nhello\n8\n1\n")
+
+    def test_function_local_variables_and_recursion(self):
+        result = self.run_veter(
+            'display factorial(5)\n'
+            'do factorial(n)\n'
+            '    choose when n <= 1\n'
+            '        give 1\n'
+            '    close choice\n'
+            '    remember previous as factorial(n - 1)\n'
+            '    give n * previous\n'
+            'end\n'
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "120\n")
+
     def test_unknown_function_is_reported(self):
         result = self.run_veter("run missing_function\n")
         self.assertNotEqual(result.returncode, 0)
