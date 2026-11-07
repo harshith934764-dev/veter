@@ -82,3 +82,8 @@
 .no-comments{margin:4px 0}
 
 .post-photo-picker{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.post-photo-picker label{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid #3a526d;border-radius:9px;color:#bdece8;font-size:12px;font-weight:750;cursor:pointer;background:#14243b}.post-photo-picker input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.post-photo-picker span{font-size:11px;color:#8fa0bd}.photo-preview-wrap{display:flex;align-items:flex-start;gap:12px;margin-top:12px;flex-wrap:wrap}.photo-preview-wrap img{max-width:min(100%,360px);max-height:260px;object-fit:contain;border-radius:12px;border:1px solid #344660}.photo-preview-wrap button{border:1px solid #48546b;border-radius:8px;background:#17243a;color:#ffd0c7;padding:8px 10px;font-size:11px;cursor:pointer}.feed-photo{display:block;width:auto;max-width:100%;max-height:560px;object-fit:contain;margin:12px 0 16px;border-radius:13px;border:1px solid #293a55;background:#09111e}
+
+/* Keep the preview truly hidden until an image is selected. */
+.photo-preview-wrap[hidden]{display:none!important}
+.photo-preview-wrap:not([hidden]){display:flex}
+#photo-preview{display:block;max-width:min(100%,360px);max-height:260px;object-fit:contain}
