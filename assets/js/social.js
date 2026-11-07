@@ -24,6 +24,7 @@ let activeConversation = null;
 let activePartner = null;
 let messageChannel = null;
 let cachedPeople = [];
+let themeMode = "dark";
 
 function status(message, error = false) {
   const node = $("app-status") || $("auth-status");
