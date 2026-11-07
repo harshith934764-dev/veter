@@ -34,7 +34,19 @@
 <p>Use Google to create an account or return to your existing account. The same Google account signs you back in.</p>
 <div class="auth-preview" id="auth-panel">
 <button class="auth-button google-auth" id="google-sign-in" type="button"><span class="google-mark">G</span> Continue with Google <span class="auth-arrow">→</span></button>
-<div class="prototype-notice" id="auth-status" role="status" aria-live="polite">Sign in to create your profile and chat.</div>
+<div class="auth-divider"><span>OR USE YOUR PHONE</span></div>
+<form id="phone-send-form" class="phone-login-form">
+<label for="phone-number">Mobile number (include country code)</label>
+<input id="phone-number" type="tel" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" required>
+<button class="auth-button phone-auth" id="phone-send-code" type="submit">📱 Send SMS code <span class="auth-arrow">→</span></button>
+<div id="phone-recaptcha"></div>
+</form>
+<form id="phone-verify-form" class="phone-login-form" hidden>
+<label for="phone-code">6-digit SMS code</label>
+<input id="phone-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="Enter code" required>
+<button class="auth-button phone-auth" id="phone-verify-code" type="submit">Verify and sign in <span class="auth-arrow">→</span></button>
+</form>
+<div class="prototype-notice" id="auth-status" role="status" aria-live="polite">Sign in with Google or your mobile number.</div>
 </div>
 </div>
 <div class="join-side"><div class="join-side-mark">V<span>.</span></div><p class="join-quote">“A stranger is just a friend you haven't met yet.”</p><div class="join-side-line"></div><span class="join-side-label">VETER SOCIAL · CONNECT GLOBALLY</span></div>
