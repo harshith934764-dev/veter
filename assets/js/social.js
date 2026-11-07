@@ -387,7 +387,8 @@ async function handleFeedAction(event) {
       const {error} = await client.from("social_post_comments").insert({post_id:postId,author_uid:me.uid,body});
       if (error) throw error;
       status("Comment added. Thanks for joining the conversation!");
-      await loadFeed();
+      const savedView = !!card.closest("#saved-list");
+      await loadFeed(savedView ? "saved-list" : "feed-list",savedView);
     } catch (e) {
       status(friendly(e),true);
       if (submit) submit.disabled = false;
@@ -403,7 +404,8 @@ async function handleFeedAction(event) {
         ? await client.from("social_post_likes").delete().eq("post_id",postId).eq("user_uid",me.uid)
         : await client.from("social_post_likes").insert({post_id:postId,user_uid:me.uid});
       if (result.error) throw result.error;
-      await loadFeed();
+      const savedView = !!card.closest("#saved-list");
+      await loadFeed(savedView ? "saved-list" : "feed-list",savedView);
     } else if (event.target.closest("[data-delete-post]")) {
       if (!confirm("Delete your post? This cannot be undone.")) return;
       const {error} = await client.from("social_posts").delete().eq("id",postId).eq("author_uid",me.uid);
