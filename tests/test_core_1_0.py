@@ -252,7 +252,7 @@ class VeterCoreTests(unittest.TestCase):
         self.assertIn("division by zero", result.stderr)
 
     def test_text_that_looks_numeric_is_not_a_number(self):
-        result = self.run_veter('display "12" - 2\\n')
+        result = self.run_veter('display "12" - 2\n')
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("expected a number, received text", result.stderr)
 
