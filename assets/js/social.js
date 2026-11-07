@@ -413,11 +413,60 @@ async function deleteVibe() {
   catch(e){status(friendly(e),true);}
 }
 
-function switchView(name) {
+
+async function loadDating() {
+ const host=$("dating-people"); if(!me||!host)return;
+ try {
+  const client=await getDb();
+  const {data:elig,error:eligError}=await client.from("dating_eligibility").select("birth_date,adult_confirmed").eq("uid",me.uid).maybeSingle();
+  if(eligError)throw eligError;
+  if(elig){$("dating-birth-date").value=elig.birth_date;$("dating-adult-confirm").checked=elig.adult_confirmed;}
+  const {data:mine,error:mineError}=await client.from("dating_profiles").select("*").eq("uid",me.uid).maybeSingle();
+  if(mineError)throw mineError;
+  if(mine){$("dating-looking-for").value=mine.looking_for;$("dating-city").value=mine.city;$("dating-headline").value=mine.headline;$("dating-interests").value=(mine.interests||[]).join(", ");$("dating-enable").checked=mine.dating_enabled;}
+  if(!elig || !elig.adult_confirmed){host.innerHTML='<p class="empty-state">Dating is locked. Enter your date of birth and confirm you are 18+.</p>';return;}
+  const {data:cards,error}=await client.from("dating_profiles").select("uid,headline,city,interests,looking_for").eq("dating_enabled",true).neq("uid",me.uid).order("updated_at",{ascending:false}).limit(40);
+  if(error)throw error;
+  const ids=(cards||[]).map(x=>x.uid);
+  const {data:likes,error:likesError}=await client.from("dating_likes").select("sender_uid,receiver_uid").or(`sender_uid.eq.${me.uid},receiver_uid.eq.${me.uid}`);
+  if(likesError)throw likesError;
+  const liked=new Set((likes||[]).filter(x=>x.sender_uid===me.uid).map(x=>x.receiver_uid));
+  const mutual=(likes||[]).filter(x=>x.receiver_uid===me.uid && liked.has(x.sender_uid));
+  const mutualIds=mutual.map(x=>x.sender_uid);
+  if(mutualIds.length){const {data:mp}=await client.from("user_profiles").select("uid,display_name").in("uid",mutualIds);$("dating-matches").hidden=false;$("dating-matches").textContent="💞 You have "+mutualIds.length+" mutual match(es): "+(mp||[]).map(x=>x.display_name).join(", ");}else{$("dating-matches").hidden=true;}
+  if(!ids.length){host.innerHTML='<p class="empty-state">No eligible dating profiles yet. Invite adults you know to join Veter.</p>';return;}
+  const {data:profiles,error:profileError}=await client.from("user_profiles").select("uid,display_name,avatar_url,country,username").in("uid",ids);
+  if(profileError)throw profileError;
+  const byId=new Map((profiles||[]).map(x=>[x.uid,x]));
+  host.innerHTML=cards.filter(x=>byId.has(x.uid)).map(card=>{const p=byId.get(card.uid);return '<article class="person-card dating-person-card"><img src="'+avatar(p)+'" alt=""><div class="person-info"><b>'+esc(p.display_name)+'</b><small>'+esc([card.city||p.country,card.looking_for].filter(Boolean).join(' · '))+'</small><p>'+esc(card.headline||'Open to meeting someone new.')+'</p><small>'+esc((card.interests||[]).join(' · '))+'</small></div><div class="person-actions"><button data-dating-like="'+esc(card.uid)+'" '+(liked.has(card.uid)?'disabled':'')+'>'+(liked.has(card.uid)?'Liked ✓':'❤️ Like')+'</button></div></article>';}).join("")||'<p class="empty-state">No profiles to show right now.</p>';
+ } catch(e){status(friendly(e),true);host.innerHTML='<p class="empty-state">Could not load dating profiles. Please try again.</p>';}
+}
+async function saveDatingProfile(event){
+ event.preventDefault();
+ const dob=$("dating-birth-date").value;
+ if(!$("dating-adult-confirm").checked){status("Dating is only for adults 18+. Please confirm your age.",true);return;}
+ if(!dob){status("Enter your date of birth.",true);return;}
+ const ageDate=new Date(dob+"T00:00:00");const cutoff=new Date();cutoff.setFullYear(cutoff.getFullYear()-18);
+ if(Number.isNaN(ageDate.getTime())||ageDate>cutoff){status("Veter Dating is only available to people aged 18 or older.",true);return;}
+ try{
+  const client=await getDb();
+  const {error:eligError}=await client.from("dating_eligibility").upsert({uid:me.uid,birth_date:dob,adult_confirmed:true,updated_at:new Date().toISOString()},{onConflict:"uid"});
+  if(eligError)throw eligError;
+  const interests=$("dating-interests").value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,12);
+  const {error}=await client.from("dating_profiles").upsert({uid:me.uid,dating_enabled:$("dating-enable").checked,headline:$("dating-headline").value.trim(),city:$("dating-city").value.trim(),interests,looking_for:$("dating-looking-for").value,updated_at:new Date().toISOString()},{onConflict:"uid"});
+  if(error)throw error;
+  status("Dating profile saved. Your date of birth stays private.");await loadDating();
+ }catch(e){status(friendly(e),true);}
+}
+async function sendDatingLike(uid){
+ try{const client=await getDb();const {error}=await client.from("dating_likes").insert({sender_uid:me.uid,receiver_uid:uid});if(error && error.code!=="23505")throw error;status("Like sent. If they like you back, you’ll match!");await loadDating();}
+ catch(e){status(friendly(e),true);}
+}
+\nfunction switchView(name) {
   document.querySelectorAll(".social-tab").forEach(b => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".social-view").forEach(v => v.hidden = v.id !== "view-" + name);
   if (name === "feed") loadFeed();
-  if (name === "chats") loadConversations();
+  if (name === "chats") loadConversations();\n  if (name === "dating") loadDating();
   if (name === "discover") loadPeople();
   if (name === "friends") loadFriendRequests();
   if (name === "notifications") loadNotifications();
@@ -1211,7 +1260,7 @@ $("vibe-viewer").addEventListener("click",e=>{
 });
 $("vibe-viewer").addEventListener("submit",e=>{if(e.target.id==="vibe-reply-form")replyToVibe(e);});
 
-$("profile-form").addEventListener("submit",saveMyProfile);
+$("profile-form").addEventListener("submit",saveMyProfile);\n$("dating-setup-form").addEventListener("submit",saveDatingProfile);\n$("dating-refresh").addEventListener("click",loadDating);\n$("dating-people").addEventListener("click",e=>{const b=e.target.closest("[data-dating-like]");if(b){b.disabled=true;sendDatingLike(b.dataset.datingLike);}});
 $("add-by-id-form").addEventListener("submit",sendFriendRequestByUsername);
 $("copy-veter-id").addEventListener("click",copyVeterId);
 $("share-profile").addEventListener("click",shareMyProfile);
