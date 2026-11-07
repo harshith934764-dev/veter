@@ -41,12 +41,18 @@
 <div class="social-kicker">YOUR NEXT CONVERSATION STARTS HERE</div>
 <h2>Say hello to<br><span>somebody new.</span></h2>
 <p>Veter Social is being built. Account sign-in and live chat will be enabled after the secure backend is configured and tested.</p>
-<div class="auth-preview">
-<button class="auth-button google-auth" type="button" data-auth-info><span class="google-mark">G</span> Continue with Google <span class="auth-arrow">→</span></button>
-<button class="auth-button phone-auth" type="button" data-auth-info><span>＋</span> Continue with phone OTP <span class="auth-arrow">→</span></button>
+<div class="auth-preview" id="auth-panel">
+<button class="auth-button google-auth" id="google-sign-in" type="button"><span class="google-mark">G</span> Continue with Google <span class="auth-arrow">→</span></button>
+<label class="auth-note" for="phone-number">Or sign in with your phone number</label>
+<input id="phone-number" type="tel" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" aria-label="Phone number with country code">
+<button class="auth-button phone-auth" id="send-otp" type="button"><span>＋</span> Send phone OTP <span class="auth-arrow">→</span></button>
+<input id="phone-otp" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter 6-digit OTP" aria-label="Phone verification code" hidden>
+<button class="auth-button phone-auth" id="verify-otp" type="button" hidden>Verify OTP <span class="auth-arrow">→</span></button>
+<div id="recaptcha-container"></div>
+<button class="auth-button" id="sign-out" type="button" hidden>Sign out</button>
 </div>
 <p class="auth-note"><span>🔒</span> Your phone number and email will not be shown to strangers.</p>
-<div class="prototype-notice" role="status">Preview mode · Authentication and messaging are not connected yet.</div>
+<div class="prototype-notice" id="auth-status" role="status" aria-live="polite">Firebase website configuration added. Enable Google and Phone in Firebase Authentication to allow sign-in.</div>
 </div>
 <div class="join-side">
 <div class="join-side-mark">V<span>.</span></div>
@@ -61,5 +67,5 @@
 </main>
 <footer class="social-footer"><a class="logo" href="/">Veter<span>.</span></a><span>© 2026 Veter Social · Built for respectful connections.</span><a href="/community.html">Community</a></footer>
 <div class="social-toast" id="social-toast" role="status" aria-live="polite"></div>
-<script src="/assets/js/social.js" defer></script>
+<script type="module" src="/assets/js/social.js"></script>
 </body></html>
