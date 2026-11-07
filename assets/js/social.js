@@ -238,6 +238,7 @@ async function loadFeed() {
         <p class="feed-body">${esc(post.body)}</p>
         ${post.image_url ? '<img class="feed-photo" src="' + esc(post.image_url) + '" alt="Photo shared by ' + esc(author.display_name) + '" loading="lazy">' : ""}
         <div class="feed-actions"><button data-like-post class="${likedBy.includes(me.uid) ? "liked" : ""}">${likedBy.includes(me.uid) ? "♥ Liked" : "♡ Like"} · ${likedBy.length}</button><button data-comment-post>💬 Comment · ${(commentsByPost.get(post.id) || []).length}</button></div>
+        <form class="social-comment-form" data-comment-form hidden><textarea maxlength="500" rows="2" placeholder="Write a comment..." aria-label="Write a comment"></textarea><button type="submit">Post comment</button></form>
         <div class="post-comments">${(commentsByPost.get(post.id) || []).map(comment => {
           const commenter = byId.get(comment.author_uid) || {display_name:"Veter member"};
           return `<div class="post-comment"><b>${esc(commenter.display_name)}</b><span>${esc(comment.body)}</span><small>${new Date(comment.created_at).toLocaleString()}</small></div>`;
@@ -270,6 +271,33 @@ async function handleFeedAction(event) {
   const card = event.target.closest("[data-post-id]");
   if (!card) return;
   const postId = card.dataset.postId;
+  if (event.type === "click" && event.target.closest("[data-comment-post]")) {
+    const form = card.querySelector("[data-comment-form]");
+    if (!form) return;
+    form.hidden = !form.hidden;
+    if (!form.hidden) form.querySelector("textarea")?.focus();
+    return;
+  }
+  if (event.type === "submit" && event.target.matches("[data-comment-form]")) {
+    event.preventDefault();
+    const field = event.target.querySelector("textarea");
+    const body = field?.value.trim() || "";
+    if (!body) { field?.focus(); return; }
+    if (body.length > 500) { status("Comments can be up to 500 characters.",true); return; }
+    const submit = event.target.querySelector('button[type="submit"]');
+    if (submit) submit.disabled = true;
+    try {
+      const client = await getDb();
+      const {error} = await client.from("social_post_comments").insert({post_id:postId,author_uid:me.uid,body});
+      if (error) throw error;
+      status("Comment added. Thanks for joining the conversation!");
+      await loadFeed();
+    } catch (e) {
+      status(friendly(e),true);
+      if (submit) submit.disabled = false;
+    }
+    return;
+  }
   try {
     const client = await getDb();
     if (event.target.closest("[data-like-post]")) {
@@ -279,13 +307,6 @@ async function handleFeedAction(event) {
         ? await client.from("social_post_likes").delete().eq("post_id",postId).eq("user_uid",me.uid)
         : await client.from("social_post_likes").insert({post_id:postId,user_uid:me.uid});
       if (result.error) throw result.error;
-      await loadFeed();
-    } else if (event.target.closest("[data-comment-post]")) {
-      const body = prompt("Write a comment (up to 500 characters):");
-      if (!body?.trim()) return;
-      const {error} = await client.from("social_post_comments").insert({post_id:postId,author_uid:me.uid,body:body.trim()});
-      if (error) throw error;
-      status("Comment added. Thanks for joining the conversation!");
       await loadFeed();
     } else if (event.target.closest("[data-delete-post]")) {
       if (!confirm("Delete your post? This cannot be undone.")) return;
