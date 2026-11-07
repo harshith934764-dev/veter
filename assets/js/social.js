@@ -562,6 +562,23 @@ async function sendMessage(event) {
   } catch (e) { status(friendly(e), true); }
   finally { $("message-input").disabled = false; $("message-input").focus(); }
 }
+async function openSharedProfileIfRequested() {
+  const params = new URLSearchParams(location.search);
+  const username = (params.get("user") || "").replace(/^@/,"").toLowerCase();
+  const veterId = params.get("veter");
+  if (!username && !veterId) return;
+  try {
+    const client = await getDb();
+    let query = client.from("user_profiles").select("uid,display_name,avatar_url,country,bio,username,is_verified");
+    query = username ? query.eq("username",username) : query.eq("veter_id",veterId);
+    const {data,error} = await query.maybeSingle();
+    if (error) throw error;
+    if (!data) { status("That shared Veter profile could not be found.",true); return; }
+    switchView("discover");
+    renderPeople([data]);
+    status("You are viewing the shared profile of " + data.display_name + ".");
+  } catch(e) { status(friendly(e),true); }
+}
 async function copyVeterId() {
   const id = $("my-veter-id").textContent.trim();
   if (!id || id.startsWith("Generating") || id.includes("refresh")) { status("Your Veter ID is still being prepared.",true); return; }
