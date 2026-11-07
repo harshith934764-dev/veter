@@ -140,7 +140,7 @@ async function sendFriendRequestByUsername(event) {
   try {
     const client = await getDb();
     const {data: profile,error} = await client.from("user_profiles")
-      .select("uid,username").ilike("username",username).maybeSingle();
+      .select("uid,username").eq("username",username).maybeSingle();
     if (error) throw error;
     if (!profile) {
       status("No Veter account found with that username.",true);
