@@ -462,11 +462,13 @@ async function sendDatingLike(uid){
  try{const client=await getDb();const {error}=await client.from("dating_likes").insert({sender_uid:me.uid,receiver_uid:uid});if(error && error.code!=="23505")throw error;status("Like sent. If they like you back, you’ll match!");await loadDating();}
  catch(e){status(friendly(e),true);}
 }
-\nfunction switchView(name) {
+
+function switchView(name) {
   document.querySelectorAll(".social-tab").forEach(b => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".social-view").forEach(v => v.hidden = v.id !== "view-" + name);
   if (name === "feed") loadFeed();
-  if (name === "chats") loadConversations();\n  if (name === "dating") loadDating();
+  if (name === "chats") loadConversations();
+  if (name === "dating") loadDating();
   if (name === "discover") loadPeople();
   if (name === "friends") loadFriendRequests();
   if (name === "notifications") loadNotifications();
@@ -1260,7 +1262,10 @@ $("vibe-viewer").addEventListener("click",e=>{
 });
 $("vibe-viewer").addEventListener("submit",e=>{if(e.target.id==="vibe-reply-form")replyToVibe(e);});
 
-$("profile-form").addEventListener("submit",saveMyProfile);\n$("dating-setup-form").addEventListener("submit",saveDatingProfile);\n$("dating-refresh").addEventListener("click",loadDating);\n$("dating-people").addEventListener("click",e=>{const b=e.target.closest("[data-dating-like]");if(b){b.disabled=true;sendDatingLike(b.dataset.datingLike);}});
+$("profile-form").addEventListener("submit",saveMyProfile);
+$("dating-setup-form").addEventListener("submit",saveDatingProfile);
+$("dating-refresh").addEventListener("click",loadDating);
+$("dating-people").addEventListener("click",e=>{const b=e.target.closest("[data-dating-like]");if(b){b.disabled=true;sendDatingLike(b.dataset.datingLike);}});
 $("add-by-id-form").addEventListener("submit",sendFriendRequestByUsername);
 $("copy-veter-id").addEventListener("click",copyVeterId);
 $("share-profile").addEventListener("click",shareMyProfile);
