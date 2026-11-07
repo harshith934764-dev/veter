@@ -183,3 +183,5 @@ body.social-light .demo-disclaimer{background:#f5f0ff;border-color:#d8c9f3;color
 
 /* Feed search */
 .feed-search-row{display:flex;gap:8px;margin:14px 0 5px}.feed-search-row input{flex:1;min-width:0;background:var(--card-bg,#111f34);border:1px solid #354761;border-radius:11px;color:inherit;padding:12px 14px}.feed-search-row button{border:1px solid #354761;border-radius:10px;background:transparent;color:inherit;padding:0 14px;cursor:pointer}.feed-search-hint{font-size:11px;color:#91a1bd;margin:0 0 12px}.feed-post[hidden]{display:none!important}
+
+.follow-count{display:inline-block;margin-top:5px;color:#91a1bd;font-size:11px}.person-actions [data-follow-user],.person-actions [data-unfollow-user]{background:#563be8;color:white;border:0;border-radius:9px;padding:8px 12px;cursor:pointer}
