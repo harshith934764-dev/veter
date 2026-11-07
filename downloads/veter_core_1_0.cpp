@@ -336,8 +336,9 @@ public:
         auto pop=[&](){if(stack.empty())throw std::runtime_error("VM stack underflow");Value v=stack.back();stack.pop_back();return v;};
         auto num=[&](Value v,int line)->long long{
             if(std::holds_alternative<long long>(v))return std::get<long long>(v);
-            const auto&s=std::get<std::string>(v);try{std::size_t n=0;auto x=std::stoll(s,&n);if(n==s.size())return x;}catch(...){}
-            throw std::runtime_error("Line "+std::to_string(line)+": expected a number");
+            if(std::holds_alternative<std::string>(v))
+                throw std::runtime_error("Line "+std::to_string(line)+": expected a number, received text");
+            throw std::runtime_error("Line "+std::to_string(line)+": expected a number, received an array");
         };
         auto compare=[&](const Value& a,const Value& b,int line){
             if(a.index()!=b.index()) throw std::runtime_error("Line "+std::to_string(line)+": cannot compare a number with text");
