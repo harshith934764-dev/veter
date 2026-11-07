@@ -109,6 +109,35 @@ class VeterCoreTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, "hello\n")
 
+    def test_function_call_before_definition(self):
+        result = self.run_veter(
+            "run greet\n"
+            "do greet\n"
+            'display "Hello from a Veter function"\n'
+            "end\n"
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "Hello from a Veter function\n")
+
+    def test_function_can_call_another_function(self):
+        result = self.run_veter(
+            "run welcome\n"
+            "do welcome\n"
+            "run greet\n"
+            'display "Welcome back"\n'
+            "end\n"
+            "do greet\n"
+            'display "Hello"\n'
+            "end\n"
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "Hello\nWelcome back\n")
+
+    def test_unknown_function_is_reported(self):
+        result = self.run_veter("run missing_function\n")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Unknown function 'missing_function'", result.stderr)
+
     def test_undefined_variable_is_reported(self):
         result = self.run_veter("display missing\n")
         self.assertNotEqual(result.returncode, 0)
