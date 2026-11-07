@@ -251,6 +251,11 @@ class VeterCoreTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("division by zero", result.stderr)
 
+    def test_text_that_looks_numeric_is_not_a_number(self):
+        result = self.run_veter('display "12" - 2\\n')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("expected a number, received text", result.stderr)
+
     def test_mixed_type_comparison_is_rejected(self):
         result = self.run_veter('choose when 1 == "1"\ndisplay "bad"\nclose choice\n')
         self.assertNotEqual(result.returncode, 0)
