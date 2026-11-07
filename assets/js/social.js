@@ -249,10 +249,14 @@ async function loadPeople() {
 function renderPeople(profiles) {
   const host = $("people-list");
   if (!profiles.length) { host.innerHTML = '<p class="empty-state">No other profiles yet. Invite a friend to join Veter Social.</p>'; return; }
-  const sortedProfiles = [...profiles].sort((a,b) => Number(!!b.country && b.country === $("profile-country").value.trim()) - Number(!!a.country && a.country === $("profile-country").value.trim()));\n  host.innerHTML = sortedProfiles.map(p => `
+  const sortedProfiles = [...profiles].sort((a,b) =>
+    Number(!!b.country && b.country === $("profile-country").value.trim()) -
+    Number(!!a.country && a.country === $("profile-country").value.trim())
+  );
+  host.innerHTML = sortedProfiles.map(p => `
     <article class="person-card">
       <img src="${avatar(p)}" alt="" loading="lazy">
-      <div class="person-info"><b>${esc(p.display_name)}${p.is_verified ? " <span class=\\"verified-badge\\" title=\\"Verified Veter profile\\">✓</span>" : ""}</b><small>${esc([p.username ? "@"+p.username : "",p.country].filter(Boolean).join(" · ") || "Veter member")}</small><small data-online-user="${esc(p.uid)}" class="presence-label">Checking status…</small>
+      <div class="person-info"><b>${esc(p.display_name)}${p.is_verified ? ' <span class="verified-badge" title="Verified Veter profile">✓</span>' : ""}</b><small>${esc([p.username ? "@"+p.username : "",p.country].filter(Boolean).join(" · ") || "Veter member")}</small><small data-online-user="${esc(p.uid)}" class="presence-label">Checking status…</small>
       <p>${esc(p.bio || "Ready to meet new people.")}</p></div>
       <div class="person-actions"><button data-friend-user="${esc(p.uid)}">Add friend</button><button data-chat-user="${esc(p.uid)}">Message</button></div>
     </article>`).join("");
@@ -511,7 +515,18 @@ function renderMessage(m) {
   const mine = m.sender_uid === me.uid;
   return `<div class="message-row ${mine ? "mine" : ""}" data-message-id="${esc(m.id)}"><div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}${mine ? " · "+(m.seen_at ? "Seen ✓✓" : m.delivered_at ? "Delivered ✓✓" : "Sent ✓") : ""}</small></div></div>`;
 }
-function subscribeTyping() {\n  if (typingChannel && db) db.removeChannel(typingChannel);\n  typingChannel = db.channel("veter-typing-"+activeConversation.id);\n  typingChannel.on("broadcast",{event:"typing"},payload => {\n    if (payload.payload?.uid !== me.uid) $("chat-presence").textContent = payload.payload?.typing ? "Typing…" : "Private chat";\n  }).subscribe();\n}\nasync function broadcastTyping(isTyping) {\n  if (!typingChannel) return;\n  await typingChannel.send({type:"broadcast",event:"typing",payload:{uid:me.uid,typing:isTyping}});\n}\nfunction subscribeMessages() {
+function subscribeTyping() {
+  if (typingChannel && db) db.removeChannel(typingChannel);
+  typingChannel = db.channel("veter-typing-"+activeConversation.id);
+  typingChannel.on("broadcast",{event:"typing"},payload => {
+    if (payload.payload?.uid !== me.uid) $("chat-presence").textContent = payload.payload?.typing ? "Typing…" : "Private chat";
+  }).subscribe();
+}
+async function broadcastTyping(isTyping) {
+  if (!typingChannel) return;
+  await typingChannel.send({type:"broadcast",event:"typing",payload:{uid:me.uid,typing:isTyping}});
+}
+function subscribeMessages() {
   if (messageChannel && db) db.removeChannel(messageChannel);
   messageChannel = db.channel("veter-chat-" + activeConversation.id)
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation.id},payload => {
@@ -526,7 +541,10 @@ function subscribeTyping() {\n  if (typingChannel && db) db.removeChannel(typing
       }
     }).subscribe();
 }
-async function clientMarkDelivered(id) {\n  try { const client = await getDb(); await client.from("messages").update({delivered_at:new Date().toISOString()}).eq("id",id); } catch {}\n}\nasync function sendMessage(event) {
+async function clientMarkDelivered(id) {
+  try { const client = await getDb(); await client.from("messages").update({delivered_at:new Date().toISOString()}).eq("id",id); } catch {}
+}
+async function sendMessage(event) {
   event.preventDefault();
   const body = $("message-input").value.trim();
   if (!body || !activeConversation) return;
@@ -559,151 +577,63 @@ async function shareMyProfile() {
   try { await navigator.clipboard.writeText(url.toString()); status("Profile link copied. Share it with your friends!"); }
   catch { status(url.toString()); }
 }
-async function loadGroups() {\n  const client = await getDb();\n  const {data:members,error} = await client.from("social_group_members").select("group_id,role").eq("user_uid",me.uid);\n  if (error) throw error;\n  const ids=(members||[]).map(x=>x.group_id);\n  if (!ids.length) { $("group-list").innerHTML="<p class=\\"empty-state\\">No groups yet. Create one with your friends.</p>"; return; }\n  const {data:groups,error:groupError}=await client.from("social_groups").select("id,title,description").in("id",ids);\n  if(groupError) throw groupError;\n  $("group-list").innerHTML=(groups||[]).map(g=>`<button class=\\"chat-list-item\\" data-open-group=\\"${esc(g.id)}\\"><span><b>${esc(g.title)}</b><small>${esc(g.description||"Group chat")}</small></span></button>`).join("");\n}\nasync function createGroup() {\n  const title=prompt("Give your group a name (2–60 characters):"); if(!title) return;\n  const description=prompt("Short group description (optional):")||"";\n  try { const client=await getDb(); const {data:group,error}=await client.from("social_groups").insert({owner_uid:me.uid,title:title.trim(),description:description.slice(0,240)}).select().single(); if(error) throw error;\n    const {error:memberError}=await client.from("social_group_members").insert({group_id:group.id,user_uid:me.uid,role:"owner"}); if(memberError) throw memberError;\n    await loadGroups(); await openGroup(group.id); status("Your group is ready!");\n  } catch(e) { status(friendly(e),true); }\n}\nasync function openGroup(id) {\n  try { const client=await getDb(); const {data:group,error}=await client.from("social_groups").select("*").eq("id",id).single(); if(error) throw error; activeGroup=group; $("group-empty").hidden=true; $("active-group").hidden=false; $("group-chat-name").textContent=group.title;\n    const {data:msgs,error:msgError}=await client.from("social_group_messages").select("*").eq("group_id",id).order("created_at").limit(200); if(msgError) throw msgError;\n    $("group-messages").innerHTML=(msgs||[]).map(m=>`<div class=\\"message-row ${m.sender_uid===me.uid?"mine":""}\\"><div class=\\"message-bubble\\">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString()}</small></div></div>`).join("");\n    if(groupChannel) client.removeChannel(groupChannel); groupChannel=client.channel("veter-group-"+id).on("postgres_changes",{event:"INSERT",schema:"public",table:"social_group_messages",filter:"group_id=eq."+id},payload=>{const m=payload.new; const node=document.createElement("div"); node.className="message-row "+(m.sender_uid===me.uid?"mine":""); node.innerHTML=`<div class=\\"message-bubble\\">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString()}</small></div>`; $("group-messages").appendChild(node);}).subscribe();\n    switchView("groups");\n  } catch(e) { status(friendly(e),true); }\n}\nasync function sendGroupMessage(event) { event.preventDefault(); const body=$("group-message-input").value.trim(); if(!body||!activeGroup)return; try { const client=await getDb(); const {error}=await client.from("social_group_messages").insert({group_id:activeGroup.id,sender_uid:me.uid,body}); if(error) throw error; $("group-message-input").value=""; } catch(e) { status(friendly(e),true); } }\nasync function saveMyProfile(event) {
+async function loadGroups() {
+  const client = await getDb();
+  const {data:members,error} = await client.from("social_group_members").select("group_id,role").eq("user_uid",me.uid);
+  if (error) throw error;
+  const ids = (members || []).map(x => x.group_id);
+  if (!ids.length) { $("group-list").innerHTML = '<p class="empty-state">No groups yet. Create one with your friends.</p>'; return; }
+  const {data:groups,error:groupError} = await client.from("social_groups").select("id,title,description").in("id",ids);
+  if (groupError) throw groupError;
+  $("group-list").innerHTML = (groups || []).map(g => `<button class="chat-list-item" data-open-group="${esc(g.id)}"><span><b>${esc(g.title)}</b><small>${esc(g.description || "Group chat")}</small></span></button>`).join("");
+}
+async function createGroup() {
+  const title = prompt("Give your group a name (2–60 characters):");
+  if (!title) return;
+  const description = prompt("Short group description (optional):") || "";
+  try {
+    const client = await getDb();
+    const {data:group,error} = await client.from("social_groups").insert({owner_uid:me.uid,title:title.trim(),description:description.slice(0,240)}).select().single();
+    if (error) throw error;
+    const {error:memberError} = await client.from("social_group_members").insert({group_id:group.id,user_uid:me.uid,role:"owner"});
+    if (memberError) throw memberError;
+    await loadGroups();
+    await openGroup(group.id);
+    status("Your group is ready!");
+  } catch(e) { status(friendly(e),true); }
+}
+async function openGroup(id) {
+  try {
+    const client = await getDb();
+    const {data:group,error} = await client.from("social_groups").select("*").eq("id",id).single();
+    if (error) throw error;
+    activeGroup = group;
+    $("group-empty").hidden = true;
+    $("active-group").hidden = false;
+    $("group-chat-name").textContent = group.title;
+    const {data:msgs,error:msgError} = await client.from("social_group_messages").select("*").eq("group_id",id).order("created_at").limit(200);
+    if (msgError) throw msgError;
+    $("group-messages").innerHTML = (msgs || []).map(m => `<div class="message-row ${m.sender_uid===me.uid ? "mine" : ""}"><div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString()}</small></div></div>`).join("");
+    if (groupChannel) client.removeChannel(groupChannel);
+    groupChannel = client.channel("veter-group-"+id).on("postgres_changes",{event:"INSERT",schema:"public",table:"social_group_messages",filter:"group_id=eq."+id},payload => {
+      const m = payload.new;
+      const node = document.createElement("div");
+      node.className = "message-row " + (m.sender_uid===me.uid ? "mine" : "");
+      node.innerHTML = `<div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString()}</small></div>`;
+      $("group-messages").appendChild(node);
+    }).subscribe();
+    switchView("groups");
+  } catch(e) { status(friendly(e),true); }
+}
+async function sendGroupMessage(event) {
   event.preventDefault();
-  const username = $("profile-username").value.trim().toLowerCase().replace(/^@/,"");
-  if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
-    status("Username must be 3–24 characters: letters, numbers or underscore.", true); return;
-  }
+  const body = $("group-message-input").value.trim();
+  if (!body || !activeGroup) return;
   try {
     const client = await getDb();
-    const profile = {
-      uid:me.uid,
-      display_name:$("profile-name").value.trim(),
-      username:username || null,
-      country:$("profile-country").value.trim(),
-      bio:$("profile-bio").value.trim(),
-      avatar_url:$("profile-avatar").value.trim() || me.photoURL || null,
-      updated_at:new Date().toISOString()
-    };
-    const {data,error} = await client.from("user_profiles").upsert(profile,{onConflict:"uid"}).select().single();
+    const {error} = await client.from("social_group_messages").insert({group_id:activeGroup.id,sender_uid:me.uid,body});
     if (error) throw error;
-    $("my-name").textContent = data.display_name;
-    $("my-avatar").src = avatar(data);
-    status("Profile saved successfully.");
-    loadPeople();
-  } catch(e) { status(friendly(e),true); }
-}
-async function blockPartner() {
-  if (!activePartner || !confirm("Block this person? You won't be able to start new conversations.")) return;
-  try {
-    const client = await getDb();
-    const {error} = await client.from("blocks").insert({blocker_uid:me.uid,blocked_uid:activePartner.uid});
-    if (error && error.code !== "23505") throw error;
-    status("This person is blocked.");
-    activeConversation = null; activePartner = null;
-    $("active-chat").hidden = true; $("chat-empty").hidden = false;
-    loadPeople(); loadConversations();
-  } catch(e) { status(friendly(e),true); }
-}
-async function reportPartner() {
-  if (!activePartner || !activeConversation) return;
-  const reason = prompt("Report reason: harassment, spam, underage, sexual_content, threats, or other");
-  if (!reason) return;
-  const allowed = ["harassment","spam","underage","sexual_content","threats","other"];
-  if (!allowed.includes(reason.trim())) { status("Please enter one of the listed report reasons.",true); return; }
-  try {
-    const client = await getDb();
-    const {error} = await client.from("reports").insert({
-      reporter_uid:me.uid,reported_uid:activePartner.uid,conversation_id:activeConversation.id,reason:reason.trim()
-    });
-    if (error) throw error;
-    status("Report submitted. Thank you for helping keep the community safe.");
+    $("group-message-input").value = "";
   } catch(e) { status(friendly(e),true); }
 }
 
-$("google-sign-in").addEventListener("click", async () => {
-  const button = $("google-sign-in");
-  button.disabled = true;
-  status("Opening Google sign-in…");
-  try {
-    await signInWithPopup(auth,new GoogleAuthProvider());
-  } catch(e) { status(friendly(e),true); }
-  finally { button.disabled = false; }
-});
-$("sign-out").addEventListener("click", async () => {
-  try { await signOut(auth); status("You are signed out."); }
-  catch(e) { status(friendly(e),true); }
-});
-document.querySelectorAll(".social-tab").forEach(b => b.addEventListener("click",() => switchView(b.dataset.view)));
-
-$("theme-toggle").addEventListener("click",() => applyTheme(themeMode === "dark" ? "light" : "dark"));
-$("mark-notifications-read").addEventListener("click",markNotificationsRead);
-$("incoming-friends").addEventListener("click",async e => {
-  const button = e.target.closest("[data-friend-response]");
-  if (!button) return;
-  button.disabled = true;
-  try { const client = await getDb(); const {error} = await client.from("social_friend_requests").update({status:button.dataset.friendResponse,updated_at:new Date().toISOString()}).eq("id",button.dataset.requestId); if (error) throw error; status(button.dataset.friendResponse === "accepted" ? "Friend request accepted!" : "Friend request declined."); await Promise.all([loadFriendRequests(),loadPeople(),loadNotifications()]); }
-  catch(err) { status(friendly(err),true); button.disabled = false; }
-});
-$("people-list").addEventListener("click",e => {
-  const friendButton = e.target.closest("[data-friend-user]");
-  if (friendButton) { sendFriendRequest(friendButton.dataset.friendUser); return; }
-  const button = e.target.closest("[data-chat-user]");
-  if (button) openConversation(button.dataset.chatUser);
-});
-$("chat-list").addEventListener("click",e => {
-  const button = e.target.closest("[data-open-chat]");
-  if (button) openConversation(button.dataset.openChat);
-});
-$("message-form").addEventListener("submit",sendMessage);
-$("post-form").addEventListener("submit",publishPost);
-$("feed-list").addEventListener("click",handleFeedAction);
-$("feed-list").addEventListener("change",handleFeedAction);
-$("feed-list").addEventListener("submit",handleFeedAction);
-$("saved-list").addEventListener("click",handleFeedAction);
-$("saved-list").addEventListener("change",handleFeedAction);
-$("saved-list").addEventListener("submit",handleFeedAction);
-$("post-body").addEventListener("input",e => $("post-char-count").textContent = String(e.target.value.length));
-$("post-photo").addEventListener("change",e => {
-  const file = e.target.files?.[0];
-  if (!file) { clearPostPhoto(); return; }
-  const allowed = ["image/jpeg","image/png","image/webp","image/gif"];
-  if (!allowed.includes(file.type) || file.size > 8 * 1024 * 1024) {
-    clearPostPhoto();
-    status("Choose a JPG, PNG, WEBP or GIF image up to 8 MB.",true);
-    return;
-  }
-  selectedPostPhoto = file;
-  $("photo-file-name").textContent = file.name;
-  const reader = new FileReader();
-  reader.onload = () => {
-    if (selectedPostPhoto !== file) return;
-    $("photo-preview").src = String(reader.result);
-    $("photo-preview-wrap").hidden = false;
-    status("Photo ready to preview.");
-  };
-  reader.onerror = () => {
-    clearPostPhoto();
-    status("Could not preview this photo. Please choose it again.",true);
-  };
-  reader.readAsDataURL(file);
-});
-$("remove-photo").addEventListener("click",clearPostPhoto);
-$("profile-form").addEventListener("submit",saveMyProfile);
-$("add-by-id-form").addEventListener("submit",sendFriendRequestByUsername);\n$("copy-veter-id").addEventListener("click",copyVeterId);\n$("share-profile").addEventListener("click",shareMyProfile);\n$("create-group").addEventListener("click",createGroup);\n$("group-list").addEventListener("click",e=>{const b=e.target.closest("[data-open-group]");if(b)openGroup(b.dataset.openGroup);});\n$("group-message-form").addEventListener("submit",sendGroupMessage);\n$("message-input").addEventListener("input",()=>{broadcastTyping(true);clearTimeout(typingStopTimer);typingStopTimer=setTimeout(()=>broadcastTyping(false),1100);});
-$("block-chat").addEventListener("click",blockPartner);
-$("report-chat").addEventListener("click",reportPartner);
-$("people-search").addEventListener("input",e => {
-  const q = e.target.value.toLowerCase().trim();
-  renderPeople(cachedPeople.filter(p => [p.display_name,p.username,p.country,p.bio].some(v => (v || "").toLowerCase().includes(q))));
-});
-
-try { applyTheme(localStorage.getItem("veter-social-theme") || "dark"); } catch { applyTheme("dark"); }
-onAuthStateChanged(auth, async user => {
-  me = user;
-  if (!user) { showSignedOut(); status("Sign in to join Veter Social."); return; }
-  try {
-    status("Signed in. Preparing your profile…");
-    const profile = await saveProfile(user);
-    showSignedIn(user,profile);
-    status("Welcome back, " + profile.display_name + "!");
-    await Promise.all([loadPeople(),loadConversations(),loadFeed(),loadFriendRequests(),loadNotifications(),loadGroups(),startPresence()]);
-  } catch(e) {
-    showSignedOut();
-    status("Google sign-in worked, but the database connection needs attention: " + friendly(e),true);
-  }
-});
-window.addEventListener("beforeunload",() => {
-  if (messageChannel && db) db.removeChannel(messageChannel);
-});
