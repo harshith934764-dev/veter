@@ -234,6 +234,7 @@ private:
                 const std::string name=tok(1).text;
                 int at=static_cast<int>(code_.size()); emit(Op::Call,0,name,0,line);
                 pending_calls_.push_back({at,name,0});
+                emit(Op::Pop,0,"",0,line);
             } else {
                 if(count()<2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'run function_name(arguments)'");
                 expr_pos_=1;
