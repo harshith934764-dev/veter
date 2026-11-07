@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070b16"><meta name="description" content="See small Veter code examples and understand which syntax is supported by the current homepage browser playground.">
+<link rel="canonical" href="https://theveter.in/showcase.html">
+<link rel="stylesheet" href="/premium.css?v=2">
+<title>Veter Showcase | Veter</title>
+<style>
+.page-wrap{width:min(1160px,92%);margin:auto}.page-hero{padding:92px 0 58px;background:radial-gradient(ellipse at 12% 0%,rgba(67,113,206,.32),transparent 55%),radial-gradient(ellipse at 88% 20%,rgba(126,76,196,.2),transparent 42%)}.eyebrow{color:var(--v-cyan);font-size:12px;font-weight:850;letter-spacing:.16em;text-transform:uppercase}.page-hero h1{font-size:clamp(42px,7vw,76px);max-width:900px;margin:14px 0 18px}.page-hero p{max-width:760px;font-size:18px}.page-section{padding:48px 0 78px}.section-title{font-size:clamp(28px,4vw,42px);margin:0 0 12px}.lead{max-width:760px;margin-bottom:30px}.feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.feature{padding:26px;border:1px solid var(--v-line);border-radius:22px;background:linear-gradient(145deg,rgba(20,34,58,.95),rgba(8,14,27,.96));box-shadow:0 20px 60px rgba(0,0,0,.2)}.feature .num{font-size:12px;letter-spacing:.14em;color:var(--v-cyan);font-weight:850}.feature h3{font-size:21px;margin:10px 0}.feature p,.feature li{color:var(--v-muted)}.feature ul{padding-left:20px;margin-top:12px}.feature li{margin:6px 0}.wide{grid-column:1/-1}.banner{padding:30px;border:1px solid rgba(101,231,224,.22);border-radius:22px;background:linear-gradient(110deg,rgba(37,74,119,.5),rgba(76,52,123,.28));margin-top:26px}.banner h2{margin-bottom:8px}.banner p{color:var(--v-muted)}.pill{display:inline-flex;padding:6px 11px;border:1px solid var(--v-line);border-radius:99px;color:#b8c8e8;font-size:12px;margin:4px 5px 4px 0}.code-card{background:#050a14;border:1px solid var(--v-line);border-radius:18px;padding:20px;overflow:auto}.code-card pre{margin:0;white-space:pre-wrap;color:#b8f2e9}.page-footer{border-top:1px solid var(--v-line);padding:28px 0;color:var(--v-muted);font-size:13px}.page-footer a{margin-right:16px}.status{color:#f6d18a}.status-live{color:#9be8c4}
+@media(max-width:820px){.feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:580px){.feature-grid{grid-template-columns:1fr}.wide{grid-column:auto}.page-hero{padding:66px 0 42px}}
+</style></head><body>
+<header><nav class="page-wrap" aria-label="Main navigation"><a class="logo" href="/">Veter<span>.</span></a><div class="nav-links">
+<a href="/">Home</a><a href="learn.html">Learn</a><a href="docs.html">Docs</a><a href="reference.html">Reference</a><a href="ecosystem.html">Ecosystem</a><a href="studio.html">Studio</a><a href="showcase.html">Showcase</a><a href="community.html">Community</a><a href="roadmap.html">Roadmap</a></div></nav></header>
+
+<main><section class="page-hero"><div class="page-wrap"><div class="eyebrow">MADE WITH VETER · EXAMPLES</div><h1>Small programs.<br><span class="gradient">Big ideas.</span></h1><p>Explore beginner-friendly examples using the syntax supported by the homepage browser playground. Save a snippet, try it and build from there.</p><a class="btn btn-primary" href="/#code-maker">Open live playground</a></div></section>
+<section class="page-section page-wrap"><h2 class="section-title">Example gallery</h2><p class="lead">These examples use the educational browser runner subset: <code>make</code>, <code>set</code>, <code>say</code>, <code>show</code>, variables, strings and basic arithmetic.</p><div class="feature-grid">
+<article class="feature"><span class="num">EXAMPLE 01</span><h3>Hello, Veter</h3><div class="code-card"><pre>make name "Veter"
+say "Hello from " + name</pre></div><p>A first program with a text value and output.</p></article>
+<article class="feature"><span class="num">EXAMPLE 02</span><h3>Quick calculation</h3><div class="code-card"><pre>make price 120
+make quantity 3
+make total price * quantity
+say total</pre></div><p>Use variables and arithmetic to calculate a total.</p></article>
+<article class="feature"><span class="num">EXAMPLE 03</span><h3>Rectangle area</h3><div class="code-card"><pre>make length 12
+make width 5
+make area length * width
+say area</pre></div><p>Calculate area using two dimensions.</p></article>
+<article class="feature"><span class="num">EXAMPLE 04</span><h3>Remainder</h3><div class="code-card"><pre>make total 17
+make groups 5
+make left total % groups
+say left</pre></div><p>Use the remainder operator for simple grouping logic.</p></article>
+<article class="feature"><span class="num">EXAMPLE 05</span><h3>Simple invoice</h3><div class="code-card"><pre>make item "Notebook"
+make price 45
+make quantity 4
+make total price * quantity
+say item
+say total</pre></div><p>Combine text and numeric values in a tiny invoice.</p></article>
+<article class="feature"><span class="num">EXAMPLE 06</span><h3>Update a value</h3><div class="code-card"><pre>make score 10
+set score score + 5
+say score</pre></div><p>Change a variable and display the new value.</p></article>
+</div><div class="banner"><h2>Know the runner's limits</h2><p>The browser demo is a small teaching interpreter, not the full C++ compiler. Function, array, loop and condition support varies by compiler version. Check the matching documentation before using advanced syntax.</p></div></section></main>
+<footer class="page-footer"><div class="page-wrap">© 2026 Veter Project · <a href="/">Home</a><a href="about.html">Founder</a><a href="roadmap.html">Roadmap</a><a href="https://github.com/harshith934764-dev/veter">GitHub</a><a href="https://www.instagram.com/buildwithveter/">Instagram</a></div></footer>
+</body></html>

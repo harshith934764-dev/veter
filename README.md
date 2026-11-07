@@ -9,6 +9,10 @@ Veter is an independently developed programming-language project created to make
 📘 **Learning Guide:** https://theveter.in/learn.html
 - **Documentation:** https://theveter.in/docs.html
 - **Language Reference:** https://theveter.in/reference.html
+- **Ecosystem:** https://theveter.in/ecosystem.html
+- **Studio vision:** https://theveter.in/studio.html
+- **Example showcase:** https://theveter.in/showcase.html
+- **Community:** https://theveter.in/community.html
 
 ## ✨ About Veter
 
