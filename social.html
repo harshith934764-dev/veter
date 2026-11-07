@@ -63,6 +63,7 @@
 <button class="social-tab" data-view="notifications">🔔 Notifications <span id="notification-count"></span></button>
 <button class="social-tab" data-view="saved">🔖 Saved posts</button>
 <button class="social-tab" data-view="chats">💬 My chats <span id="chat-count"></span></button>
+<button class="social-tab" data-view="dating">❤️ Dating <span class="ai-pill">18+</span></button>
 <button class="social-tab" data-view="ai">🤖 AI Companions <span class="ai-pill">NEW</span></button>
 
 <button class="social-tab" data-view="groups">👥 Group chats</button>
@@ -120,6 +121,23 @@
 <div class="social-view-head"><div><div class="social-kicker">KEEP IN TOUCH</div><h2>Your conversations</h2><p>Messages are private to the two conversation participants.</p></div></div>
 <div class="chat-layout"><div class="chat-list" id="chat-list"><p class="empty-state">No conversations yet. Discover someone to say hello.</p></div>
 <div class="chat-panel"><div class="chat-empty" id="chat-empty">Choose a conversation to start chatting 💬</div><div id="active-chat" hidden><div class="chat-heading"><img id="chat-avatar" alt=""><div><b id="chat-name">Conversation</b><small id="chat-presence">Private chat</small></div><button id="report-chat" class="small-action">Report</button><button id="block-chat" class="small-action">Block</button></div><div class="chat-messages" id="chat-messages"></div><form class="chat-compose" id="message-form"><input id="message-input" maxlength="2000" autocomplete="off" placeholder="Write a message…" required><button type="submit">Send ➤</button></form></div></div></div>
+</section>
+<section class="social-view" id="view-dating" hidden>
+<div class="social-view-head"><div><div class="social-kicker">VETER DATING · ADULTS ONLY</div><h2>Meet with intention ❤️</h2><p>Dating is optional and separate from your regular social profile. Only adults 18+ can use it.</p></div></div>
+<div class="dating-safety-note">🔒 Your date of birth is private and is never shown on your dating card. Age is self-declared for now; this is not government-ID verification.</div>
+<form id="dating-setup-form" class="dating-setup">
+<label>Date of birth (private)<input id="dating-birth-date" type="date" required></label>
+<label>What are you looking for?<select id="dating-looking-for"><option value="relationship">A relationship</option><option value="friendship">New friends</option><option value="chat">Just chatting</option></select></label>
+<label>City (optional)<input id="dating-city" maxlength="80" placeholder="e.g. Hyderabad"></label>
+<label>Short introduction<input id="dating-headline" maxlength="120" placeholder="A little about you"></label>
+<label>Interests (comma separated)<input id="dating-interests" maxlength="240" placeholder="Music, travel, coding"></label>
+<label class="dating-consent"><input id="dating-adult-confirm" type="checkbox" required> I confirm I am 18 or older and agree to use dating respectfully.</label>
+<label class="dating-consent"><input id="dating-enable" type="checkbox" checked> Show my dating profile to other eligible adults.</label>
+<button class="social-primary" type="submit">Save dating profile</button>
+</form>
+<div class="dating-toolbar"><h3>People you may like</h3><button type="button" class="small-action" id="dating-refresh">↻ Refresh</button></div>
+<div id="dating-matches" class="dating-match-banner" hidden></div>
+<div id="dating-people" class="people-grid"><p class="empty-state">Confirm you are 18+ and save your dating profile to begin.</p></div>
 </section>
 <section class="social-view" id="view-ai" hidden>
 <div class="ai-page-head"><div><div class="social-kicker">VETER AI STUDIO</div><h2>AI Companions <span>✦</span></h2><p>Meet friendly fictional characters. They are AI personas, not real people.</p></div><span class="ai-status-pill">● AI CHARACTERS</span></div>
