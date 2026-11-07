@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut
+  getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -30,6 +30,8 @@ let typingChannel = null;
 let activeGroup = null;
 let groupChannel = null;
 let typingStopTimer = null;
+let phoneRecaptcha = null;
+let phoneConfirmation = null;
 
 function status(message, error = false) {
   const appShell = $("social-app");
@@ -676,6 +678,49 @@ $("google-sign-in").addEventListener("click", async () => {
   try {
     await signInWithPopup(auth,new GoogleAuthProvider());
   } catch(e) { status(friendly(e),true); }
+  finally { button.disabled = false; }
+});
+async function ensurePhoneRecaptcha() {
+  if (phoneRecaptcha) return phoneRecaptcha;
+  phoneRecaptcha = new RecaptchaVerifier(auth, "phone-recaptcha", { size:"normal" });
+  await phoneRecaptcha.render();
+  return phoneRecaptcha;
+}
+$("phone-send-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const phone = $("phone-number").value.trim().replace(/[\s()-]/g,"");
+  if (!/^\+[1-9]\d{7,14}$/.test(phone)) {
+    status("Enter your full phone number with country code, like +91 9876543210.",true);
+    return;
+  }
+  const button = $("phone-send-code");
+  button.disabled = true;
+  try {
+    status("Preparing secure phone verification…");
+    const verifier = await ensurePhoneRecaptcha();
+    phoneConfirmation = await signInWithPhoneNumber(auth,phone,verifier);
+    $("phone-verify-form").hidden = false;
+    $("phone-code").focus();
+    status("SMS code sent. Check your phone.");
+  } catch(error) {
+    if (phoneRecaptcha) { try { await phoneRecaptcha.clear(); } catch {} phoneRecaptcha = null; }
+    status(friendly(error),true);
+  } finally { button.disabled = false; }
+});
+$("phone-verify-form").addEventListener("submit",async event => {
+  event.preventDefault();
+  const code = $("phone-code").value.trim();
+  if (!phoneConfirmation || !/^\d{6}$/.test(code)) {
+    status("Enter the 6-digit code sent to your phone.",true);
+    return;
+  }
+  const button = $("phone-verify-code");
+  button.disabled = true;
+  try {
+    status("Checking your code…");
+    await phoneConfirmation.confirm(code);
+    status("Phone verified. Opening Veter Social…");
+  } catch(error) { status(friendly(error),true); }
   finally { button.disabled = false; }
 });
 $("sign-out").addEventListener("click", async () => {
