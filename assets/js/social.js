@@ -8,7 +8,6 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.0";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB6ky_ETioOqiONq9T4uousDRpOzOMRRn0",
@@ -28,23 +27,21 @@ const auth = getAuth(app);
 
 // Firebase remains the identity provider. Supabase receives the current
 // Firebase ID token and stores application data in PostgreSQL.
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  accessToken: async () => {
-    const user = auth.currentUser;
-    return user ? await user.getIdToken() : null;
-  },
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-    detectSessionInUrl: false
-  }
-});
-
 const el = id => document.getElementById(id);
 const status = el("auth-status");
 const show = message => {
   if (status) status.textContent = message;
 };
+
+show("Veter Social sign-in is ready. Choose Google or enter your phone number.");
+window.addEventListener("error", event => {
+  console.error("Veter Social script error:", event.error || event.message);
+  show("A page script error occurred. Refresh the page; if it continues, send support the browser console error.");
+});
+window.addEventListener("unhandledrejection", event => {
+  console.error("Veter Social startup error:", event.reason);
+  show("A connection module failed to load. Please refresh and try again.");
+});
 
 let confirmationResult = null;
 let recaptchaVerifier = null;
@@ -72,7 +69,26 @@ function friendly(error) {
   return error?.message || "Something went wrong. Please try again.";
 }
 
+async function getSupabaseClient() {
+  // Load the database SDK only after Firebase login succeeds. If the
+  // database CDN is unavailable, the Google sign-in button still works.
+  const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2.119.0");
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    accessToken: async () => {
+      const user = auth.currentUser;
+      return user ? await user.getIdToken() : null;
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false
+    }
+  });
+}
+
 async function syncProfile(user) {
+  show("Signed in. Connecting to Veter Social database…");
+  const supabase = await getSupabaseClient();
   const profile = {
     uid: user.uid,
     display_name: (user.displayName || "Veter member").trim().slice(0, 40) || "Veter member",
@@ -99,10 +115,16 @@ async function syncProfile(user) {
 
 el("google-sign-in")?.addEventListener("click", async () => {
   try {
+    const button = el("google-sign-in");
+    if (button) button.disabled = true;
     show("Opening Google sign-in…");
     await signInWithPopup(auth, new GoogleAuthProvider());
   } catch (error) {
+    console.error("Google sign-in failed:", error);
     show(friendly(error));
+  } finally {
+    const button = el("google-sign-in");
+    if (button) button.disabled = false;
   }
 });
 
