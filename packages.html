@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b16">
+  <title>Veter Package Manager | Design Proposal</title>
+  <meta name="description" content="Explore the proposed package format, dependency rules and security principles for a future Veter package manager.">
+  <link rel="canonical" href="https://theveter.in/packages.html">
+  <link rel="stylesheet" href="/premium.css?v=1">
+  <style>
+    .wrap{width:min(1080px,92%);margin:auto}.hero{padding:92px 0 64px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(61,113,190,.28),transparent 65%)}
+    .eyebrow{display:inline-block;padding:5px 12px;border:1px solid rgba(196,164,255,.35);border-radius:99px;color:#c4a4ff;font-size:12px;letter-spacing:.12em}
+    h1{font-size:clamp(40px,7vw,70px);line-height:1.06;letter-spacing:-.05em;margin:18px 0}.lead{max-width:760px;margin:auto;color:#a8b5ce;font-size:18px}
+    .actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:25px}.btn{display:inline-block;padding:11px 17px;border:1px solid rgba(153,178,226,.2);border-radius:12px;background:#111d32;font-weight:700}
+    section{padding:46px 0}.heading{text-align:center;margin-bottom:25px}.heading p{color:#a8b5ce;max-width:720px;margin:8px auto}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{padding:22px;border:1px solid rgba(153,178,226,.17);border-radius:18px;background:linear-gradient(150deg,#121d32,#0a111f)}
+    .card h3{margin:9px 0}.card p,.card li{color:#a8b5ce;font-size:14px}.card ul{padding-left:19px;margin-top:10px}
+    .status{font-size:11px;letter-spacing:.1em;color:#c4a4ff;font-weight:800}.notice{padding:18px;border:1px solid rgba(196,164,255,.24);border-radius:14px;color:#a8b5ce;background:#111326;margin-top:20px}
+    .code{white-space:pre-wrap;overflow-wrap:anywhere;background:#060b16;border:1px solid rgba(153,178,226,.17);border-radius:12px;padding:18px;color:#a8f0c2;font:13px/1.8 ui-monospace,monospace;overflow-x:auto}
+    .steps{counter-reset:step;display:grid;gap:12px;max-width:800px;margin:auto}.step{counter-increment:step;padding:17px 18px 17px 58px;border:1px solid rgba(153,178,226,.17);border-radius:14px;background:#0d1526;position:relative}.step:before{content:counter(step);position:absolute;left:18px;top:17px;color:#65e7e0;font-weight:900}.step p{color:#a8b5ce;font-size:14px;margin-top:4px}
+    footer{padding:26px 0;border-top:1px solid rgba(153,178,226,.17);color:#8796b2;font-size:13px}footer a{margin-right:14px}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.hero{padding:70px 0 50px}}
+  </style>
+</head>
+<body>
+<header><nav class="wrap" style="min-height:74px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><a href="index.html" style="font-size:25px;font-weight:900">Veter<span style="color:#65e7e0">.</span></a><div style="display:flex;gap:15px;flex-wrap:wrap;font-size:14px"><a href="developers.html">Developers</a><a href="docs.html">Docs</a><a href="roadmap.html">Roadmap</a><a href="index.html">Home</a></div></nav></header>
+<main>
+<section class="hero"><div class="wrap"><span class="eyebrow">DESIGN PROPOSAL · NOT RELEASED</span><h1>Packages that make<br><span class="gradient">Veter grow.</span></h1><p class="lead">A proposed package manager for sharing reusable Veter libraries. This page defines an initial direction; there is no public registry or working install command yet.</p><div class="actions"><a class="btn btn-primary" href="developers.html">Developer portal →</a><a class="btn" href="https://github.com/harshith934764-dev/veter">View source ↗</a></div></div></section>
+<section><div class="wrap"><div class="heading"><h2>How it should work</h2><p>Keep the first version small, predictable and safe.</p></div><div class="grid">
+<article class="card"><span class="status">01 · PROJECT</span><h3>One manifest</h3><p>Each project describes its name, version, supported Veter version and dependencies in one file.</p></article>
+<article class="card"><span class="status">02 · DEPENDENCIES</span><h3>Repeatable installs</h3><p>A lock file records exact dependency versions and integrity hashes so another developer can reproduce the same dependency set.</p></article>
+<article class="card"><span class="status">03 · REGISTRY</span><h3>Discover libraries</h3><p>A future registry can list package owners, source repositories, releases, compatibility and security notices.</p></article>
+</div></div></section>
+<section><div class="wrap"><div class="heading"><h2>Proposed project manifest</h2><p>Illustrative JSON only. The format is not yet accepted by a released tool.</p></div><div class="code">{
+  "name": "hello-veter-app",
+  "version": "0.1.0",
+  "veter": "core-1",
+  "entry": "src/main.vtr",
+  "dependencies": {
+    "sample/text-tools": "^1.2.0"
+  }
+}</div><div class="notice"><strong>Design note:</strong> Package names should be unique and publisher-scoped. A package must declare its license, source URL and supported Veter versions before publication.</div></div></section>
+<section><div class="wrap"><div class="heading"><h2>Proposed command experience</h2><p>These commands show the intended user experience. They do not work in the current Veter compiler.</p></div><div class="code">veter new my-app
+veter add sample/text-tools
+veter install
+veter list
+veter update
+veter remove sample/text-tools</div></div></section>
+<section><div class="wrap"><div class="heading"><h2>Non-negotiable safety rules</h2><p>A package manager must protect developers, not just make installation easy.</p></div><div class="grid">
+<article class="card"><h3>Integrity checks</h3><ul><li>Lock exact versions</li><li>Verify archive hashes</li><li>Reject corrupted downloads</li></ul></article>
+<article class="card"><h3>Trusted publishing</h3><ul><li>Verify package ownership</li><li>Sign release metadata</li><li>Show source and license</li></ul></article>
+<article class="card"><h3>Safe by default</h3><ul><li>No automatic install scripts</li><li>Review dependency changes</li><li>Warn about known vulnerabilities</li></ul></article>
+</div><div class="notice">Never install a package just because its name looks familiar. A future Veter registry should show the publisher, source repository, version, license and integrity status before installation.</div></div></section>
+<section><div class="wrap"><div class="heading"><h2>Build it in stages</h2><p>A realistic roadmap from a file format to a trusted ecosystem.</p></div><div class="steps">
+<div class="step"><strong>Manifest and validator</strong><p>Define a stable schema and validate local project metadata without downloading anything.</p></div>
+<div class="step"><strong>Local package cache</strong><p>Support local archives and deterministic lock files before introducing a public registry.</p></div>
+<div class="step"><strong>Registry and publishing</strong><p>Add verified publisher accounts, immutable releases, checksums and moderation/reporting.</p></div>
+<div class="step"><strong>Dependency security</strong><p>Add vulnerability advisories, package deprecation and safe update workflows.</p></div>
+</div></div></section>
+<section><div class="wrap"><div class="heading"><h2>Help shape the proposal</h2><p>Review the design and share feedback before implementation begins.</p></div><div class="actions"><a class="btn btn-primary" href="https://github.com/harshith934764-dev/veter/issues">Suggest an improvement ↗</a><a class="btn" href="roadmap.html">View Veter roadmap</a></div></div></section>
+</main>
+<footer><div class="wrap">© 2026 Veter Project · <a href="index.html">Home</a><a href="developers.html">Developers</a><a href="docs.html">Documentation</a><a href="community.html">Community</a></div></footer>
+</body></html>
