@@ -101,7 +101,7 @@ class PackageValidatorTests(unittest.TestCase):
 
     def test_new_creates_project_files_and_valid_manifest(self):
         project = self.work / "starter-app"
-        result = subprocess.run([str(self.exe), "new", str(project)],
+        result = subprocess.run([str(self.exe), "new", "starter-app"],
                                 cwd=self.work, text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue((project / "src" / "main.vtr").is_file())
