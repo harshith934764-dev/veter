@@ -1,12 +1,6 @@
 # Veter Compiler WebAssembly Build
 
-This document describes the experimental WebAssembly build of the native Veter Core 1.0 compiler.
-
-## What this enables
-
-The C++ compiler can be compiled to WebAssembly with Emscripten. The generated JavaScript loader and `.wasm` module can run in a JavaScript host, including a browser or Node.js, without launching a Windows executable.
-
-The compiler still reads a source file from its virtual filesystem. A host must write the `.vtr` source into Emscripten's virtual filesystem and call the compiler entry point with that file path.
+Veter Core 1.0 can be compiled to WebAssembly with Emscripten. The generated JavaScript loader and `.wasm` module can run in a browser or Node.js without launching a Windows executable.
 
 ## Build locally
 
@@ -18,7 +12,7 @@ em++ downloads/veter_core_1_0.cpp \
   -std=c++20 -O2 \
   -sMODULARIZE=1 \
   -sEXPORT_NAME=createVeterModule \
-  -sENVIRONMENT=node \
+  -sENVIRONMENT=web,node \
   -sALLOW_MEMORY_GROWTH=1 \
   -sEXIT_RUNTIME=0 \
   -sEXPORTED_RUNTIME_METHODS='["FS","callMain"]' \
@@ -31,12 +25,18 @@ Run the smoke test from the repository root:
 node tests/wasm_smoke_test.cjs
 ```
 
+## Veter Studio integration
+
+The Studio page loads `/assets/wasm/veterc.js` and its companion `veterc.wasm` on the first Run click. It writes the active editor file into Emscripten's virtual filesystem and invokes the actual compiler entry point. Compiler output and errors are shown in the output panel.
+
+The GitHub Actions workflow builds and smoke-tests the module on pull requests. When the workflow runs on `main`, it publishes the generated browser assets to `assets/wasm/` in a bot commit so the static-site host can deploy them. Changes to the generated asset directory do not trigger another build.
+
 ## Current limitations
 
-- This is an experimental build target, not yet the default Studio execution engine.
-- The current build targets Node.js for repeatable CI smoke testing. A browser build needs a browser-compatible Emscripten environment setting and a browser integration test.
-- Programs that request input need a host-provided stdin strategy.
-- Website generation and file-writing features need separate tests against Emscripten's virtual filesystem before being advertised as fully supported.
+- Studio currently runs the active editor file only; it does not yet compile/import a complete multi-file project as one program.
+- Programs that request keyboard input need a host-provided stdin strategy and are not supported by the Studio runner yet.
+- Compiler-generated files stay in Emscripten's temporary virtual filesystem and are not automatically downloaded.
+- Website-generation behavior and other filesystem-heavy compiler features need dedicated browser tests before being advertised as fully supported.
 - The native Windows executable and native compiler workflow remain available.
 
-The GitHub Actions workflow `Veter WebAssembly build` compiles the module, runs the smoke test, and uploads the generated compiler bundle as an artifact.
+This is the real C++ Veter Core 1.0 compiler running in a WebAssembly runtime, not the former limited JavaScript demo interpreter.
