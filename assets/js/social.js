@@ -539,7 +539,7 @@ function subscribeMessages() {
         host.appendChild(node);
         host.scrollTop = host.scrollHeight;
       }
-    }).subscribe();
+    }).on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation.id},() => loadMessages()).subscribe();
 }
 async function clientMarkDelivered(id) {
   try { const client = await getDb(); await client.from("messages").update({delivered_at:new Date().toISOString()}).eq("id",id); } catch {}
@@ -591,11 +591,24 @@ async function createGroup() {
   const title = prompt("Give your group a name (2–60 characters):");
   if (!title) return;
   const description = prompt("Short group description (optional):") || "";
+  const names = (prompt("Add friends by Veter username, separated by commas (optional):") || "")
+    .split(",").map(x => x.trim().replace(/^@/,"").toLowerCase()).filter(Boolean);
   try {
     const client = await getDb();
     const {data:group,error} = await client.from("social_groups").insert({owner_uid:me.uid,title:title.trim(),description:description.slice(0,240)}).select().single();
     if (error) throw error;
-    const {error:memberError} = await client.from("social_group_members").insert({group_id:group.id,user_uid:me.uid,role:"owner"});
+    const members = [{group_id:group.id,user_uid:me.uid,role:"owner"}];
+    if (names.length) {
+      const {data:profiles,error:profileError} = await client.from("user_profiles").select("uid,username").in("username",names);
+      if (profileError) throw profileError;
+      const {data:friendRows,error:friendError} = await client.from("social_friend_requests").select("sender_uid,receiver_uid").eq("status","accepted").or("sender_uid.eq."+me.uid+",receiver_uid.eq."+me.uid);
+      if (friendError) throw friendError;
+      const friendIds = new Set((friendRows||[]).map(r => r.sender_uid===me.uid ? r.receiver_uid : r.sender_uid));
+      for (const p of profiles||[]) if (friendIds.has(p.uid)) members.push({group_id:group.id,user_uid:p.uid,role:"member"});
+      const missing = names.filter(n => !(profiles||[]).some(p => p.username===n && friendIds.has(p.uid)));
+      if (missing.length) status("Some usernames were skipped because they were not found or are not your accepted friends.");
+    }
+    const {error:memberError} = await client.from("social_group_members").insert(members);
     if (memberError) throw memberError;
     await loadGroups();
     await openGroup(group.id);
