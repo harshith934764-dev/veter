@@ -180,13 +180,15 @@ function switchView(name) {
 async function loadPeople() {
   try {
     const client = await getDb();
-    const [{data: profiles,error}, {data: blocks}] = await Promise.all([
+    const [{data: profiles,error}, {data: blocks,error: blockError}, {data: requests,error: requestError}] = await Promise.all([
       client.from("user_profiles").select("uid,display_name,avatar_url,country,bio,username").neq("uid",me.uid).order("updated_at",{ascending:false}).limit(60),
-      client.from("blocks").select("blocked_uid").eq("blocker_uid",me.uid)
+      client.from("blocks").select("blocked_uid").eq("blocker_uid",me.uid),
+      client.from("social_friend_requests").select("id,sender_uid,receiver_uid,status").or(`sender_uid.eq.${me.uid},receiver_uid.eq.${me.uid}`)
     ]);
-    if (error) throw error;
+    if (error) throw error; if (blockError) throw blockError; if (requestError) throw requestError;
     const blocked = new Set((blocks || []).map(x => x.blocked_uid));
     cachedPeople = (profiles || []).filter(p => !blocked.has(p.uid));
+    window.veterFriendRequests = requests || [];
     renderPeople(cachedPeople);
   } catch (e) { status(friendly(e), true); }
 }
@@ -279,11 +281,14 @@ async function loadFeed() {
     const [{data: profiles,error: profileError},{data: likes,error: likesError},{data: comments,error: commentsError},{data: reactions,error: reactionsError},{data: saves,error: savesError}] = await Promise.all([
       client.from("user_profiles").select("uid,display_name,avatar_url,username").in("uid",authorIds),
       client.from("social_post_likes").select("post_id,user_uid").in("post_id",ids),
-      client.from("social_post_comments").select("id,post_id,author_uid,body,created_at").in("post_id",ids).order("created_at",{ascending:true})
+      client.from("social_post_comments").select("id,post_id,author_uid,body,created_at").in("post_id",ids).order("created_at",{ascending:true}),
+      client.from("social_post_reactions").select("post_id,user_uid,reaction").in("post_id",ids),
+      client.from("social_post_saves").select("post_id,user_uid").eq("user_uid",me.uid).in("post_id",ids)
     ]);
     if (profileError) throw profileError;
     if (likesError) throw likesError;
-    if (commentsError) throw commentsError;\n    if (reactionsError) throw reactionsError; if (savesError) throw savesError;
+    if (commentsError) throw commentsError;
+    if (reactionsError) throw reactionsError; if (savesError) throw savesError;
     const commentAuthors = [...new Set((comments || []).map(c => c.author_uid))];
     let commentProfiles = [];
     if (commentAuthors.length) {
@@ -293,7 +298,10 @@ async function loadFeed() {
     }
     const byId = new Map([...(profiles || []), ...commentProfiles].map(p => [p.uid,p]));
     const likesByPost = new Map();
-    const commentsByPost = new Map();\n    const reactionsByPost = new Map();\n    const savedIds = new Set((saves || []).map(x => x.post_id));\n    for (const r of reactions || []) { if (!reactionsByPost.has(r.post_id)) reactionsByPost.set(r.post_id,[]); reactionsByPost.get(r.post_id).push(r); }
+    const commentsByPost = new Map();
+    const reactionsByPost = new Map();
+    const savedIds = new Set((saves || []).map(x => x.post_id));
+    for (const r of reactions || []) { if (!reactionsByPost.has(r.post_id)) reactionsByPost.set(r.post_id,[]); reactionsByPost.get(r.post_id).push(r); }
     for (const like of likes || []) {
       if (!likesByPost.has(like.post_id)) likesByPost.set(like.post_id,[]);
       likesByPost.get(like.post_id).push(like.user_uid);
@@ -305,7 +313,8 @@ async function loadFeed() {
     host.innerHTML = posts.map(post => {
       const author = byId.get(post.author_uid) || {display_name:"Veter member"};
       const likedBy = likesByPost.get(post.id) || [];
-      const mine = post.author_uid === me.uid;\n      const myReaction = (reactionsByPost.get(post.id) || []).find(x => x.user_uid === me.uid)?.reaction || "";
+      const mine = post.author_uid === me.uid;
+      const myReaction = (reactionsByPost.get(post.id) || []).find(x => x.user_uid === me.uid)?.reaction || "";
       return `<article class="feed-post" data-post-id="${esc(post.id)}">
         <div class="feed-author"><img src="${avatar(author)}" alt=""><div><b>${esc(author.display_name)}</b><small>${author.username ? "@"+esc(author.username)+" · " : ""}${new Date(post.created_at).toLocaleString()}</small></div>${mine ? '<button class="post-delete" data-delete-post>Delete</button>' : ""}</div>
         <p class="feed-body">${esc(post.body)}</p>
@@ -557,6 +566,8 @@ $("incoming-friends").addEventListener("click",async e => {
   catch(err) { status(friendly(err),true); button.disabled = false; }
 });
 $("people-list").addEventListener("click",e => {
+  const friendButton = e.target.closest("[data-friend-user]");
+  if (friendButton) { sendFriendRequest(friendButton.dataset.friendUser); return; }
   const button = e.target.closest("[data-chat-user]");
   if (button) openConversation(button.dataset.chatUser);
 });
@@ -606,7 +617,8 @@ $("people-search").addEventListener("input",e => {
   renderPeople(cachedPeople.filter(p => [p.display_name,p.username,p.country,p.bio].some(v => (v || "").toLowerCase().includes(q))));
 });
 
-try { applyTheme(localStorage.getItem("veter-social-theme") || "dark"); } catch { applyTheme("dark"); }\nonAuthStateChanged(auth, async user => {
+try { applyTheme(localStorage.getItem("veter-social-theme") || "dark"); } catch { applyTheme("dark"); }
+onAuthStateChanged(auth, async user => {
   me = user;
   if (!user) { showSignedOut(); status("Sign in to join Veter Social."); return; }
   try {
