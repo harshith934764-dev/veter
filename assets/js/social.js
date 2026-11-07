@@ -587,6 +587,59 @@ async function openSharedProfileIfRequested() {
     status("You are viewing the shared profile of " + data.display_name + ".");
   } catch(e) { status(friendly(e),true); }
 }
+async function blockPartner() {
+  if (!me || !activePartner?.uid) { status("Open a conversation first.", true); return; }
+  const name = activePartner.display_name || "this person";
+  if (!confirm("Block " + name + "? They will no longer be able to start conversations with you.")) return;
+  const button = $("block-chat");
+  button.disabled = true;
+  try {
+    const client = await getDb();
+    const { error } = await client.from("blocks").upsert(
+      { blocker_uid: me.uid, blocked_uid: activePartner.uid },
+      { onConflict: "blocker_uid,blocked_uid" }
+    );
+    if (error) throw error;
+    if (messageChannel) client.removeChannel(messageChannel);
+    messageChannel = null;
+    activeConversation = null;
+    activePartner = null;
+    $("active-chat").hidden = true;
+    $("chat-empty").hidden = false;
+    await Promise.all([loadPeople(), loadConversations()]);
+    status(name + " has been blocked.");
+  } catch (error) { status(friendly(error), true); }
+  finally { button.disabled = false; }
+}
+
+async function reportPartner() {
+  if (!me || !activePartner?.uid || !activeConversation?.id) {
+    status("Open a conversation before reporting someone.", true); return;
+  }
+  const reason = prompt("Why are you reporting this person? (Spam, harassment, abuse, scam, or other)");
+  if (!reason || !reason.trim()) return;
+  const details = prompt("Add details about what happened (required):");
+  if (!details || !details.trim()) {
+    status("Please add a short explanation so the report can be reviewed.", true); return;
+  }
+  const button = $("report-chat");
+  button.disabled = true;
+  try {
+    const client = await getDb();
+    const { error } = await client.from("reports").insert({
+      reporter_uid: me.uid,
+      reported_uid: activePartner.uid,
+      conversation_id: activeConversation.id,
+      reason: reason.trim().slice(0,120),
+      details: details.trim().slice(0,2000),
+      status: "pending"
+    });
+    if (error) throw error;
+    status("Report submitted. Thank you for helping keep Veter safe.");
+  } catch (error) { status(friendly(error), true); }
+  finally { button.disabled = false; }
+}
+
 async function saveMyProfile(event) {
   event.preventDefault();
   if (!me) { status("Please sign in before saving your profile.", true); return; }
