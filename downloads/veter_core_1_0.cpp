@@ -227,7 +227,7 @@ private:
             for(const auto& param:params){if(!metadata.empty())metadata+='|';metadata+=param;}
             functions_[name]={static_cast<int>(code_.size()),params};
             const int entry=static_cast<int>(code_.size());
-            emit(Op::Jump,entry+1,metadata,0,line);
+            emit(Op::Jump,0,metadata,entry+1,line);
             blocks_.push_back({Block::Function,skip,0,line,name,{}});
         } else if(isword(0,"run")){
             if(count()<2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'run function_name(arguments)'");
@@ -240,8 +240,9 @@ private:
         } else if(isword(0,"give")){
             if(count()<2) throw std::runtime_error("Line "+std::to_string(line)+": use 'give value' inside a function");
             auto end=compile_expr(1,line); require_end(end);
-            if(blocks_.empty() || blocks_.back().kind!=Block::Function)
-                throw std::runtime_error("Line "+std::to_string(line)+": 'give' must be inside a function");
+            bool inside_function=false;
+            for(auto it=blocks_.rbegin();it!=blocks_.rend();++it) if(it->kind==Block::Function){inside_function=true;break;}
+            if(!inside_function) throw std::runtime_error("Line "+std::to_string(line)+": 'give' must be inside a function");
             emit(Op::Return,1,"",0,line);
         } else if(isword(0,"make") || isword(0,"set")){
             if(count()<3||tok(1).kind!=TK::Word)throw std::runtime_error("Line "+std::to_string(line)+": use 'make name value'");
