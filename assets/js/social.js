@@ -174,6 +174,24 @@ async function openConversation(partnerUid) {
     status("Private conversation opened.");
   } catch (e) { status(friendly(e), true); }
 }
+let selectedPostPhoto = null;
+function clearPostPhoto() {
+  selectedPostPhoto = null;
+  $("post-photo").value = "";
+  $("photo-file-name").textContent = "No photo selected · max 8 MB";
+  $("photo-preview-wrap").hidden = true;
+  $("photo-preview").removeAttribute("src");
+}
+async function uploadPostPhoto(file) {
+  const extension = ({ "image/jpeg":"jpg", "image/png":"png", "image/webp":"webp", "image/gif":"gif" })[file.type];
+  if (!extension) throw new Error("Choose a JPG, PNG, WEBP or GIF image.");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Photo must be 8 MB or smaller.");
+  const client = await getDb();
+  const path = me.uid + "/" + crypto.randomUUID() + "." + extension;
+  const { error } = await client.storage.from("social-photos").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
+  if (error) throw error;
+  return client.storage.from("social-photos").getPublicUrl(path).data.publicUrl;
+}
 async function loadFeed() {
   if (!me) return;
   const host = $("feed-list");
@@ -218,6 +236,7 @@ async function loadFeed() {
       return `<article class="feed-post" data-post-id="${esc(post.id)}">
         <div class="feed-author"><img src="${avatar(author)}" alt=""><div><b>${esc(author.display_name)}</b><small>${author.username ? "@"+esc(author.username)+" · " : ""}${new Date(post.created_at).toLocaleString()}</small></div>${mine ? '<button class="post-delete" data-delete-post>Delete</button>' : ""}</div>
         <p class="feed-body">${esc(post.body)}</p>
+        ${post.image_url ? '<img class="feed-photo" src="' + esc(post.image_url) + '" alt="Photo shared by ' + esc(author.display_name) + '" loading="lazy">' : ""}
         <div class="feed-actions"><button data-like-post class="${likedBy.includes(me.uid) ? "liked" : ""}">${likedBy.includes(me.uid) ? "♥ Liked" : "♡ Like"} · ${likedBy.length}</button><button data-comment-post>💬 Comment · ${(commentsByPost.get(post.id) || []).length}</button></div>
         <div class="post-comments">${(commentsByPost.get(post.id) || []).map(comment => {
           const commenter = byId.get(comment.author_uid) || {display_name:"Veter member"};
@@ -230,15 +249,18 @@ async function loadFeed() {
 async function publishPost(event) {
   event.preventDefault();
   const body = $("post-body").value.trim();
-  if (!body) return;
-  const button = $("post-form").querySelector("button");
+  if (!body && !selectedPostPhoto) { status("Write something or choose a photo first.",true); return; }
+  const button = $("post-form").querySelector('button[type="submit"]');
   button.disabled = true;
   try {
     const client = await getDb();
-    const {error} = await client.from("social_posts").insert({author_uid:me.uid,body});
+    let image_url = null;
+    if (selectedPostPhoto) { status("Uploading your photo…"); image_url = await uploadPostPhoto(selectedPostPhoto); }
+    const {error} = await client.from("social_posts").insert({author_uid:me.uid,body,image_url});
     if (error) throw error;
     $("post-body").value = "";
     $("post-char-count").textContent = "0";
+    clearPostPhoto();
     status("Your post is live in the Veter community!");
     await loadFeed();
   } catch (e) { status(friendly(e),true); }
@@ -428,6 +450,16 @@ $("message-form").addEventListener("submit",sendMessage);
 $("post-form").addEventListener("submit",publishPost);
 $("feed-list").addEventListener("click",handleFeedAction);
 $("post-body").addEventListener("input",e => $("post-char-count").textContent = String(e.target.value.length));
+$("post-photo").addEventListener("change",e => {
+  const file = e.target.files?.[0];
+  if (!file) { clearPostPhoto(); return; }
+  if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) { clearPostPhoto(); status("Choose an image file up to 8 MB.",true); return; }
+  selectedPostPhoto = file;
+  $("photo-file-name").textContent = file.name;
+  $("photo-preview").src = URL.createObjectURL(file);
+  $("photo-preview-wrap").hidden = false;
+});
+$("remove-photo").addEventListener("click",clearPostPhoto);
 $("profile-form").addEventListener("submit",saveMyProfile);
 $("block-chat").addEventListener("click",blockPartner);
 $("report-chat").addEventListener("click",reportPartner);
