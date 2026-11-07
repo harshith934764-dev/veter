@@ -8,6 +8,7 @@
 #include <variant>
 #include <vector>
 #include <limits>
+#include <algorithm>
 
 // Veter Compiler v0.8 — C++20
 // Features: integers, strings, input, arithmetic precedence, comparisons, logical AND/OR/NOT,
@@ -27,7 +28,7 @@
 // end repeat
 
 enum class TK { Word, Number, String, Plus, Minus, Star, Slash, LParen, RParen,
-                EqEq, NotEq, Less, LessEq, Greater, GreaterEq, Percent, End };
+                EqEq, NotEq, Less, LessEq, Greater, GreaterEq, Percent, Comma, End };
 struct Token { TK kind; std::string text; int line; };
 
 static std::vector<Token> lex_line(const std::string& s, int line) {
@@ -70,7 +71,7 @@ static std::vector<Token> lex_line(const std::string& s, int line) {
         switch(c){
             case '+':k=TK::Plus;break; case '-':k=TK::Minus;break;
             case '*':k=TK::Star;break; case '/':k=TK::Slash;break; case '%':k=TK::Percent;break;
-            case '(':k=TK::LParen;break; case ')':k=TK::RParen;break;
+            case '(':k=TK::LParen;break; case ')':k=TK::RParen;break; case ',':k=TK::Comma;break;
             case '<':k=TK::Less;break; case '>':k=TK::Greater;break;
             default: throw std::runtime_error("Line "+std::to_string(line)+": unexpected character '"+c+"'");
         }
@@ -82,7 +83,7 @@ static std::vector<Token> lex_line(const std::string& s, int line) {
 
 using Value=std::variant<long long,std::string>;
 enum class Op { PushInt, PushString, Load, Store, ReadInput, Add, Sub, Mul, Div, Mod,
-                Eq, Ne, Lt, Le, Gt, Ge, Neg, BoolAnd, BoolOr, BoolNot, Print, JumpIfFalse, Jump, LoopCheck, Call, Return, Halt };
+                Eq, Ne, Lt, Le, Gt, Ge, Neg, BoolAnd, BoolOr, BoolNot, Print, JumpIfFalse, Jump, LoopCheck, Call, Return, Pop, Halt };
 struct Ins { Op op; long long number=0; std::string text; int target=0; int line=1; };
 
 class Compiler {
@@ -96,9 +97,15 @@ public:
         if(!blocks_.empty()) throw std::runtime_error("Line "+std::to_string(blocks_.back().line)+": block was not closed");
         code_.push_back({Op::Halt,0,"",0, lines_.empty()?1:lines_.back().n});
         for (const auto& call : pending_calls_) {
-            auto it = functions_.find(call.second);
-            if (it == functions_.end()) throw std::runtime_error("Unknown function '" + call.second + "'");
-            code_.at(static_cast<std::size_t>(call.first)).target = it->second;
+            auto it = functions_.find(call.name);
+            if (it == functions_.end()) throw std::runtime_error("Unknown function '" + call.name + "'");
+            if (static_cast<int>(it->second.params.size()) != call.argc)
+                throw std::runtime_error("Function '" + call.name + "' expects " +
+                    std::to_string(it->second.params.size()) + " argument(s), got " + std::to_string(call.argc));
+            code_.at(static_cast<std::size_t>(call.instruction)).target = it->second.entry;
+            code_.at(static_cast<std::size_t>(it->second.entry)).text.clear();
+            for(const auto& param:it->second.params){if(!code_.at(static_cast<std::size_t>(it->second.entry)).text.empty())code_.at(static_cast<std::size_t>(it->second.entry)).text+='|';code_.at(static_cast<std::size_t>(it->second.entry)).text+=param;}
+            code_.at(static_cast<std::size_t>(call.instruction)).text = call.name;
         }
         return code_;
     }
@@ -106,7 +113,9 @@ private:
     struct Line { std::vector<Token> t; int n; };
     struct Block { enum Kind{If,Else,Repeat,Keep,Function} kind; int patch; int start; int line; std::string name; std::vector<int> breaks; };
     std::vector<Line> lines_; std::size_t pos_=0; std::vector<Ins> code_; std::vector<Block> blocks_;
-    std::unordered_map<std::string,int> functions_; std::vector<std::pair<int,std::string>> pending_calls_;
+    struct FunctionInfo { int entry; std::vector<std::string> params; };
+    struct PendingCall { int instruction; std::string name; int argc; };
+    std::unordered_map<std::string,FunctionInfo> functions_; std::vector<PendingCall> pending_calls_;
     Line& cur(){return lines_.at(pos_);}
     Token& tok(std::size_t i){return cur().t.at(i);}
     std::size_t count(){return cur().t.size()-1;}
@@ -119,7 +128,23 @@ private:
         if(t[expr_pos_].kind==TK::Minus){++expr_pos_;atom(t,line);emit(Op::Neg,0,"",0,line);}
         else if(t[expr_pos_].kind==TK::Number){try{emit(Op::PushInt,std::stoll(t[expr_pos_].text),"",0,line);}catch(const std::exception&){throw std::runtime_error("Line "+std::to_string(line)+": integer literal is outside the signed 64-bit range");}++expr_pos_;}
         else if(t[expr_pos_].kind==TK::String){emit(Op::PushString,0,t[expr_pos_].text,0,line);++expr_pos_;}
-        else if(t[expr_pos_].kind==TK::Word){emit(Op::Load,0,t[expr_pos_].text,0,line);++expr_pos_;}
+        else if(t[expr_pos_].kind==TK::Word){
+            const std::string name=t[expr_pos_++].text;
+            if(t[expr_pos_].kind==TK::LParen){
+                ++expr_pos_; int argc=0;
+                if(t[expr_pos_].kind!=TK::RParen){
+                    while(true){
+                        expression(t,0,line); ++argc;
+                        if(t[expr_pos_].kind==TK::Comma){++expr_pos_;continue;}
+                        break;
+                    }
+                }
+                if(t[expr_pos_].kind!=TK::RParen) throw std::runtime_error("Line "+std::to_string(line)+": expected ')' after function arguments");
+                ++expr_pos_;
+                int at=static_cast<int>(code_.size()); emit(Op::Call,argc,name,0,line);
+                pending_calls_.push_back({at,name,argc});
+            } else emit(Op::Load,0,name,0,line);
+        }
         else if(t[expr_pos_].kind==TK::LParen){
             ++expr_pos_; expression(t,0,line);
             if(t[expr_pos_].kind!=TK::RParen)throw std::runtime_error("Line "+std::to_string(line)+": expected ')'");
@@ -178,15 +203,45 @@ private:
     void statement(){
         const int line=cur().n;
         if(isword(0,"do") || isword(0,"create")){
-            if(count()!=2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'do function_name'");
+            if(count()<2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'do function_name(parameter, ...)'");
             const std::string name=tok(1).text;
             if(functions_.count(name)) throw std::runtime_error("Line "+std::to_string(line)+": function already defined '"+name+"'");
+            std::vector<std::string> params;
+            std::size_t p=2;
+            if(p<count()){
+                if(tok(p++).kind!=TK::LParen) throw std::runtime_error("Line "+std::to_string(line)+": expected '(' after function name");
+                while(p<count() && tok(p).kind!=TK::RParen){
+                    if(tok(p).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": expected parameter name");
+                    std::string param=tok(p++).text;
+                    if(std::find(params.begin(),params.end(),param)!=params.end()) throw std::runtime_error("Line "+std::to_string(line)+": duplicate parameter '"+param+"'");
+                    params.push_back(param);
+                    if(p<count() && tok(p).kind==TK::Comma) ++p;
+                    else if(p<count() && tok(p).kind!=TK::RParen) throw std::runtime_error("Line "+std::to_string(line)+": expected ',' between parameters");
+                }
+                if(p>=count() || tok(p).kind!=TK::RParen) throw std::runtime_error("Line "+std::to_string(line)+": expected ')' after parameters");
+                ++p;
+            }
+            require_end(p);
             int skip=(int)code_.size(); emit(Op::Jump,0,"",0,line);
-            functions_[name]=(int)code_.size();
+            std::string metadata;
+            for(const auto& param:params){if(!metadata.empty())metadata+='|';metadata+=param;}
+            functions_[name]={static_cast<int>(code_.size()),params};
+            emit(Op::Jump,0,metadata,0,line);
             blocks_.push_back({Block::Function,skip,0,line,name,{}});
         } else if(isword(0,"run")){
-            if(count()!=2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'run function_name'");
-            int at=(int)code_.size(); emit(Op::Call,0,tok(1).text,0,line); pending_calls_.push_back({at,tok(1).text});
+            if(count()<2 || tok(1).kind!=TK::Word) throw std::runtime_error("Line "+std::to_string(line)+": use 'run function_name(arguments)'");
+            expr_pos_=1;
+            std::vector<Token> expression_tokens=cur().t;
+            // Compile a call expression, then discard its returned value for statement form.
+            atom(expression_tokens,line);
+            require_end(expr_pos_);
+            emit(Op::Pop,0,"",0,line);
+        } else if(isword(0,"give")){
+            if(count()<2) throw std::runtime_error("Line "+std::to_string(line)+": use 'give value' inside a function");
+            auto end=compile_expr(1,line); require_end(end);
+            if(blocks_.empty() || blocks_.back().kind!=Block::Function)
+                throw std::runtime_error("Line "+std::to_string(line)+": 'give' must be inside a function");
+            emit(Op::Return,1,"",0,line);
         } else if(isword(0,"make") || isword(0,"set")){
             if(count()<3||tok(1).kind!=TK::Word)throw std::runtime_error("Line "+std::to_string(line)+": use 'make name value'");
             auto end=compile_expr(2,line); require_end(end);
@@ -250,7 +305,7 @@ private:
             } else if(count()==1 && !blocks_.empty() && blocks_.back().kind==Block::Keep){
                 auto b=blocks_.back();blocks_.pop_back();emit(Op::Jump,0,"",b.start,line);code_[b.patch].target=(int)code_.size();for(int at:b.breaks)code_[at].target=(int)code_.size();
             } else if(count()==1 && !blocks_.empty() && blocks_.back().kind==Block::Function){
-                auto b=blocks_.back();blocks_.pop_back();emit(Op::Return,0,"",0,line);code_[b.patch].target=(int)code_.size();
+                auto b=blocks_.back();blocks_.pop_back();emit(Op::PushInt,0,"",0,line);emit(Op::Return,1,"",0,line);code_[b.patch].target=(int)code_.size();
             } else throw std::runtime_error("Line "+std::to_string(line)+": use 'end repeat', 'end' for keep loops, or 'end' inside a function");
         } else {
             throw std::runtime_error("Line "+std::to_string(line)+": unknown command '"+tok(0).text+"'");
@@ -276,15 +331,26 @@ public:
             const auto& x=std::get<std::string>(a);const auto& y=std::get<std::string>(b);return x<y?-1:x>y?1:0;
         };
         std::unordered_map<std::size_t,long long> loop_remaining;
-        std::vector<std::size_t> return_addresses;
+        struct CallFrame { std::size_t return_ip; std::size_t stack_base; std::unordered_map<std::string,Value> locals; };
+        std::vector<CallFrame> frames;
         while(ip<code_.size()){
             const auto&i=code_[ip++];
             switch(i.op){
                 case Op::PushInt:stack.emplace_back(i.number);break;
                 case Op::PushString:stack.emplace_back(i.text);break;
-                case Op::Load:{auto it=vars.find(i.text);if(it==vars.end())throw std::runtime_error("Line "+std::to_string(i.line)+": undefined variable '"+i.text+"'");stack.push_back(it->second);break;}
-                case Op::Store:vars[i.text]=pop();break;
-                case Op::ReadInput:{std::string s;if(!std::getline(in,s))throw std::runtime_error("Line "+std::to_string(i.line)+": input ended");vars[i.text]=s;break;}
+                case Op::Load:{
+                    bool found=false;
+                    if(!frames.empty()){auto local=frames.back().locals.find(i.text);if(local!=frames.back().locals.end()){stack.push_back(local->second);found=true;}}
+                    if(!found){auto it=vars.find(i.text);if(it==vars.end())throw std::runtime_error("Line "+std::to_string(i.line)+": undefined variable '"+i.text+"'");stack.push_back(it->second);}
+                    break;
+                }
+                case Op::Store:{
+                    Value value=pop();
+                    if(!frames.empty() && frames.back().locals.count(i.text)) frames.back().locals[i.text]=std::move(value);
+                    else vars[i.text]=std::move(value);
+                    break;
+                }
+                case Op::ReadInput:{std::string s;if(!std::getline(in,s))throw std::runtime_error("Line "+std::to_string(i.line)+": input ended");if(!frames.empty()&&frames.back().locals.count(i.text))frames.back().locals[i.text]=s;else vars[i.text]=s;break;}
                 case Op::Add:{Value b=pop(),a=pop();if(a.index()==0&&b.index()==0){auto x=std::get<long long>(a),y=std::get<long long>(b);if((y>0&&x>std::numeric_limits<long long>::max()-y)||(y<0&&x<std::numeric_limits<long long>::min()-y))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in addition");stack.emplace_back(x+y);}else if(a.index()==1&&b.index()==1)stack.emplace_back(std::get<std::string>(a)+std::get<std::string>(b));else throw std::runtime_error("Line "+std::to_string(i.line)+": '+' requires two numbers or two strings");break;}
                 case Op::Sub:case Op::Mul:case Op::Div:case Op::Mod:{auto b=num(pop(),i.line),a=num(pop(),i.line);if(i.op==Op::Sub){if((b<0&&a>std::numeric_limits<long long>::max()+b)||(b>0&&a<std::numeric_limits<long long>::min()+b))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in subtraction");stack.emplace_back(a-b);}else if(i.op==Op::Mul){if(a!=0&&b!=0){auto lo=std::numeric_limits<long long>::min(),hi=std::numeric_limits<long long>::max();if((a==-1&&b==lo)||(b==-1&&a==lo)||(a>0?(b>0?a>hi/b:b<lo/a):(b>0?a<lo/b:a<hi/b)))throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in multiplication");}stack.emplace_back(a*b);}else{if(!b)throw std::runtime_error("Line "+std::to_string(i.line)+": division by zero");if(a==std::numeric_limits<long long>::min()&&b==-1)throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in division");if(i.op==Op::Div)stack.emplace_back(a/b);else stack.emplace_back(a%b);}break;}
                 case Op::Neg:{const auto x=num(pop(),i.line);if(x==std::numeric_limits<long long>::min())throw std::runtime_error("Line "+std::to_string(i.line)+": integer overflow in negation");stack.emplace_back(-x);break;}
@@ -310,8 +376,25 @@ public:
                     else --it->second;
                     break;
                 }
-                case Op::Call:return_addresses.push_back(ip);ip=(std::size_t)i.target;break;
-                case Op::Return:if(return_addresses.empty())return;ip=return_addresses.back();return_addresses.pop_back();break;
+                case Op::Call:{
+                    if(i.number<0 || static_cast<std::size_t>(i.number)>stack.size()) throw std::runtime_error("Line "+std::to_string(i.line)+": not enough function arguments");
+                    CallFrame frame; frame.return_ip=ip; frame.stack_base=stack.size()-static_cast<std::size_t>(i.number);
+                    std::vector<Value> args;
+                    for(long long n=0;n<i.number;++n) args.push_back(pop());
+                    std::reverse(args.begin(),args.end());
+                    // Parameter names are encoded on the function-entry jump instruction.
+                    const auto& entry=code_.at(static_cast<std::size_t>(i.target));
+                    std::istringstream names(entry.text); std::string param;
+                    for(const auto& arg:args){if(!std::getline(names,param,'|')) throw std::runtime_error("Function parameter metadata is invalid");frame.locals[param]=arg;}
+                    frames.push_back(std::move(frame)); ip=static_cast<std::size_t>(i.target);break;
+                }
+                case Op::Return:{
+                    Value result=i.number ? pop() : Value{0LL};
+                    if(frames.empty()) return;
+                    auto frame=std::move(frames.back());frames.pop_back();
+                    stack.resize(frame.stack_base);stack.push_back(std::move(result));ip=frame.return_ip;break;
+                }
+                case Op::Pop:pop();break;
                 case Op::Halt:return;
             }
         }
@@ -328,7 +411,7 @@ static bool emit_listing(const std::string&p,const std::vector<Ins>&code){
         case Op::Load:f<<"LOAD "<<i.text;break;case Op::Store:f<<"STORE "<<i.text;break;case Op::ReadInput:f<<"READ_INPUT "<<i.text;break;
         case Op::Add:f<<"ADD";break;case Op::Sub:f<<"SUB";break;case Op::Mul:f<<"MUL";break;case Op::Div:f<<"DIV";break;case Op::Mod:f<<"MOD";break;
         case Op::Eq:f<<"EQ";break;case Op::Ne:f<<"NE";break;case Op::Lt:f<<"LT";break;case Op::Le:f<<"LE";break;case Op::Gt:f<<"GT";break;case Op::Ge:f<<"GE";break;case Op::Neg:f<<"NEG";break;case Op::BoolAnd:f<<"AND";break;case Op::BoolOr:f<<"OR";break;case Op::BoolNot:f<<"NOT";break;
-        case Op::Print:f<<"PRINT";break;case Op::JumpIfFalse:f<<"JUMP_IF_FALSE "<<i.target;break;case Op::Jump:f<<"JUMP "<<i.target;break;case Op::LoopCheck:f<<"LOOP_CHECK "<<i.target;break;case Op::Call:f<<"CALL "<<i.text<<" "<<i.target;break;case Op::Return:f<<"RETURN";break;case Op::Halt:f<<"HALT";break;}f<<'\n';}
+        case Op::Print:f<<"PRINT";break;case Op::JumpIfFalse:f<<"JUMP_IF_FALSE "<<i.target;break;case Op::Jump:f<<"JUMP "<<i.target;break;case Op::LoopCheck:f<<"LOOP_CHECK "<<i.target;break;case Op::Call:f<<"CALL "<<i.text<<" "<<i.number<<" "<<i.target;break;case Op::Return:f<<"RETURN";break;case Op::Pop:f<<"POP";break;case Op::Halt:f<<"HALT";break;}f<<'\n';}
     return(bool)f;
 }
 // VETER_WEBSITE_BUILDER_V1: small front-end DSL path, separate from bytecode compiler.
@@ -413,7 +496,7 @@ static std::string veter_core_frontend(const std::string& source) {
             if(as==std::string::npos || as==7)
                 throw std::runtime_error("Line "+std::to_string(line_number)+": use 'revise name as value'");
             translated="set "+translated.substr(7,as-7)+" "+translated.substr(as+4);
-        } else if(starts("display ")) {
+         } else if(starts("display ")) {
             translated="say "+translated.substr(8);
         } else if(starts("ask for ")) {
             translated="take "+translated.substr(8);
