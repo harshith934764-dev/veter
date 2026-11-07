@@ -143,41 +143,71 @@ static const std::string* get_string(const Json::Object& obj, const std::string&
     auto it = obj.find(key);
     return it == obj.end() ? nullptr : std::get_if<std::string>(&it->second.value);
 }
-int main(int argc, char** argv) {
-    if (argc != 3 || std::string(argv[1]) != "validate") {
-        std::cerr << "Usage: veter-pkg validate <veter.package.json>\n";
-        return 2;
-    }
-    try {
-        std::ifstream file(argv[2], std::ios::binary);
-        if (!file) throw std::runtime_error("cannot open manifest: " + std::string(argv[2]));
-        std::ostringstream buffer; buffer << file.rdbuf();
-        Json root = Parser(buffer.str()).parse();
-        auto* object = std::get_if<Json::Object>(&root.value);
-        if (!object) throw std::runtime_error("manifest root must be a JSON object");
-        const auto* name = get_string(*object, "name");
-        const auto* version = get_string(*object, "version");
-        const auto* entry = get_string(*object, "entry");
-        const auto* description = get_string(*object, "description");
-        if (!name || !valid_name(*name)) throw std::runtime_error("name must use lowercase letters, numbers, and single hyphens (max 64 characters)");
-        if (!version || !valid_version(*version)) throw std::runtime_error("version must use MAJOR.MINOR.PATCH format");
-        if (!entry || !safe_entry(*entry)) throw std::runtime_error("entry must be a safe relative path ending in .vtr");
-        if (description && description->size() > 500) throw std::runtime_error("description must be 500 characters or fewer");
-        auto deps = object->find("dependencies");
-        if (deps != object->end()) {
-            auto* dependency_map = std::get_if<Json::Object>(&deps->second.value);
-            if (!dependency_map) throw std::runtime_error("dependencies must be an object of package names and exact versions");
-            for (const auto& [dep_name, dep_version] : *dependency_map) {
-                auto* version_text = std::get_if<std::string>(&dep_version.value);
-                if (!valid_name(dep_name)) throw std::runtime_error("invalid dependency name: " + dep_name);
-                if (!version_text || !valid_version(*version_text))
-                    throw std::runtime_error("dependency '" + dep_name + "' must use an exact MAJOR.MINOR.PATCH version");
-            }
+static int validate_manifest(const std::filesystem::path& path) {
+    std::ifstream file(path, std::ios::binary);
+    if (!file) throw std::runtime_error("cannot open manifest: " + path.string());
+    std::ostringstream buffer; buffer << file.rdbuf();
+    Json root = Parser(buffer.str()).parse();
+    auto* object = std::get_if<Json::Object>(&root.value);
+    if (!object) throw std::runtime_error("manifest root must be a JSON object");
+    const auto* name = get_string(*object, "name");
+    const auto* version = get_string(*object, "version");
+    const auto* entry = get_string(*object, "entry");
+    const auto* description = get_string(*object, "description");
+    if (!name || !valid_name(*name)) throw std::runtime_error("invalid package name");
+    if (!version || !valid_version(*version)) throw std::runtime_error("version must use MAJOR.MINOR.PATCH format");
+    if (!entry || !safe_entry(*entry)) throw std::runtime_error("entry must be a safe relative .vtr path");
+    if (description && description->size() > 500) throw std::runtime_error("description must be 500 characters or fewer");
+    auto deps = object->find("dependencies");
+    if (deps != object->end()) {
+        auto* map = std::get_if<Json::Object>(&deps->second.value);
+        if (!map) throw std::runtime_error("dependencies must be an object");
+        for (const auto& [dep_name, dep_version] : *map) {
+            auto* v = std::get_if<std::string>(&dep_version.value);
+            if (!valid_name(dep_name) || !v || !valid_version(*v))
+                throw std::runtime_error("invalid dependency: " + dep_name);
         }
-        std::cout << "Valid Veter package manifest: " << *name << "@" << *version << "\n";
-        return 0;
-    } catch (const std::exception& error) {
-        std::cerr << "Manifest error: " << error.what() << "\n";
-        return 1;
     }
+    std::cout << "Valid Veter package manifest: " << *name << "@" << *version << "\n";
+    return 0;
+}
+static void write_file(const std::filesystem::path& path, const std::string& data) {
+    std::ofstream out(path, std::ios::binary);
+    if (!out) throw std::runtime_error("cannot create file: " + path.string());
+    out << data;
+    if (!out) throw std::runtime_error("cannot write file: " + path.string());
+}
+static int create_project(const std::string& name) {
+    if (!valid_name(name)) throw std::runtime_error("project name must use lowercase letters, numbers, and single hyphens");
+    std::filesystem::path root(name);
+    if (std::filesystem::exists(root)) throw std::runtime_error("destination already exists: " + name);
+    bool created = false;
+    try {
+        created = std::filesystem::create_directory(root);
+        if (!created) throw std::runtime_error("could not create project directory");
+        std::filesystem::create_directory(root / "src");
+        write_file(root / "veter.package.json",
+            "{\n  \"name\": \"" + name + "\",\n  \"version\": \"0.1.0\",\n  \"description\": \"A new Veter project\",\n  \"entry\": \"src/main.vtr\",\n  \"dependencies\": {}\n}\n");
+        write_file(root / "src" / "main.vtr", "# My first Veter program\ndisplay \"Hello from Veter!\"\n");
+        write_file(root / "README.md", "# " + name + "\n\nA new Veter project.\n\nEdit src/main.vtr to start coding.\n");
+    } catch (...) {
+        std::error_code ignored;
+        if (created) std::filesystem::remove_all(root, ignored);
+        throw;
+    }
+    std::cout << "Created Veter project: " << name << "\n";
+    std::cout << "Next: cd " << name << " and edit src/main.vtr\n";
+    return 0;
+}
+int main(int argc, char** argv) {
+    if (argc == 3 && std::string(argv[1]) == "new") {
+        try { return create_project(argv[2]); }
+        catch (const std::exception& e) { std::cerr << "Project error: " << e.what() << "\n"; return 1; }
+    }
+    if (argc == 3 && std::string(argv[1]) == "validate") {
+        try { return validate_manifest(argv[2]); }
+        catch (const std::exception& e) { std::cerr << "Manifest error: " << e.what() << "\n"; return 1; }
+    }
+    std::cerr << "Usage:\n  veter-pkg new <project-name>\n  veter-pkg validate <veter.package.json>\n";
+    return 2;
 }
