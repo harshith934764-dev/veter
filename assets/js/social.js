@@ -259,9 +259,9 @@ async function uploadPostPhoto(file) {
   if (error) throw error;
   return client.storage.from("social-photos").getPublicUrl(path).data.publicUrl;
 }
-async function loadFeed() {
+async function loadFeed(hostId = "feed-list", savedOnly = false) {
   if (!me) return;
-  const host = $("feed-list");
+  const host = $(hostId);
   host.innerHTML = '<p class="empty-state">Loading community posts…</p>';
   try {
     const client = await getDb();
