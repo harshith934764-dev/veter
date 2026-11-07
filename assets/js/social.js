@@ -228,6 +228,168 @@ async function markNotificationsRead() {
   catch(e) { status(friendly(e),true); }
 }
 
+
+let selectedVibeMedia = null;
+let viewingVibe = null;
+let showingVibeArchive = false;
+
+async function loadVibePrivacy() {
+  const client = await getDb();
+  const {data,error} = await client.from("social_story_privacy").select("*").eq("user_uid",me.uid).maybeSingle();
+  if (error) throw error;
+  $("vibe-reply-setting").value = data?.allow_replies || "friends";
+}
+async function saveVibePrivacy() {
+  try {
+    const client = await getDb();
+    const {error} = await client.from("social_story_privacy").upsert({
+      user_uid:me.uid, default_visibility:$("vibe-visibility").value,
+      allow_replies:$("vibe-reply-setting").value, updated_at:new Date().toISOString()
+    },{onConflict:"user_uid"});
+    if(error) throw error;
+    status("Veter Vibes privacy settings saved.");
+  } catch(e) { status(friendly(e),true); }
+}
+async function loadVibeCircle() {
+  const client = await getDb();
+  const {data:rows,error} = await client.from("social_close_friends").select("friend_uid").eq("owner_uid",me.uid);
+  if(error) throw error;
+  const ids=(rows||[]).map(r=>r.friend_uid);
+  if(!ids.length){$("vibe-circle-list").innerHTML='<small class="vibe-note">Your close circle is empty. Add trusted friends by username.</small>';return;}
+  const {data:people,error:pe}=await client.from("user_profiles").select("uid,display_name,username").in("uid",ids);
+  if(pe) throw pe;
+  $("vibe-circle-list").innerHTML=(people||[]).map(p=>'<span class="vibe-circle-chip">'+esc(p.display_name)+' · @'+esc(p.username||"member")+' <button type="button" data-remove-circle="'+esc(p.uid)+'" aria-label="Remove from close circle">×</button></span>').join("");
+}
+async function manageVibeCircle() {
+  const username=(prompt("Add a friend by Veter username (without @):")||"").trim().replace(/^@/,"").toLowerCase();
+  if(!username) return;
+  try {
+    const client=await getDb();
+    const {data:p,error}=await client.from("user_profiles").select("uid,username").eq("username",username).maybeSingle();
+    if(error) throw error;
+    if(!p || p.uid===me.uid){status("That Veter username was not found.",true);return;}
+    const {data:friend,error:fe}=await client.from("social_friend_requests").select("id").eq("status","accepted").or("and(sender_uid.eq."+me.uid+",receiver_uid.eq."+p.uid+"),and(sender_uid.eq."+p.uid+",receiver_uid.eq."+me.uid+")").limit(1);
+    if(fe) throw fe;
+    if(!friend?.length){status("Only accepted Veter friends can join your close circle.",true);return;}
+    const {error:saveError}=await client.from("social_close_friends").insert({owner_uid:me.uid,friend_uid:p.uid});
+    if(saveError && saveError.code!=="23505") throw saveError;
+    await loadVibeCircle();status("Added @"+username+" to your close circle.");
+  } catch(e){status(friendly(e),true);}
+}
+async function removeVibeCircle(uid) {
+  try {const client=await getDb();const {error}=await client.from("social_close_friends").delete().eq("owner_uid",me.uid).eq("friend_uid",uid);if(error)throw error;await loadVibeCircle();status("Removed from your close circle.");}
+  catch(e){status(friendly(e),true);}
+}
+function clearVibeMedia() { selectedVibeMedia=null; $("vibe-media").value=""; $("vibe-file-name").textContent="No media selected · max 50 MB"; }
+async function publishVibe(event) {
+  event.preventDefault();
+  const caption=$("vibe-caption").value.trim();
+  const file=selectedVibeMedia;
+  const question=$("vibe-poll-question").value.trim();
+  const optionsText=$("vibe-poll-options").value.trim();
+  const options=optionsText ? optionsText.split(",").map(x=>x.trim()).filter(Boolean) : null;
+  if(!file && !caption && !question){status("Add a photo, video, caption or poll first.",true);return;}
+  if(question && (!options || options.length<2 || options.length>4)){status("A poll needs 2–4 options separated by commas.",true);return;}
+  if(!question && options){status("Add a poll question or clear the poll options.",true);return;}
+  const button=$("vibe-form").querySelector('button[type="submit"]');button.disabled=true;
+  let mediaPath=null,mediaType="text";
+  try{
+    const client=await getDb();
+    if(file){
+      const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");
+      mediaPath=me.uid+"/"+crypto.randomUUID()+"."+ext;
+      const {error:uploadError}=await client.storage.from("veter-vibes").upload(mediaPath,file,{contentType:file.type,upsert:false});
+      if(uploadError)throw uploadError;
+      mediaType=file.type.startsWith("video/")?"video":"image";
+    }
+    const {error}=await client.from("social_stories").insert({
+      author_uid:me.uid,media_path:mediaPath,media_type:mediaType,caption,
+      visibility:$("vibe-visibility").value,poll_question:question||null,poll_options:options
+    });
+    if(error)throw error;
+    $("vibe-caption").value="";$("vibe-poll-question").value="";$("vibe-poll-options").value="";clearVibeMedia();
+    await loadVibes();status("Your Vibe is live for 24 hours! ✨");
+  }catch(e){status(friendly(e),true);}
+  finally{button.disabled=false;}
+}
+async function loadVibes() {
+  try{
+    const client=await getDb();const now=new Date().toISOString();
+    let query=client.from("social_stories").select("*").order("created_at",{ascending:false}).limit(100);
+    query=showingVibeArchive?query.eq("author_uid",me.uid).or("expires_at.lt."+now+",archived_at.not.is.null"):query.gt("expires_at",now).is("archived_at",null);
+    const {data:stories,error}=await query;if(error)throw error;
+    const ids=[...new Set((stories||[]).map(s=>s.author_uid))];
+    const {data:profiles,error:pe}=ids.length?await client.from("user_profiles").select("uid,display_name,avatar_url,username").in("uid",ids):{data:[],error:null};
+    if(pe)throw pe;const byId=new Map((profiles||[]).map(p=>[p.uid,p]));
+    const paths=(stories||[]).filter(s=>s.media_path).map(s=>s.media_path);
+    const urls={};
+    for(const path of paths){const {data}=await client.storage.from("veter-vibes").createSignedUrl(path,3600);if(data?.signedUrl)urls[path]=data.signedUrl;}
+    $("vibe-count").textContent=stories?.length?String(stories.length):"";
+    $("vibe-list-title").textContent=showingVibeArchive?"Your private archive":"Fresh Vibes";
+    $("vibe-archive-toggle").textContent=showingVibeArchive?"← Back to Vibes":"📦 My archive";
+    if(!stories?.length){$("vibe-list").innerHTML='<p class="empty-state">'+(showingVibeArchive?"Your archive is empty.":"No Vibes yet. Share the first moment!")+'</p>';return;}
+    $("vibe-list").innerHTML=stories.map(s=>{
+      const p=byId.get(s.author_uid)||{display_name:"Veter member"};
+      const media=urls[s.media_path];
+      const preview=media?(s.media_type==="video"?'<video muted playsinline src="'+esc(media)+'"></video>':'<img src="'+esc(media)+'" alt="">'):'';
+      return '<button class="vibe-card" type="button" data-open-vibe="'+esc(s.id)+'">'+preview+'<img class="vibe-avatar" src="'+avatar(p)+'" alt=""><span class="vibe-card-copy"><b>'+esc(p.display_name)+'</b><small>'+esc(s.caption||s.poll_question||"Shared a Vibe")+'</small><small>'+(showingVibeArchive?"Archived":"Expires "+new Date(s.expires_at).toLocaleTimeString())+'</small></span></button>';
+    }).join("");
+  }catch(e){status(friendly(e),true);}
+}
+async function openVibe(id) {
+  try{
+    const client=await getDb();
+    const {data:s,error}=await client.from("social_stories").select("*").eq("id",id).single();if(error)throw error;
+    viewingVibe=s;
+    const {data:p,error:pe}=await client.from("user_profiles").select("uid,display_name,avatar_url").eq("uid",s.author_uid).single();if(pe)throw pe;
+    let media="";
+    if(s.media_path){const {data,error:se}=await client.storage.from("veter-vibes").createSignedUrl(s.media_path,3600);if(se)throw se;media=s.media_type==="video"?'<video class="vibe-media" controls playsinline src="'+esc(data.signedUrl)+'"></video>':'<img class="vibe-media" src="'+esc(data.signedUrl)+'" alt="Vibe media">';}
+    if(s.author_uid!==me.uid && new Date(s.expires_at)>new Date()){
+      await client.from("social_story_views").upsert({story_id:s.id,viewer_uid:me.uid,viewed_at:new Date().toISOString()},{onConflict:"story_id,viewer_uid",ignoreDuplicates:true});
+    }
+    const [{data:reactions,error:re},{data:votes,error:ve},{data:replies,error:repe}]=await Promise.all([
+      client.from("social_story_reactions").select("reaction,user_uid").eq("story_id",id),
+      client.from("social_story_votes").select("option_index,voter_uid").eq("story_id",id),
+      client.from("social_story_replies").select("sender_uid,body,created_at").eq("story_id",id).order("created_at").limit(30)
+    ]);
+    if(re)throw re;if(ve)throw ve;if(repe)throw repe;
+    const mine=(reactions||[]).find(x=>x.user_uid===me.uid);
+    const isOwner=s.author_uid===me.uid;
+    let poll="";
+    if(s.poll_options?.length){
+      const myVote=(votes||[]).find(v=>v.voter_uid===me.uid);
+      poll='<div class="vibe-poll"><b>📊 '+esc(s.poll_question)+'</b>'+s.poll_options.map((o,i)=>'<button type="button" data-vibe-vote="'+i+'" '+(myVote?"disabled":"")+'>'+esc(o)+' · '+(votes||[]).filter(v=>v.option_index===i).length+' votes</button>').join("")+'</div>';
+    }
+    const viewerCount=isOwner?await client.from("social_story_views").select("viewer_uid",{count:"exact",head:true}).eq("story_id",id):{count:null};
+    const viewers=isOwner?'<div class="vibe-viewers">👀 '+(viewerCount.count||0)+' viewers</div>':"";
+    const reactionsBar=isOwner?'<div class="vibe-viewers">Reactions: '+(reactions||[]).map(x=>esc(x.reaction)).join(" ")+'</div>':"";
+    const replyForm=!isOwner && s.expires_at>new Date().toISOString()?'<form class="vibe-reply-form" id="vibe-reply-form"><input id="vibe-reply-text" maxlength="500" placeholder="Reply privately to this Vibe…" required><button type="submit">Send</button></form>':"";
+    $("vibe-viewer").innerHTML='<div class="vibe-viewer-head"><img src="'+avatar(p)+'" alt=""><div><b>'+esc(p.display_name)+'</b><small>'+new Date(s.created_at).toLocaleString()+'</small></div><button class="vibe-close" type="button" id="vibe-close-viewer">Close</button></div>'+media+'<p class="vibe-caption">'+esc(s.caption)+'</p>'+poll+(isOwner?"":'<div class="vibe-actions">'+["❤️","😂","🔥","😍","👏","😮"].map(x=>'<button type="button" data-vibe-react="'+x+'" '+(mine?"disabled":"")+'>'+x+'</button>').join("")+'</div>')+replyForm+'<div class="vibe-replies">'+(replies||[]).map(r=>'<p>'+esc(r.body)+' <small>· '+new Date(r.created_at).toLocaleTimeString()+'</small></p>').join("")+'</div>'+viewers+reactionsBar+(isOwner?'<div class="vibe-actions"><button type="button" id="vibe-delete-story">Delete Vibe</button></div>':"");
+    $("vibe-viewer").hidden=false;$("vibe-viewer").scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(e){status(friendly(e),true);}
+}
+async function reactToVibe(reaction) {
+  if(!viewingVibe)return;
+  try{const client=await getDb();const {error}=await client.from("social_story_reactions").insert({story_id:viewingVibe.id,user_uid:me.uid,reaction});if(error && error.code!=="23505")throw error;await openVibe(viewingVibe.id);}
+  catch(e){status(friendly(e),true);}
+}
+async function voteOnVibe(optionIndex) {
+  if(!viewingVibe)return;
+  try{const client=await getDb();const {error}=await client.from("social_story_votes").insert({story_id:viewingVibe.id,voter_uid:me.uid,option_index:optionIndex});if(error)throw error;await openVibe(viewingVibe.id);status("Your vote has been counted!");}
+  catch(e){status(friendly(e),true);}
+}
+async function replyToVibe(event) {
+  event.preventDefault();if(!viewingVibe)return;
+  const body=$("vibe-reply-text").value.trim();if(!body)return;
+  try{const client=await getDb();const {error}=await client.from("social_story_replies").insert({story_id:viewingVibe.id,sender_uid:me.uid,body});if(error)throw error;await openVibe(viewingVibe.id);status("Your reply was sent.");}
+  catch(e){status(friendly(e),true);}
+}
+async function deleteVibe() {
+  if(!viewingVibe || !confirm("Delete this Vibe permanently?"))return;
+  try{const client=await getDb();if(viewingVibe.media_path)await client.storage.from("veter-vibes").remove([viewingVibe.media_path]);const {error}=await client.from("social_stories").delete().eq("id",viewingVibe.id);if(error)throw error;$("vibe-viewer").hidden=true;viewingVibe=null;await loadVibes();status("Vibe deleted.");}
+  catch(e){status(friendly(e),true);}
+}
+
 function switchView(name) {
   document.querySelectorAll(".social-tab").forEach(b => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".social-view").forEach(v => v.hidden = v.id !== "view-" + name);
@@ -237,6 +399,7 @@ function switchView(name) {
   if (name === "friends") loadFriendRequests();
   if (name === "notifications") loadNotifications();
   if (name === "saved") loadFeed("saved-list",true);
+  if (name === "vibes") { loadVibes(); loadVibePrivacy(); loadVibeCircle(); }
 }
 
 async function loadPeople() {
@@ -897,6 +1060,27 @@ $("post-photo").addEventListener("change",e => {
   reader.readAsDataURL(file);
 });
 $("remove-photo").addEventListener("click",clearPostPhoto);
+
+$("vibe-form").addEventListener("submit",publishVibe);
+$("vibe-media").addEventListener("change",e=>{
+ const f=e.target.files?.[0];if(!f){clearVibeMedia();return;}
+ const ok=["image/jpeg","image/png","image/webp","image/gif","video/mp4","video/webm","video/quicktime"];
+ if(!ok.includes(f.type)||f.size>50*1024*1024){clearVibeMedia();status("Choose an image or video up to 50 MB.",true);return;}
+ selectedVibeMedia=f;$("vibe-file-name").textContent=f.name;
+});
+$("vibe-archive-toggle").addEventListener("click",()=>{showingVibeArchive=!showingVibeArchive;$("vibe-viewer").hidden=true;loadVibes();});
+$("vibe-close-circle").addEventListener("click",manageVibeCircle);
+$("vibe-save-settings").addEventListener("click",saveVibePrivacy);
+$("vibe-circle-list").addEventListener("click",e=>{const b=e.target.closest("[data-remove-circle]");if(b)removeVibeCircle(b.dataset.removeCircle);});
+$("vibe-list").addEventListener("click",e=>{const b=e.target.closest("[data-open-vibe]");if(b)openVibe(b.dataset.openVibe);});
+$("vibe-viewer").addEventListener("click",e=>{
+ const react=e.target.closest("[data-vibe-react]");if(react)reactToVibe(react.dataset.vibeReact);
+ const vote=e.target.closest("[data-vibe-vote]");if(vote)voteOnVibe(Number(vote.dataset.vibeVote));
+ if(e.target.id==="vibe-close-viewer")$("vibe-viewer").hidden=true;
+ if(e.target.id==="vibe-delete-story")deleteVibe();
+});
+$("vibe-viewer").addEventListener("submit",e=>{if(e.target.id==="vibe-reply-form")replyToVibe(e);});
+
 $("profile-form").addEventListener("submit",saveMyProfile);
 $("add-by-id-form").addEventListener("submit",sendFriendRequestByUsername);
 $("copy-veter-id").addEventListener("click",copyVeterId);
