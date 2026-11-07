@@ -3,69 +3,82 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#070b16">
-<meta name="description" content="Meet people around the world with Veter Social. A safer place for conversations across borders.">
+<meta name="description" content="Meet people and chat safely with Veter Social.">
 <link rel="canonical" href="https://theveter.in/social.html">
 <link rel="stylesheet" href="/premium.css?v=2">
 <link rel="stylesheet" href="/assets/css/social.css">
-<title>Veter Social — Meet the World</title>
+<title>Veter Social — Connect & Chat</title>
 </head>
 <body class="social-page">
 <header><nav class="social-nav" aria-label="Main navigation">
 <a class="logo" href="/">Veter<span>.</span></a>
 <div class="social-nav-links"><a href="/">Home</a><a href="/community.html">Community</a><a class="active" href="/social.html">Social</a></div>
-<a class="nav-cta" href="#join">Explore Social <span aria-hidden="true">↗</span></a>
+<a class="nav-cta" href="#social-app">Open Social ↗</a>
 </nav></header>
 <main>
-<section class="social-hero">
+<section class="social-hero" id="social-welcome">
 <div class="social-hero-copy">
-<div class="social-kicker"><span class="pulse-dot"></span> THE WORLD, ONE CONVERSATION AWAY</div>
+<div class="social-kicker"><span class="pulse-dot"></span> VETER SOCIAL</div>
 <h1>Meet beyond<br><span>your borders.</span></h1>
-<p>Find someone new. Share a story. Discover how people live on the other side of the world — one respectful conversation at a time.</p>
-<div class="hero-actions"><a class="social-primary" href="#join">Get started <span>→</span></a><a class="social-secondary" href="#how-it-works">How it works</a></div>
-<div class="social-proof"><div class="avatar-stack"><span>🇮🇳</span><span>🇯🇵</span><span>🇧🇷</span><span>🇫🇷</span></div><span>One world. Many perspectives.</span></div>
+<p>Create your profile, discover people and start real conversations around the world.</p>
+<div class="hero-actions"><a class="social-primary" href="#join">Get started →</a><a class="social-secondary" href="#social-app">Explore features</a></div>
+<div class="social-proof"><span>🌍</span><span>One world. Many perspectives.</span></div>
 </div>
-<div class="world-card" aria-label="Illustration of global connections">
-<div class="world-orbit orbit-one"></div><div class="world-orbit orbit-two"></div><div class="world-globe">🌍</div>
-<div class="world-node node-one"><span>🇮🇳</span><b>India</b></div><div class="world-node node-two"><span>🇯🇵</span><b>Japan</b></div><div class="world-node node-three"><span>🇧🇷</span><b>Brazil</b></div><div class="world-node node-four"><span>🇫🇷</span><b>France</b></div>
-<div class="world-caption"><span class="pulse-dot"></span> A global community, growing together</div>
-</div>
+<div class="world-card"><div class="world-globe">🌍</div><div class="world-caption">A global community, growing together</div></div>
 </section>
-<section class="social-feature-strip" id="how-it-works">
-<article><span class="feature-icon">✦</span><h3>Meet randomly</h3><p>Get matched with people you haven't met before.</p></article>
-<article><span class="feature-icon">◎</span><h3>Talk in real time</h3><p>Start with text chat, with voice and video planned next.</p></article>
-<article><span class="feature-icon">⌖</span><h3>Explore cultures</h3><p>Discover conversations by country and language.</p></article>
-<article><span class="feature-icon">♡</span><h3>Stay in control</h3><p>Block, report and leave any conversation whenever you want.</p></article>
-</section>
+
 <section class="social-join-section" id="join">
 <div class="join-panel">
-<div class="social-kicker">YOUR NEXT CONVERSATION STARTS HERE</div>
-<h2>Say hello to<br><span>somebody new.</span></h2>
-<p>Sign in with Google or your phone. Your profile is stored securely in Veter Social's database. Live chat will open after matching, blocking and moderation are ready.</p>
+<div class="social-kicker">YOUR ACCOUNT</div>
+<h2>Welcome to<br><span>Veter Social.</span></h2>
+<p>Use Google to create an account or return to your existing account. The same Google account signs you back in.</p>
 <div class="auth-preview" id="auth-panel">
 <button class="auth-button google-auth" id="google-sign-in" type="button"><span class="google-mark">G</span> Continue with Google <span class="auth-arrow">→</span></button>
-<label class="auth-note" for="phone-number">Or sign in with your phone number</label>
-<input id="phone-number" type="tel" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" aria-label="Phone number with country code">
-<button class="auth-button phone-auth" id="send-otp" type="button"><span>＋</span> Send phone OTP <span class="auth-arrow">→</span></button>
-<input id="phone-otp" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter 6-digit OTP" aria-label="Phone verification code" hidden>
-<button class="auth-button phone-auth" id="verify-otp" type="button" hidden>Verify OTP <span class="auth-arrow">→</span></button>
-<div id="recaptcha-container"></div>
-<button class="auth-button" id="sign-out" type="button" hidden>Sign out</button>
+<div class="prototype-notice" id="auth-status" role="status" aria-live="polite">Sign in to create your profile and chat.</div>
 </div>
-<p class="auth-note"><span>🔒</span> Your phone number and email will not be shown to strangers.</p>
-<div class="prototype-notice" id="auth-status" role="status" aria-live="polite">Firebase handles sign-in. Supabase stores profiles. Live messaging remains disabled until server-side safety checks are ready.</div>
 </div>
-<div class="join-side">
-<div class="join-side-mark">V<span>.</span></div>
-<p class="join-quote">“A stranger is just a friend you haven't met yet.”</p>
-<div class="join-side-line"></div><span class="join-side-label">VETER SOCIAL · CONNECT GLOBALLY</span>
+<div class="join-side"><div class="join-side-mark">V<span>.</span></div><p class="join-quote">“A stranger is just a friend you haven't met yet.”</p><div class="join-side-line"></div><span class="join-side-label">VETER SOCIAL · CONNECT GLOBALLY</span></div>
+</section>
+
+<section class="social-app-shell" id="social-app" hidden>
+<aside class="social-sidebar">
+<div class="social-me"><img id="my-avatar" alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="><div><b id="my-name">Your profile</b><small id="my-email"></small></div></div>
+<button class="social-tab active" data-view="discover">🌍 Discover people</button>
+<button class="social-tab" data-view="chats">💬 My chats <span id="chat-count"></span></button>
+<button class="social-tab" data-view="profile">👤 Edit profile</button>
+<button class="social-tab" data-view="safety">🛡️ Safety</button>
+<button class="social-signout" id="sign-out">Sign out</button>
+</aside>
+<div class="social-main">
+<div class="social-status" id="app-status" role="status" aria-live="polite">Welcome to Veter Social.</div>
+<section class="social-view" id="view-discover">
+<div class="social-view-head"><div><div class="social-kicker">YOUR COMMUNITY</div><h2>Discover people</h2><p>Find someone new and start a friendly conversation.</p></div><input id="people-search" type="search" placeholder="Search names, countries…"></div>
+<div class="people-grid" id="people-list"><p class="empty-state">Loading people…</p></div>
+</section>
+<section class="social-view" id="view-chats" hidden>
+<div class="social-view-head"><div><div class="social-kicker">KEEP IN TOUCH</div><h2>Your conversations</h2><p>Messages are private to the two conversation participants.</p></div></div>
+<div class="chat-layout"><div class="chat-list" id="chat-list"><p class="empty-state">No conversations yet. Discover someone to say hello.</p></div>
+<div class="chat-panel"><div class="chat-empty" id="chat-empty">Choose a conversation to start chatting 💬</div><div id="active-chat" hidden><div class="chat-heading"><img id="chat-avatar" alt=""><div><b id="chat-name">Conversation</b><small id="chat-presence">Private chat</small></div><button id="report-chat" class="small-action">Report</button><button id="block-chat" class="small-action">Block</button></div><div class="chat-messages" id="chat-messages"></div><form class="chat-compose" id="message-form"><input id="message-input" maxlength="2000" autocomplete="off" placeholder="Write a message…" required><button type="submit">Send ➤</button></form></div></div></div>
+</section>
+<section class="social-view" id="view-profile" hidden>
+<div class="social-view-head"><div><div class="social-kicker">MAKE IT YOURS</div><h2>Your profile</h2><p>Only share details you are comfortable showing to signed-in members.</p></div></div>
+<form class="profile-form" id="profile-form">
+<label>Display name<input id="profile-name" maxlength="40" required></label>
+<label>Username<input id="profile-username" maxlength="24" placeholder="e.g. harshith_01"></label>
+<label>Country<input id="profile-country" maxlength="64" placeholder="India"></label>
+<label>About you<textarea id="profile-bio" maxlength="240" rows="4" placeholder="Tell people a little about yourself…"></textarea></label>
+<label>Profile photo URL<input id="profile-avatar" type="url" maxlength="2048" placeholder="https://…"></label>
+<button type="submit" class="social-primary">Save profile</button>
+</form>
+</section>
+<section class="social-view" id="view-safety" hidden>
+<div class="social-view-head"><div><div class="social-kicker">YOUR CONTROL</div><h2>Safety tools</h2><p>Keep conversations respectful. You can block people and report harmful behaviour.</p></div></div>
+<div class="safety-card"><h3>Community rules</h3><p>Be respectful. Never share passwords, OTPs, financial details or private contact information with strangers. Leave any conversation that makes you uncomfortable.</p><h3>Blocking and reporting</h3><p>Blocking prevents new conversations between both accounts. Reports are saved for review.</p></div>
+</section>
 </div>
 </section>
-<section class="social-safety">
-<div><div class="social-kicker">SAFETY IS NOT OPTIONAL</div><h2>Good conversations<br>need <span>good boundaries.</span></h2></div>
-<div class="safety-points"><p><b>01</b> You choose when to continue or leave a chat.</p><p><b>02</b> Block and report tools will be available in every chat.</p><p><b>03</b> Private contact details stay private.</p><p><b>04</b> Age-appropriate access and moderation come before public launch.</p></div>
-</section>
+<section class="social-safety" id="social-safety-public"><div><div class="social-kicker">SAFETY IS NOT OPTIONAL</div><h2>Good conversations<br>need <span>good boundaries.</span></h2></div><div class="safety-points"><p><b>01</b> You choose when to continue or leave a chat.</p><p><b>02</b> Block and report tools help protect the community.</p><p><b>03</b> Private contact details stay private.</p><p><b>04</b> Never share passwords or verification codes.</p></div></section>
 </main>
 <footer class="social-footer"><a class="logo" href="/">Veter<span>.</span></a><span>© 2026 Veter Social · Built for respectful connections.</span><a href="/community.html">Community</a></footer>
-<div class="social-toast" id="social-toast" role="status" aria-live="polite"></div>
 <script type="module" src="/assets/js/social.js"></script>
 </body></html>
