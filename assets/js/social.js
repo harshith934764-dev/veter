@@ -238,6 +238,7 @@ async function loadVibePrivacy() {
   const {data,error} = await client.from("social_story_privacy").select("*").eq("user_uid",me.uid).maybeSingle();
   if (error) throw error;
   $("vibe-reply-setting").value = data?.allow_replies || "friends";
+  $("vibe-visibility").value = data?.default_visibility || "friends";
 }
 async function saveVibePrivacy() {
   try {
