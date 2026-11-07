@@ -24,7 +24,7 @@ function importProject(data){if(!data||data.format!=='veter-studio-project'||dat
 function save(){const blob=new Blob([code.value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename.textContent.endsWith('.vtr')?filename.textContent:'main.vtr';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);status.textContent='Downloaded';}
 function tokenize(s){const t=[];let i=0;while(i<s.length){if(/\\s/.test(s[i])){i++;continue;}if(s[i]==='"'||s[i]==="'"){const q=s[i++];let v='';let closed=false;while(i<s.length){let c=s[i++];if(c===q){closed=true;break;}if(c==='\\\\'&&i<s.length){const e=s[i++];v+=e==='n'?'\\n':e==='t'?'\\t':e;}else v+=c;}if(!closed)throw Error('Unclosed string');t.push({k:'str',v});continue;}if(/[0-9]/.test(s[i])){let a=i++;while(i<s.length&&/[0-9.]/.test(s[i]))i++;const n=Number(s.slice(a,i));if(!Number.isFinite(n))throw Error('Invalid number');t.push({k:'num',v:n});continue;}if(/[A-Za-z_]/.test(s[i])){let a=i++;while(i<s.length&&/[A-Za-z0-9_]/.test(s[i]))i++;t.push({k:'id',v:s.slice(a,i)});continue;}if('+-*/%()'.includes(s[i])){t.push({k:s[i],v:s[i++]});continue;}throw Error('Unexpected character: '+s[i]);}return t;}
 function expression(source,vars){const ts=tokenize(source);let p=0;function atom(){const x=ts[p++];if(!x)throw Error('Expected a value');if(x.k==='num'||x.k==='str')return x.v;if(x.k==='id'){if(!(x.v in vars))throw Error('Unknown variable: '+x.v);return vars[x.v];}if(x.k==='-')return -Number(atom());if(x.k==='+')return Number(atom());if(x.k==='('){const v=expr(0);if(!ts[p]||ts[p++].k!==')')throw Error('Expected )');return v;}throw Error('Expected a value');}const prec={'+':10,'-':10,'*':20,'/':20,'%':20};function expr(min){let left=atom();while(ts[p]&&prec[ts[p].k]>=min){const op=ts[p++].k,right=expr(prec[op]+1);if(op==='+'&&(typeof left==='string'||typeof right==='string'))left=String(left)+String(right);else{const a=Number(left),b=Number(right);if(!Number.isFinite(a)||!Number.isFinite(b))throw Error('Arithmetic needs numbers');if((op==='/'||op==='%')&&b===0)throw Error('Cannot divide by zero');left=op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:op==='/'?a/b:a%b;}}return left;}const result=expr(0);if(p!==ts.length)throw Error('Unexpected token: '+ts[p].v);return result;}
-let wasmModulePromise=null,compilerStdout=[],compilerStderr=[];
+let wasmModulePromise=null,compilerStdout=[],compilerStderr=[],compilerInput='';
 function loadWasmCompiler(){
  if(wasmModulePromise)return wasmModulePromise;
  wasmModulePromise=new Promise((resolve,reject)=>{
@@ -36,10 +36,11 @@ function loadWasmCompiler(){
    window.createVeterModule({
     locateFile:(path)=>'/assets/wasm/'+path,
     print:(line)=>{compilerStdout.push(line);},
-    printErr:(line)=>{compilerStderr.push(line);}
+    printErr:(line)=>{compilerStderr.push(line);},
+    stdin:()=>{if(!compilerInput.length)return null;const ch=compilerInput.charCodeAt(0);compilerInput=compilerInput.slice(1);return ch;}
    }).then(resolve,reject);
   };
-  script.onerror=()=>reject(Error('The real Veter compiler is not deployed yet. Please try again after the WebAssembly build finishes.'));
+  script.onerror=()=>{wasmModulePromise=null;reject(Error('The real Veter compiler is not deployed yet. Please try again after the WebAssembly build finishes.'));};
   document.head.appendChild(script);
  });
  return wasmModulePromise;
@@ -59,6 +60,8 @@ async function run(){
   try{runtime.FS.unlink(sourcePath);}catch(e){}
   runtime.FS.writeFile(sourcePath,code.value);
   compilerStdout=[];compilerStderr=[];
+  compilerInput=(document.getElementById('programinput').value||'').replace(/\\r\\n/g,'\\n');
+  if(compilerInput && !compilerInput.endsWith('\\n'))compilerInput+='\\n';
   const exitCode=runtime.callMain([sourcePath]);
   if(exitCode!==0)throw Error(compilerStderr.join('\\n').trim()||('Compiler exited with code '+exitCode));
   out.textContent=compilerStdout.join('\\n').trimEnd()||'Program finished with no output.';
