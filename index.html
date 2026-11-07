@@ -334,6 +334,15 @@
         </div>
         <div class="veter-playground" id="code-maker">
           <div class="veter-playground-head"><strong>⌨️ Veter Code Maker</strong><span>Desktop and mobile browser</span></div>
+          <div class="veter-playground-tools" style="display:flex;gap:10px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.1);align-items:center">
+            <label for="veter-example" style="font-size:.85rem;color:#b8c5ef">Try an example</label>
+            <select id="veter-example" style="background:#151e30;color:#f4f7ff;border:1px solid #354565;border-radius:8px;padding:9px;max-width:100%">
+              <option value="starter">Getting started</option>
+              <option value="calculator">Simple calculator</option>
+              <option value="profile">Text and variables</option>
+            </select>
+            <span id="veter-line-count" style="font-size:.8rem;color:#a6b1c7">4 lines</span>
+          </div>
           <div class="veter-playground-grid">
             <div class="veter-editor">
               <div class="veter-pane-title">YOUR VETER PROGRAM · sample.vtr</div>
@@ -350,6 +359,7 @@ say score</textarea>
           <div class="veter-play-actions">
             <button class="btn btn-primary" type="button" id="veter-run">▶ Run code</button>
             <button class="btn" type="button" id="veter-reset">Reset</button>
+            <button class="btn" type="button" id="veter-copy-output">Copy output</button>
             <button class="btn" type="button" id="veter-save">↓ Save .vtr</button>
             <button class="btn" type="button" id="veter-open">↑ Open .vtr</button>
             <input id="veter-file" type="file" accept=".vtr,text/plain" hidden>
@@ -439,6 +449,38 @@ say score</textarea>
       const starter = 'make name "Veter Language"\nmake score 10 + 5 * 2\nsay "Hello from " + name\nsay score';
       const editor = document.getElementById("veter-code");
       const output = document.getElementById("veter-output");
+      const examples = {
+        starter,
+        calculator: 'make price 120\nmake quantity 3\nmake total price * quantity\nsay "Total price:"\nsay total',
+        profile: 'make name "Veter learner"\nmake goal "Build something great"\nsay "Hello, " + name\nsay goal'
+      };
+      const lineCount = document.getElementById("veter-line-count");
+      function updateLineCount() {
+        const count = editor.value.split(/\\r?\\n/).length;
+        lineCount.textContent = count + (count === 1 ? " line" : " lines");
+      }
+      editor.addEventListener("input", updateLineCount);
+      editor.addEventListener("keydown", (event) => {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          const start = editor.selectionStart, end = editor.selectionEnd;
+          editor.setRangeText("  ", start, end, "end");
+          updateLineCount();
+        }
+      });
+      document.getElementById("veter-example").addEventListener("change", (event) => {
+        editor.value = examples[event.target.value] || starter;
+        updateLineCount();
+        output.textContent = "Example loaded. Press Run code to try it.";
+      });
+      document.getElementById("veter-copy-output").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(output.textContent);
+          document.getElementById("veter-copy-output").textContent = "Copied!";
+        } catch (e) {
+          output.textContent += "\\n(Copy is unavailable in this browser.)";
+        }
+      });
 
       function tokenize(expr) {
         const out = [];
@@ -529,6 +571,9 @@ say score</textarea>
 
       document.getElementById("veter-reset").addEventListener("click", () => {
         editor.value = starter;
+        document.getElementById("veter-example").value = "starter";
+        updateLineCount();
+        document.getElementById("veter-copy-output").textContent = "Copy output";
         output.textContent = "Example restored. Press Run to execute it.";
       });
 
@@ -557,6 +602,7 @@ say score</textarea>
         }
         fileInput.value = "";
       });
+      updateLineCount();
     })();
   </script>
 </body>
