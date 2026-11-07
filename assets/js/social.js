@@ -212,7 +212,7 @@ async function loadMessages() {
 }
 function renderMessage(m) {
   const mine = m.sender_uid === me.uid;
-  return `<div class="message-row ${mine ? "mine" : ""}"><div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div></div>`;
+  return `<div class="message-row ${mine ? "mine" : ""}" data-message-id="${esc(m.id)}"><div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div></div>`;
 }
 function subscribeMessages() {
   if (messageChannel && db) db.removeChannel(messageChannel);
