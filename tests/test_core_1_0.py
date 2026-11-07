@@ -187,27 +187,27 @@ class VeterCoreTests(unittest.TestCase):
 
     def test_mixed_array_values_keep_their_own_types(self):
         result = self.run_veter(
-            'remember items as array("red", 42, "blue")\\n'
-            'display length(items)\\n'
-            'display at(items, 0)\\n'
-            'display at(items, 1)\\n'
-            'display at(items, 2)\\n'
+            'remember items as array("red", 42, "blue")\n'
+            'display length(items)\n'
+            'display at(items, 0)\n'
+            'display at(items, 1)\n'
+            'display at(items, 2)\n'
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "3\\nred\\n42\\nblue\\n")
+        self.assertEqual(result.stdout, "3\nred\n42\nblue\n")
 
     def test_array_index_out_of_range_is_reported(self):
         result = self.run_veter(
-            'remember items as array("first", "second")\\n'
-            'display at(items, 2)\\n'
+            'remember items as array("first", "second")\n'
+            'display at(items, 2)\n'
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("array index out of range", result.stderr)
 
     def test_negative_array_index_is_rejected(self):
         result = self.run_veter(
-            'remember items as array(10, 20)\\n'
-            'display at(items, -1)\\n'
+            'remember items as array(10, 20)\n'
+            'display at(items, -1)\n'
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("array index out of range", result.stderr)
