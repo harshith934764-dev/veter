@@ -158,3 +158,11 @@ body.social-light .social-tab,body.social-light .social-theme-toggle{color:#3344
 .vibe-media{display:block;max-width:100%;max-height:520px;margin:14px auto;border-radius:12px}.vibe-caption{white-space:pre-wrap;line-height:1.6;color:#e2ebfa}.vibe-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.vibe-actions button,.vibe-reply-form button,.vibe-poll button{border:1px solid #3a526d;border-radius:9px;padding:8px 11px;background:#14243b;color:#bdece8;cursor:pointer}.vibe-poll{display:grid;gap:8px;margin:14px 0;padding:12px;border:1px solid #344660;border-radius:10px}.vibe-poll button{text-align:left}.vibe-poll button:disabled{opacity:.6}.vibe-reply-form{display:flex;gap:8px;margin-top:12px}.vibe-reply-form input{flex:1;min-width:0;padding:10px;border:1px solid #344660;border-radius:9px;background:#111f34;color:#fff}.vibe-viewers,.vibe-replies{margin-top:12px;padding-top:12px;border-top:1px solid #293a55;color:#aebbd2;font-size:11px}.vibe-replies p{margin:6px 0;color:#dce7f7}
 body.social-light .vibe-composer,body.social-light .vibe-tools,body.social-light .vibe-viewer{background:#fff;border-color:#d8e1ef}body.social-light .vibe-section-title,body.social-light .vibe-caption{color:#17243a}body.social-light #vibe-caption,body.social-light .vibe-composer-row input,body.social-light .vibe-composer-row select,body.social-light .vibe-tools select,body.social-light .vibe-reply-form input{background:#f7f9fd;color:#17243a;border-color:#d8e1ef}
 @media(max-width:620px){.vibe-composer-row{display:grid}.vibe-composer-row>*{width:100%;box-sizing:border-box}.vibe-tools{align-items:stretch}.vibe-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.vibe-reply-form{flex-direction:column}}
+
+/* Clearly distinguish fictional discovery previews from real members */
+.demo-profile-badge{display:inline-block;margin-left:6px;padding:2px 6px;border-radius:5px;background:#3b315e;color:#d9c8ff;font-size:9px;letter-spacing:.08em;vertical-align:middle}
+.demo-note{color:#c5a9ff!important}
+.demo-preview-label{display:inline-block;padding:8px 10px;border:1px solid #5b4b82;border-radius:9px;color:#d9c8ff;font-size:10px;font-weight:800;white-space:nowrap}
+.demo-person-card{border-style:dashed;border-color:#51446e}
+body.social-light .demo-profile-badge{background:#eee7ff;color:#6041a0}
+body.social-light .demo-preview-label{color:#6041a0;border-color:#cfc1ed}
