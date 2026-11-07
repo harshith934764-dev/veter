@@ -52,3 +52,24 @@
 [hidden]{display:none!important}
 @media(max-width:900px){.social-app-shell{grid-template-columns:1fr}.social-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-right:0;border-bottom:1px solid #24334c}.social-me{grid-column:1/-1}.social-signout{margin-top:0}.social-main{padding:18px}.chat-layout{grid-template-columns:190px minmax(0,1fr)}}
 @media(max-width:620px){.people-grid{grid-template-columns:1fr}.social-view-head{align-items:stretch;flex-direction:column}.social-view-head input{width:100%}.chat-layout{grid-template-columns:1fr}.chat-list{max-height:180px;overflow:auto;border-right:0;border-bottom:1px solid #293a55}.chat-messages{height:320px}.chat-heading{flex-wrap:wrap}.chat-heading div{min-width:100px}.social-sidebar{grid-template-columns:1fr 1fr}}
+
+
+/* Community feed */
+.post-composer{padding:18px;border:1px solid #2b3c58;border-radius:16px;background:#101d32;margin-bottom:20px}
+.post-composer textarea{display:block;width:100%;resize:vertical;min-height:88px;padding:13px;border:1px solid #33445f;border-radius:11px;background:#0b1729;color:#f2f6ff;font:inherit;outline:none}
+.post-composer textarea:focus{border-color:#82ddd7}
+.composer-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;color:#8fa0bd;font-size:11px}
+.composer-footer button{border:0;border-radius:9px;padding:10px 15px;background:linear-gradient(110deg,#78e2dc,#9c9aff);color:#081323;font-size:12px;font-weight:800;cursor:pointer}
+.composer-footer button:disabled{opacity:.55;cursor:wait}
+.feed-list{display:grid;gap:14px;max-width:850px}
+.feed-post{padding:18px;border:1px solid #293a55;border-radius:16px;background:#101c30}
+.feed-author{display:flex;align-items:center;gap:11px}
+.feed-author img{width:42px;height:42px;object-fit:cover;border-radius:50%;background:#233550}
+.feed-author div{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.feed-author b{font-size:13px}.feed-author small{font-size:10px;color:#91a1bd}
+.feed-body{margin:17px 0;color:#e2ebfa;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.feed-actions{display:flex;gap:9px;border-top:1px solid #293a55;padding-top:12px}
+.feed-actions button,.post-delete{border:1px solid #344660;border-radius:9px;padding:8px 12px;background:#14243b;color:#b9c9e2;font-size:11px;cursor:pointer}
+.feed-actions button:hover,.feed-actions button.liked{border-color:#bd7190;color:#ffabc9;background:#301d30}
+.post-delete{font-size:10px;padding:6px 9px}
+@media(max-width:620px){.feed-post{padding:14px}.post-composer{padding:13px}}
