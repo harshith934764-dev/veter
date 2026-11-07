@@ -49,6 +49,7 @@
 <button class="social-tab" data-view="notifications">🔔 Notifications <span id="notification-count"></span></button>
 <button class="social-tab" data-view="saved">🔖 Saved posts</button>
 <button class="social-tab" data-view="chats">💬 My chats <span id="chat-count"></span></button>
+<button class="social-tab" data-view="groups">👥 Group chats</button>
 <button class="social-tab" data-view="profile">👤 Edit profile</button>
 <button class="social-tab" data-view="safety">🛡️ Safety</button>
 <button class="social-theme-toggle" id="theme-toggle" type="button">☀️ Light mode</button>
@@ -83,8 +84,13 @@
 <div class="chat-layout"><div class="chat-list" id="chat-list"><p class="empty-state">No conversations yet. Discover someone to say hello.</p></div>
 <div class="chat-panel"><div class="chat-empty" id="chat-empty">Choose a conversation to start chatting 💬</div><div id="active-chat" hidden><div class="chat-heading"><img id="chat-avatar" alt=""><div><b id="chat-name">Conversation</b><small id="chat-presence">Private chat</small></div><button id="report-chat" class="small-action">Report</button><button id="block-chat" class="small-action">Block</button></div><div class="chat-messages" id="chat-messages"></div><form class="chat-compose" id="message-form"><input id="message-input" maxlength="2000" autocomplete="off" placeholder="Write a message…" required><button type="submit">Send ➤</button></form></div></div></div>
 </section>
+<section class="social-view" id="view-groups" hidden>
+<div class="social-view-head"><div><div class="social-kicker">CHAT TOGETHER</div><h2>Your groups</h2><p>Create a group with people who are already your Veter friends.</p></div><button class="social-primary" id="create-group" type="button">＋ Create group</button></div>
+<div class="group-chat-layout"><div class="chat-list" id="group-list"><p class="empty-state">Your groups will appear here.</p></div><div class="chat-panel"><div class="chat-empty" id="group-empty">Choose a group or create a new one 💬</div><div id="active-group" hidden><div class="chat-heading"><div><b id="group-chat-name">Group</b><small>Veter group conversation</small></div></div><div class="chat-messages" id="group-messages"></div><form class="chat-compose" id="group-message-form"><input id="group-message-input" maxlength="2000" autocomplete="off" placeholder="Write to the group…" required><button type="submit">Send ➤</button></form></div></div></div>
+</section>
 <section class="social-view" id="view-profile" hidden>
 <div class="social-view-head"><div><div class="social-kicker">MAKE IT YOURS</div><h2>Your profile</h2><p>Only share details you are comfortable showing to signed-in members.</p></div></div>
+<div class="veter-id-card"><div><small>YOUR UNIQUE VETER ID</small><b id="my-veter-id">Generating your ID…</b></div><button id="copy-veter-id" type="button">Copy ID</button><button id="share-profile" type="button">Share profile</button></div>
 <form class="profile-form" id="profile-form">
 <label>Display name<input id="profile-name" maxlength="40" required></label>
 <label>Username<input id="profile-username" maxlength="24" placeholder="e.g. harshith_01"></label>
