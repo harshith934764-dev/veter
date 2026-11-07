@@ -470,6 +470,7 @@ $("chat-list").addEventListener("click",e => {
 $("message-form").addEventListener("submit",sendMessage);
 $("post-form").addEventListener("submit",publishPost);
 $("feed-list").addEventListener("click",handleFeedAction);
+$("feed-list").addEventListener("submit",handleFeedAction);
 $("post-body").addEventListener("input",e => $("post-char-count").textContent = String(e.target.value.length));
 $("post-photo").addEventListener("change",e => {
   const file = e.target.files?.[0];
