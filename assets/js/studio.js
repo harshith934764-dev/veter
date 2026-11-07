@@ -24,7 +24,7 @@ function importProject(data){if(!data||data.format!=='veter-studio-project'||dat
 function save(){const blob=new Blob([code.value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename.textContent.endsWith('.vtr')?filename.textContent:'main.vtr';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);status.textContent='Downloaded';}
 function tokenize(s){const t=[];let i=0;while(i<s.length){if(/\\s/.test(s[i])){i++;continue;}if(s[i]==='"'||s[i]==="'"){const q=s[i++];let v='';let closed=false;while(i<s.length){let c=s[i++];if(c===q){closed=true;break;}if(c==='\\\\'&&i<s.length){const e=s[i++];v+=e==='n'?'\\n':e==='t'?'\\t':e;}else v+=c;}if(!closed)throw Error('Unclosed string');t.push({k:'str',v});continue;}if(/[0-9]/.test(s[i])){let a=i++;while(i<s.length&&/[0-9.]/.test(s[i]))i++;const n=Number(s.slice(a,i));if(!Number.isFinite(n))throw Error('Invalid number');t.push({k:'num',v:n});continue;}if(/[A-Za-z_]/.test(s[i])){let a=i++;while(i<s.length&&/[A-Za-z0-9_]/.test(s[i]))i++;t.push({k:'id',v:s.slice(a,i)});continue;}if('+-*/%()'.includes(s[i])){t.push({k:s[i],v:s[i++]});continue;}throw Error('Unexpected character: '+s[i]);}return t;}
 function expression(source,vars){const ts=tokenize(source);let p=0;function atom(){const x=ts[p++];if(!x)throw Error('Expected a value');if(x.k==='num'||x.k==='str')return x.v;if(x.k==='id'){if(!(x.v in vars))throw Error('Unknown variable: '+x.v);return vars[x.v];}if(x.k==='-')return -Number(atom());if(x.k==='+')return Number(atom());if(x.k==='('){const v=expr(0);if(!ts[p]||ts[p++].k!==')')throw Error('Expected )');return v;}throw Error('Expected a value');}const prec={'+':10,'-':10,'*':20,'/':20,'%':20};function expr(min){let left=atom();while(ts[p]&&prec[ts[p].k]>=min){const op=ts[p++].k,right=expr(prec[op]+1);if(op==='+'&&(typeof left==='string'||typeof right==='string'))left=String(left)+String(right);else{const a=Number(left),b=Number(right);if(!Number.isFinite(a)||!Number.isFinite(b))throw Error('Arithmetic needs numbers');if((op==='/'||op==='%')&&b===0)throw Error('Cannot divide by zero');left=op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:op==='/'?a/b:a%b;}}return left;}const result=expr(0);if(p!==ts.length)throw Error('Unexpected token: '+ts[p].v);return result;}
-let wasmModulePromise=null,compilerStdout=[],compilerStderr=[],compilerInput='';
+let wasmModulePromise=null,wasmWorkspaceFiles=[],compilerStdout=[],compilerStderr=[],compilerInput='';
 function loadWasmCompiler(){
  if(wasmModulePromise)return wasmModulePromise;
  wasmModulePromise=new Promise((resolve,reject)=>{
@@ -58,10 +58,18 @@ async function run(){
   const runtime=await loadWasmCompiler();
   const workspace='/workspace';
   try{runtime.FS.mkdir(workspace);}catch(e){}
-  const safeName=files[activeFile].name;
-  const sourcePath=workspace+'/'+safeName;
-  try{runtime.FS.unlink(sourcePath);}catch(e){}
-  runtime.FS.writeFile(sourcePath,code.value);
+  files[activeFile].content=code.value;
+  // Remove files from the previous run so deleted/renamed workspace files cannot linger.
+  wasmWorkspaceFiles.forEach((path)=>{try{runtime.FS.unlink(path);}catch(e){}});
+  wasmWorkspaceFiles=[];
+  files.forEach((projectFile)=>{
+   if(!/^[A-Za-z0-9_-]+\.vtr$/i.test(projectFile.name))throw Error('Invalid workspace file name: '+projectFile.name);
+   const path=workspace+'/'+projectFile.name;
+   runtime.FS.writeFile(path,projectFile.content);
+   wasmWorkspaceFiles.push(path);
+  });
+  const sourcePath=workspace+'/'+files[activeFile].name;
+  try{runtime.FS.unlink(sourcePath+'.html');}catch(e){}
   compilerStdout=[];compilerStderr=[];
   compilerInput=(document.getElementById('programinput').value||'').replace(/\r\n/g,'\n');
   if(compilerInput && !compilerInput.endsWith('\n'))compilerInput+='\n';
