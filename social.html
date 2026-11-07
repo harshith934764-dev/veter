@@ -62,6 +62,8 @@
 <button class="social-tab" data-view="notifications">🔔 Notifications <span id="notification-count"></span></button>
 <button class="social-tab" data-view="saved">🔖 Saved posts</button>
 <button class="social-tab" data-view="chats">💬 My chats <span id="chat-count"></span></button>
+<button class="social-tab" data-view="ai">🤖 AI Companions <span class="ai-pill">NEW</span></button>
+
 <button class="social-tab" data-view="groups">👥 Group chats</button>
 <button class="social-tab" data-view="profile">👤 Edit profile</button>
 <button class="social-tab" data-view="safety">🛡️ Safety</button>
@@ -114,6 +116,17 @@
 <div class="chat-layout"><div class="chat-list" id="chat-list"><p class="empty-state">No conversations yet. Discover someone to say hello.</p></div>
 <div class="chat-panel"><div class="chat-empty" id="chat-empty">Choose a conversation to start chatting 💬</div><div id="active-chat" hidden><div class="chat-heading"><img id="chat-avatar" alt=""><div><b id="chat-name">Conversation</b><small id="chat-presence">Private chat</small></div><button id="report-chat" class="small-action">Report</button><button id="block-chat" class="small-action">Block</button></div><div class="chat-messages" id="chat-messages"></div><form class="chat-compose" id="message-form"><input id="message-input" maxlength="2000" autocomplete="off" placeholder="Write a message…" required><button type="submit">Send ➤</button></form></div></div></div>
 </section>
+<section class="social-view" id="view-ai" hidden>
+<div class="ai-page-head"><div><div class="social-kicker">VETER AI STUDIO</div><h2>AI Companions <span>✦</span></h2><p>Meet friendly fictional characters. They are AI personas, not real people.</p></div><span class="ai-status-pill">● AI CHARACTERS</span></div>
+<div class="ai-workspace">
+<aside class="ai-roster"><div class="ai-roster-title"><b>Your companions</b><small>Choose someone to chat with</small></div>
+<div class="ai-character-list" id="ai-character-list"></div></aside>
+<section class="ai-chat-panel"><header class="ai-chat-head"><img id="ai-active-avatar" alt=""><div><b id="ai-active-name">Ananya</b><small><span class="ai-live-dot"></span> AI companion · Fictional</small></div><span class="ai-pill">AI</span></header>
+<div class="ai-chat-messages" id="ai-chat-messages" aria-live="polite"><div class="ai-welcome-card">👋 <b>Hi! I’m Ananya.</b><br>I’m a fictional AI character. Pick a topic and let’s chat!</div></div>
+<div class="ai-prompts" id="ai-prompts"><button type="button" data-ai-prompt="Suggest a good Telugu movie">🎬 Movie ideas</button><button type="button" data-ai-prompt="Help me plan my study day">📚 Study tips</button><button type="button" data-ai-prompt="Tell me something fun">😄 Fun chat</button><button type="button" data-ai-prompt="I want to talk about technology">💻 Technology</button></div>
+<form class="ai-compose" id="ai-message-form"><input id="ai-message-input" maxlength="500" autocomplete="off" placeholder="Message your AI companion…" required><button type="submit" aria-label="Send message">➤</button></form>
+<p class="ai-disclosure">AI character replies are an early demo and may be scripted. Do not share private information.</p>
+</section></div></section>
 <section class="social-view" id="view-groups" hidden>
 <div class="social-view-head"><div><div class="social-kicker">CHAT TOGETHER</div><h2>Your groups</h2><p>Create a group with people who are already your Veter friends.</p></div><button class="social-primary" id="create-group" type="button">＋ Create group</button></div>
 <div class="group-chat-layout"><div class="chat-list" id="group-list"><p class="empty-state">Your groups will appear here.</p></div><div class="chat-panel"><div class="chat-empty" id="group-empty">Choose a group or create a new one 💬</div><div id="active-group" hidden><div class="chat-heading"><div><b id="group-chat-name">Group</b><small>Veter group conversation</small></div></div><div class="chat-messages" id="group-messages"></div><form class="chat-compose" id="group-message-form"><input id="group-message-input" maxlength="2000" autocomplete="off" placeholder="Write to the group…" required><button type="submit">Send ➤</button></form></div></div></div>
