@@ -8,6 +8,7 @@ Veter is an independently developed programming-language project created to make
 - **Ecosystem Roadmap:** https://theveter.in/roadmap.html  
 📘 **Learning Guide:** https://theveter.in/learn.html
 - **Documentation:** https://theveter.in/docs.html
+- **Documentation Hub:** https://theveter.in/documentation.html
 - **Language Reference:** https://theveter.in/reference.html
 - **Ecosystem:** https://theveter.in/ecosystem.html
 - **Studio vision:** https://theveter.in/studio.html
