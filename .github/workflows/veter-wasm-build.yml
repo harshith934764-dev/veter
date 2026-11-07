@@ -2,10 +2,15 @@ name: Veter WebAssembly build
 
 on:
   push:
-    branches: [main, feature/veter-webassembly-build]
+    branches: [main]
+    paths-ignore:
+      - 'assets/wasm/**'
   pull_request:
     branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   wasm-build:
@@ -17,14 +22,14 @@ jobs:
       - name: Set up Emscripten
         uses: mymindstorm/setup-emsdk@v14
 
-      - name: Build Veter compiler for WebAssembly
+      - name: Build Veter compiler for browser and Node.js
         run: |
           mkdir -p build/wasm
           em++ downloads/veter_core_1_0.cpp \
             -std=c++20 -O2 \
             -sMODULARIZE=1 \
             -sEXPORT_NAME=createVeterModule \
-            -sENVIRONMENT=node \
+            -sENVIRONMENT=web,node \
             -sALLOW_MEMORY_GROWTH=1 \
             -sEXIT_RUNTIME=0 \
             -sEXPORTED_RUNTIME_METHODS='["FS","callMain"]' \
@@ -32,6 +37,24 @@ jobs:
 
       - name: Smoke test the WebAssembly compiler
         run: node tests/wasm_smoke_test.cjs
+
+      - name: Prepare browser assets
+        run: |
+          mkdir -p assets/wasm
+          cp build/wasm/veterc.js build/wasm/veterc.wasm assets/wasm/
+
+      - name: Publish compiler assets to main for static hosting
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/wasm/veterc.js assets/wasm/veterc.wasm
+          if git diff --cached --quiet; then
+            echo "WebAssembly assets are already up to date."
+          else
+            git commit -m "Build Veter compiler WebAssembly assets [skip ci]"
+            git push
+          fi
 
       - name: Upload WebAssembly compiler bundle
         uses: actions/upload-artifact@v4
