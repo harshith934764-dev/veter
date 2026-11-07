@@ -1,6 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.0";
+
 const firebaseConfig = {
   apiKey: "AIzaSyB6ky_ETioOqiONq9T4uousDRpOzOMRRn0",
   authDomain: "veter-social.firebaseapp.com",
@@ -10,40 +19,164 @@ const firebaseConfig = {
   appId: "1:504664421504:web:a1f681566757c31b69a265",
   measurementId: "G-D19HJNGF9S"
 };
-const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
-const el=id=>document.getElementById(id), status=el("auth-status");
-const show=message=>{if(status)status.textContent=message;};
-let confirmationResult=null, recaptchaVerifier=null;
-function friendly(error){
- const map={"auth/operation-not-allowed":"Enable this provider in Firebase Authentication → Sign-in method.","auth/unauthorized-domain":"Add theveter.in in Firebase Authentication → Settings → Authorized domains.","auth/popup-blocked":"Allow sign-in popups in your browser and try again.","auth/invalid-phone-number":"Enter a valid phone number with country code, e.g. +919876543210.","auth/too-many-requests":"Firebase temporarily limited requests. Wait a while and try again."};
- return map[error.code]||error.message||"Sign-in failed. Please try again.";
+
+const SUPABASE_URL = "https://qqvfphefusvbveucqbrj.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_zhDEs1iTTWYV-x76-6kWAA_L5TAAzj";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Firebase remains the identity provider. Supabase receives the current
+// Firebase ID token and stores application data in PostgreSQL.
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  accessToken: async () => {
+    const user = auth.currentUser;
+    return user ? await user.getIdToken() : null;
+  },
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false
+  }
+});
+
+const el = id => document.getElementById(id);
+const status = el("auth-status");
+const show = message => {
+  if (status) status.textContent = message;
+};
+
+let confirmationResult = null;
+let recaptchaVerifier = null;
+let lastProfileSyncUid = null;
+
+function friendly(error) {
+  if (error?.code === "auth/operation-not-allowed") {
+    return "Enable this sign-in method in Firebase Authentication → Sign-in method.";
+  }
+  if (error?.code === "auth/unauthorized-domain") {
+    return "Add theveter.in in Firebase Authentication → Settings → Authorized domains.";
+  }
+  if (error?.code === "auth/popup-blocked") {
+    return "Allow sign-in popups in your browser and try again.";
+  }
+  if (error?.code === "auth/invalid-phone-number") {
+    return "Enter a valid phone number with country code, e.g. +919876543210.";
+  }
+  if (error?.code === "auth/too-many-requests") {
+    return "Firebase temporarily limited requests. Wait a while and try again.";
+  }
+  if (error?.code === "42501" || error?.code === "PGRST301" || error?.status === 401) {
+    return "Database access is not ready. Check the Firebase integration in Veter Social's Supabase Authentication settings.";
+  }
+  return error?.message || "Something went wrong. Please try again.";
 }
-async function saveProfile(user){
- const ref=doc(db,"users",user.uid), old=await getDoc(ref);
- const data={displayName:(user.displayName||"Veter member").slice(0,40),photoURL:user.photoURL||null,country:"",languages:[]};
- if(!old.exists())data.createdAt=serverTimestamp();
- await setDoc(ref,data,{merge:true});
+
+async function syncProfile(user) {
+  const profile = {
+    uid: user.uid,
+    display_name: (user.displayName || "Veter member").trim().slice(0, 40) || "Veter member",
+    avatar_url: user.photoURL || null,
+    country: "",
+    languages: [],
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await supabase
+    .from("user_profiles")
+    .upsert(profile, { onConflict: "uid" });
+
+  if (error) {
+    console.error("Veter Social profile sync failed:", error);
+    show("Signed in, but profile storage is not connected yet. " + friendly(error));
+    return false;
+  }
+
+  lastProfileSyncUid = user.uid;
+  show("You're signed in to Veter Social. Your profile is saved.");
+  return true;
 }
-el("google-sign-in")?.addEventListener("click",async()=>{
- try{show("Opening Google sign-in…");const result=await signInWithPopup(auth,new GoogleAuthProvider());await saveProfile(result.user);show("You're signed in to Veter Social!");}
- catch(error){show(friendly(error));}
+
+el("google-sign-in")?.addEventListener("click", async () => {
+  try {
+    show("Opening Google sign-in…");
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (error) {
+    show(friendly(error));
+  }
 });
-el("send-otp")?.addEventListener("click",async()=>{
- try{
-  const phone=el("phone-number").value.trim();if(!phone)return show("Enter your phone number with country code first.");
-  if(!recaptchaVerifier)recaptchaVerifier=new RecaptchaVerifier(auth,"recaptcha-container",{});
-  confirmationResult=await signInWithPhoneNumber(auth,phone,recaptchaVerifier);
-  el("phone-otp").hidden=false;el("verify-otp").hidden=false;show("OTP sent. Enter the code received on your phone.");
- }catch(error){show(friendly(error));if(recaptchaVerifier){try{await recaptchaVerifier.clear();}catch{}recaptchaVerifier=null;}}
+
+el("send-otp")?.addEventListener("click", async () => {
+  try {
+    const phone = el("phone-number")?.value.trim();
+    if (!phone) {
+      show("Enter your phone number with country code first.");
+      return;
+    }
+
+    if (!recaptchaVerifier) {
+      recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {});
+    }
+
+    confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
+    el("phone-otp").hidden = false;
+    el("verify-otp").hidden = false;
+    show("OTP sent. Enter the code received on your phone.");
+  } catch (error) {
+    show(friendly(error));
+    if (recaptchaVerifier) {
+      try {
+        await recaptchaVerifier.clear();
+      } catch {
+        // Ignore cleanup errors; the original sign-in error is more useful.
+      }
+      recaptchaVerifier = null;
+    }
+  }
 });
-el("verify-otp")?.addEventListener("click",async()=>{
- try{if(!confirmationResult)return show("Request an OTP first.");const result=await confirmationResult.confirm(el("phone-otp").value.trim());await saveProfile(result.user);show("Phone verified. You're signed in!");}
- catch(error){show(friendly(error));}
+
+el("verify-otp")?.addEventListener("click", async () => {
+  try {
+    if (!confirmationResult) {
+      show("Request an OTP first.");
+      return;
+    }
+    await confirmationResult.confirm(el("phone-otp")?.value.trim() || "");
+  } catch (error) {
+    show(friendly(error));
+  }
 });
-el("sign-out")?.addEventListener("click",async()=>{await signOut(auth);show("You have signed out.");});
-onAuthStateChanged(auth,user=>{
- for(const id of ["google-sign-in","phone-number","send-otp"])if(el(id))el(id).hidden=!!user;
- if(user){el("phone-otp").hidden=true;el("verify-otp").hidden=true;}
- if(el("sign-out"))el("sign-out").hidden=!user;
- if(user)show("Signed in as "+(user.displayName||user.email||user.phoneNumber||"Veter member")+".");
+
+el("sign-out")?.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    lastProfileSyncUid = null;
+    show("You have signed out.");
+  } catch (error) {
+    show(friendly(error));
+  }
+});
+
+onAuthStateChanged(auth, user => {
+  for (const id of ["google-sign-in", "phone-number", "send-otp"]) {
+    if (el(id)) el(id).hidden = !!user;
+  }
+
+  if (user) {
+    if (el("phone-otp")) el("phone-otp").hidden = true;
+    if (el("verify-otp")) el("verify-otp").hidden = true;
+    show("Signed in as " + (user.displayName || user.email || user.phoneNumber || "Veter member") + ". Saving profile…");
+
+    if (lastProfileSyncUid !== user.uid) {
+      syncProfile(user).catch(error => {
+        console.error("Unexpected profile sync error:", error);
+        show(friendly(error));
+      });
+    }
+  } else {
+    lastProfileSyncUid = null;
+    show("Sign in to join Veter Social.");
+  }
+
+  if (el("sign-out")) el("sign-out").hidden = !user;
 });
