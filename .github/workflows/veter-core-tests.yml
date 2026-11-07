@@ -20,5 +20,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y g++
       - name: Run compiler regression tests
         run: python tests/test_core_1_0.py
-      - name: Run package manifest validator tests
+      - name: Run package manager tests
         run: python tests/test_package_validator.py
