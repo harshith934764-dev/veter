@@ -475,6 +475,53 @@ async function openConversation(partnerUid) {
     status("Private conversation opened.");
   } catch (e) { status(friendly(e), true); }
 }
+
+// Veter AI companion demo: fictional personas with transparent AI labels.
+// Replies are local starter responses; connect a trusted model API for generative chat.
+const aiCharacters = [
+ {id:"ananya",name:"Ananya",gender:"Girl",topic:"Movies · Music · Daily talk",avatar:"https://api.dicebear.com/9.x/avataaars/svg?seed=Ananya&backgroundColor=b6e3f4",hello:"Hey! I’m Ananya 😊 I love movies, music and friendly conversations. What’s on your mind?"},
+ {id:"arjun",name:"Arjun",gender:"Boy",topic:"Technology · Coding · Cricket",avatar:"https://api.dicebear.com/9.x/avataaars/svg?seed=Arjun&backgroundColor=c0aede",hello:"Hey! Arjun here 👋 Want to talk coding, new tech or cricket?"},
+ {id:"pooja",name:"Pooja",gender:"Girl",topic:"Study · Career · Life advice",avatar:"https://api.dicebear.com/9.x/avataaars/svg?seed=Pooja&backgroundColor=ffd5dc",hello:"Hi there! I’m Pooja 🌸 We can talk about studies, careers or whatever’s on your mind."},
+ {id:"karthik",name:"Karthik",gender:"Boy",topic:"Gaming · Anime · Fun",avatar:"https://api.dicebear.com/9.x/avataaars/svg?seed=Karthik&backgroundColor=d1d4f9",hello:"Yo! Karthik here 🎮 Anime, games or memes? Let’s go!"},
+ {id:"meera",name:"Meera",gender:"Girl",topic:"Books · Travel · Self-care",avatar:"https://api.dicebear.com/9.x/avataaars/svg?seed=Meera&backgroundColor=ffdfbf",hello:"Hello! I’m Meera 🌼 Tell me what you’re reading or where you dream of travelling."},
+ {id:"rohan",name:"Rohan",gender:"Boy",topic:"Fitness · Sports · Motivation",avatar:"https://api.dicebear.com/9.x/avataaars/svg?seed=Rohan&backgroundColor=b6e3f4",hello:"Hey! Rohan here 💪 Want to chat fitness, sports or goals?"},
+ {id:"ishita",name:"Ishita",gender:"Girl",topic:"Movies · Food · Daily talk",avatar:"https://api.dicebear.com/9.x/avataaars/svg?seed=Ishita&backgroundColor=ffd5dc",hello:"Hii! I’m Ishita ✨ What did you eat today? Or shall we talk movies?"},
+ {id:"vikram",name:"Vikram",gender:"Boy",topic:"Business · Startups · AI",avatar:"https://api.dicebear.com/9.x/avataaars/svg?seed=Vikram&backgroundColor=c0aede",hello:"Hello! Vikram here 🚀 Let’s talk startups, business ideas or AI."}
+];
+let activeAiCharacter = aiCharacters[0];
+const aiChatHistory = Object.fromEntries(aiCharacters.map(c=>[c.id,[]]));
+function renderAiRoster(){
+ const host=$("ai-character-list"); if(!host)return;
+ host.innerHTML=aiCharacters.map(c=>'<button type="button" class="ai-character '+(c.id===activeAiCharacter.id?'selected':'')+'" data-ai-character="'+c.id+'"><img src="'+c.avatar+'" alt=""><span><b>'+c.name+' <i>AI</i></b><small>'+c.topic+'</small></span><span class="ai-online-dot"></span></button>').join("");
+}
+function renderAiChat(){
+ $("ai-active-name").textContent=activeAiCharacter.name;
+ $("ai-active-avatar").src=activeAiCharacter.avatar;
+ const rows=aiChatHistory[activeAiCharacter.id];
+ $("ai-chat-messages").innerHTML='<div class="ai-welcome-card">'+activeAiCharacter.hello+'</div>'+rows.map(m=>'<div class="ai-message '+(m.from==="me"?"mine":"theirs")+'">'+esc(m.text)+'</div>').join("");
+ $("ai-chat-messages").scrollTop=$("ai-chat-messages").scrollHeight;
+ renderAiRoster();
+}
+function chooseAiCharacter(id){activeAiCharacter=aiCharacters.find(c=>c.id===id)||aiCharacters[0];renderAiChat();}
+function aiStarterReply(message){
+ const m=message.toLowerCase();
+ if(/hello|hi|hey|hii/.test(m))return "Heyy! 😊 Nice to chat with you. What shall we talk about?";
+ if(/movie|film|cinema|telugu/.test(m))return "Movie time! 🎬 You could try a Telugu comedy or a feel-good drama. What kind of stories do you enjoy?";
+ if(/cricket|kohli|ipl/.test(m))return "Cricket talk! 🏏 What a game can teach us is patience, teamwork and staying calm under pressure. Which team do you support?";
+ if(/code|coding|program|technology|tech|ai/.test(m))return "That’s a cool topic! 💻 Start with one small project, make it work, then improve it step by step. What are you building?";
+ if(/study|exam|career|job/.test(m))return "One small step at a time 📚 Pick one clear task, focus for 25 minutes, then take a short break. What are you working towards?";
+ if(/sad|stress|angry|upset|lonely/.test(m))return "I’m sorry it feels heavy right now. 💛 Take a slow breath. If you can, talk with someone you trust too. Want to tell me what happened?";
+ if(/food|eat|lunch|dinner/.test(m))return "Food chat! 😋 What did you have today? I’m always ready to hear about a tasty meal.";
+ if(/thank/.test(m))return "You’re welcome! 😊 Happy to keep chatting.";
+ return "That sounds interesting! 😊 Tell me a little more. What part matters most to you?";
+}
+function sendAiMessage(event){
+ event.preventDefault();const input=$("ai-message-input");const message=input.value.trim();if(!message)return;
+ aiChatHistory[activeAiCharacter.id].push({from:"me",text:message});
+ aiChatHistory[activeAiCharacter.id].push({from:"ai",text:aiStarterReply(message)});
+ input.value="";renderAiChat();
+}
+
 let selectedPostPhoto = null;
 function clearPostPhoto() {
   selectedPostPhoto = null;
@@ -1021,6 +1068,10 @@ $("incoming-friends").addEventListener("click",async e => {
   try { const client = await getDb(); const {error} = await client.from("social_friend_requests").update({status:button.dataset.friendResponse,updated_at:new Date().toISOString()}).eq("id",button.dataset.requestId); if (error) throw error; status(button.dataset.friendResponse === "accepted" ? "Friend request accepted!" : "Friend request declined."); await Promise.all([loadFriendRequests(),loadPeople(),loadNotifications()]); }
   catch(err) { status(friendly(err),true); button.disabled = false; }
 });
+$("ai-character-list").addEventListener("click",e=>{const b=e.target.closest("[data-ai-character]");if(b)chooseAiCharacter(b.dataset.aiCharacter);});
+$("ai-message-form").addEventListener("submit",sendAiMessage);
+$("ai-prompts").addEventListener("click",e=>{const b=e.target.closest("[data-ai-prompt]");if(b){$("ai-message-input").value=b.dataset.aiPrompt;$("ai-message-form").requestSubmit();}});
+renderAiRoster();renderAiChat();
 $("people-list").addEventListener("click",e => {
   const friendButton = e.target.closest("[data-friend-user]");
   if (friendButton) { sendFriendRequest(friendButton.dataset.friendUser); return; }
