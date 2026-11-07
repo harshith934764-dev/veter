@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#070b16">
-  <title>Veter Package Manager | Design Proposal</title>
+  <title>Veter Package Manager | Early Tools</title>
   <meta name="description" content="Explore the proposed package format, dependency rules and security principles for a future Veter package manager.">
   <link rel="canonical" href="https://theveter.in/packages.html">
   <link rel="stylesheet" href="/premium.css?v=1">
@@ -26,7 +26,7 @@
 <body>
 <header><nav class="wrap" style="min-height:74px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><a href="index.html" style="font-size:25px;font-weight:900">Veter<span style="color:#65e7e0">.</span></a><div style="display:flex;gap:15px;flex-wrap:wrap;font-size:14px"><a href="developers.html">Developers</a><a href="docs.html">Docs</a><a href="roadmap.html">Roadmap</a><a href="index.html">Home</a></div></nav></header>
 <main>
-<section class="hero"><div class="wrap"><span class="eyebrow">DESIGN PROPOSAL · NOT RELEASED</span><h1>Packages that make<br><span class="gradient">Veter grow.</span></h1><p class="lead">A proposed package manager for sharing reusable Veter libraries. This page defines an initial direction; there is no public registry or working install command yet.</p><div class="actions"><a class="btn btn-primary" href="developers.html">Developer portal →</a><a class="btn" href="https://github.com/harshith934764-dev/veter">View source ↗</a></div></div></section>
+<section class="hero"><div class="wrap"><span class="eyebrow">EARLY LOCAL TOOLING · NO PUBLIC REGISTRY</span><h1>Packages that make<br><span class="gradient">Veter grow.</span></h1><p class="lead">Veter package tooling is taking its first steps. The local C++ tool can validate a package manifest and scaffold a starter project. Package installation and a public registry are not available yet.</p><div class="actions"><a class="btn btn-primary" href="developers.html">Developer portal →</a><a class="btn" href="https://github.com/harshith934764-dev/veter">View source ↗</a></div></div></section>
 <section><div class="wrap"><div class="heading"><h2>How it should work</h2><p>Keep the first version small, predictable and safe.</p></div><div class="grid">
 <article class="card"><span class="status">01 · PROJECT</span><h3>One manifest</h3><p>Each project describes its name, version, supported Veter version and dependencies in one file.</p></article>
 <article class="card"><span class="status">02 · DEPENDENCIES</span><h3>Repeatable installs</h3><p>A lock file records exact dependency versions and integrity hashes so another developer can reproduce the same dependency set.</p></article>
@@ -41,7 +41,7 @@
     "sample/text-tools": "^1.2.0"
   }
 }</div><div class="notice"><strong>Design note:</strong> Package names should be unique and publisher-scoped. A package must declare its license, source URL and supported Veter versions before publication.</div></div></section>
-<section><div class="wrap"><div class="heading"><h2>Proposed command experience</h2><p>These commands show the intended user experience. They do not work in the current Veter compiler.</p></div><div class="code">veter new my-app
+<section><div class="wrap"><div class="heading"><h2>Proposed command experience</h2><p>The local veter-pkg utility supports project creation and manifest validation. The other commands remain planned.</p></div><div class="code">veter new my-app
 veter add sample/text-tools
 veter install
 veter list
@@ -53,7 +53,7 @@ veter remove sample/text-tools</div></div></section>
 <article class="card"><h3>Safe by default</h3><ul><li>No automatic install scripts</li><li>Review dependency changes</li><li>Warn about known vulnerabilities</li></ul></article>
 </div><div class="notice">Never install a package just because its name looks familiar. A future Veter registry should show the publisher, source repository, version, license and integrity status before installation.</div></div></section>
 <section><div class="wrap"><div class="heading"><h2>Build it in stages</h2><p>A realistic roadmap from a file format to a trusted ecosystem.</p></div><div class="steps">
-<div class="step"><strong>Manifest and validator</strong><p>Define a stable schema and validate local project metadata without downloading anything.</p></div>
+<div class="step"><strong>Manifest validator and project scaffolder</strong><p>Implemented in the local veter-pkg utility: validate metadata and create a starter project without downloading anything.</p></div>
 <div class="step"><strong>Local package cache</strong><p>Support local archives and deterministic lock files before introducing a public registry.</p></div>
 <div class="step"><strong>Registry and publishing</strong><p>Add verified publisher accounts, immutable releases, checksums and moderation/reporting.</p></div>
 <div class="step"><strong>Dependency security</strong><p>Add vulnerability advisories, package deprecation and safe update workflows.</p></div>
