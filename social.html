@@ -57,6 +57,7 @@
 <div class="social-me"><img id="my-avatar" alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="><div><b id="my-name">Your profile</b><small id="my-email"></small></div></div>
 <button class="social-tab active" data-view="discover">🌍 Discover people</button>
 <button class="social-tab" data-view="feed">📰 Community feed</button>
+<button class="social-tab" data-view="vibes">✨ Veter Vibes <span id="vibe-count"></span></button>
 <button class="social-tab" data-view="friends">👥 Friends <span id="friend-count"></span></button>
 <button class="social-tab" data-view="notifications">🔔 Notifications <span id="notification-count"></span></button>
 <button class="social-tab" data-view="saved">🔖 Saved posts</button>
@@ -78,6 +79,22 @@
 <div class="social-view-head"><div><div class="social-kicker">SHARE SOMETHING GOOD</div><h2>Community feed</h2><p>Post updates, celebrate wins and share ideas with Veter members.</p></div></div>
 <form class="post-composer" id="post-form"><textarea id="post-body" maxlength="1000" rows="3" placeholder="What would you like to share?"></textarea><div class="post-photo-picker"><label for="post-photo">📷 Add a photo</label><input id="post-photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><span id="photo-file-name">No photo selected · max 8 MB</span></div><div id="photo-preview-wrap" class="photo-preview-wrap" hidden><img id="photo-preview" alt="Photo preview"><button id="remove-photo" type="button">Remove photo</button></div><div class="composer-footer"><small><span id="post-char-count">0</span>/1000</small><button type="submit">Publish post ✨</button></div></form>
 <div class="feed-list" id="feed-list"><p class="empty-state">Loading community posts…</p></div>
+
+</section>
+<section class="social-view" id="view-vibes" hidden>
+ <div class="social-view-head"><div><div class="social-kicker">YOUR MOMENTS · 24 HOURS</div><h2>✨ Veter Vibes</h2><p>Share a moment with your people. Stories expire after 24 hours and move to your private archive.</p></div><button class="small-action" id="vibe-archive-toggle" type="button">📦 My archive</button></div>
+ <form class="vibe-composer" id="vibe-form">
+  <label class="vibe-upload">📷 Add photo or video<input id="vibe-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"></label>
+  <span id="vibe-file-name">No media selected · max 50 MB</span>
+  <textarea id="vibe-caption" maxlength="500" rows="2" placeholder="What is your vibe today?"></textarea>
+  <div class="vibe-composer-row"><select id="vibe-visibility" aria-label="Who can see this story"><option value="friends">Friends</option><option value="everyone">Everyone</option><option value="close_friends">Close circle</option></select><input id="vibe-poll-question" maxlength="180" placeholder="Optional poll question"><input id="vibe-poll-options" placeholder="Poll options, separated by commas (2–4)"><button type="submit" class="social-primary">Share Vibe ✨</button></div>
+  <small class="vibe-note">Poll is optional. Keep stories respectful. Only share content you have permission to post.</small>
+ </form>
+ <div class="vibe-tools"><button type="button" id="vibe-close-circle">💚 Manage close circle</button><label>Replies <select id="vibe-reply-setting"><option value="friends">Friends</option><option value="everyone">Everyone</option><option value="none">Off</option></select></label><button type="button" id="vibe-save-settings">Save privacy</button></div>
+ <div id="vibe-circle-list" class="vibe-circle-list"></div>
+ <h3 class="vibe-section-title" id="vibe-list-title">Fresh Vibes</h3>
+ <div id="vibe-list" class="vibe-grid"><p class="empty-state">Loading Vibes…</p></div>
+ <div id="vibe-viewer" class="vibe-viewer" hidden></div>
 </section>
 <section class="social-view" id="view-friends" hidden>
 <div class="social-view-head"><div><div class="social-kicker">YOUR CIRCLE</div><h2>Friend requests</h2><p>Connect with people and build your Veter circle.</p></div></div>
