@@ -32,13 +32,13 @@ function loadWasmCompiler(){
   script.src='/assets/wasm/veterc.js';
   script.async=true;
   script.onload=()=>{
-   if(typeof window.createVeterModule!=='function'){reject(Error('Compiler loader did not initialize.'));return;}
+   if(typeof window.createVeterModule!=='function'){wasmModulePromise=null;reject(Error('Compiler loader did not initialize.'));return;}
    window.createVeterModule({
     locateFile:(path)=>'/assets/wasm/'+path,
     print:(line)=>{compilerStdout.push(line);},
     printErr:(line)=>{compilerStderr.push(line);},
     stdin:()=>{if(!compilerInput.length)return null;const ch=compilerInput.charCodeAt(0);compilerInput=compilerInput.slice(1);return ch;}
-   }).then(resolve,reject);
+   }).then(resolve,(error)=>{wasmModulePromise=null;reject(error);});
   };
   script.onerror=()=>{wasmModulePromise=null;reject(Error('The real Veter compiler is not deployed yet. Please try again after the WebAssembly build finishes.'));};
   document.head.appendChild(script);
@@ -60,8 +60,8 @@ async function run(){
   try{runtime.FS.unlink(sourcePath);}catch(e){}
   runtime.FS.writeFile(sourcePath,code.value);
   compilerStdout=[];compilerStderr=[];
-  compilerInput=(document.getElementById('programinput').value||'').replace(/\\r\\n/g,'\\n');
-  if(compilerInput && !compilerInput.endsWith('\\n'))compilerInput+='\\n';
+  compilerInput=(document.getElementById('programinput').value||'').replace(/\r\n/g,'\n');
+  if(compilerInput && !compilerInput.endsWith('\n'))compilerInput+='\n';
   const exitCode=runtime.callMain([sourcePath]);
   if(exitCode!==0)throw Error(compilerStderr.join('\\n').trim()||('Compiler exited with code '+exitCode));
   out.textContent=compilerStdout.join('\\n').trimEnd()||'Program finished with no output.';
