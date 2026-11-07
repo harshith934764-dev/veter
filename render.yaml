@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: veter
+    runtime: static
+    repo: https://github.com/harshith934764-dev/veter
+    branch: main
+    staticPublishPath: .
+    autoDeployTrigger: commit
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self' https://www.gstatic.com https://esm.sh https://apis.google.com https://accounts.google.com; script-src-elem 'self' https://www.gstatic.com https://esm.sh https://apis.google.com https://accounts.google.com; connect-src 'self' https://esm.sh https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebaseinstallations.googleapis.com https://apis.google.com https://accounts.google.com https://qqvfphefusvbveucqbrj.supabase.co; frame-src 'self' https://veter-social.firebaseapp.com https://accounts.google.com https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self' https://accounts.google.com"
