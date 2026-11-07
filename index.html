@@ -201,18 +201,39 @@
   </header>
 
   <main>
-    <section class="hero" id="home">
-      <div class="container">
-        <span class="tag">AN INDEPENDENT PROGRAMMING LANGUAGE</span>
-        <h1>Build with <span class="gradient">Veter.</span><br>Think in your own syntax.</h1>
-        <p>Veter is an independently developed programming language project created by Chengepally Harshith Reddy. It has its own .vtr source-file format, an evolving compiler implementation, technical documentation and beginner learning resources. Explore the language, inspect its public source code and try the limited browser demonstration.</p>
-        <p class="creator-credit">Created by <a href="about.html">Chengepally Harshith Reddy</a> · Founder &amp; Creator of Veter</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="learn.html">Start learning →</a>
-          <a class="btn" href="docs.html">Read documentation</a>
-          <a class="btn" href="veter-programming-language.html">What is Veter?</a>
-          <a class="btn" href="#code-maker">Try the browser demo</a>
+    <section class="hero hero-product" id="home">
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <span class="tag">INDEPENDENT LANGUAGE PROJECT · CORE 1.0 PROTOTYPE</span>
+          <h1>A new way to<br><span class="gradient">think in code.</span></h1>
+          <p>Meet Veter: an original programming language project with its own <code>.vtr</code> source format, a native compiler prototype and a growing set of developer resources. Explore what works today, try the browser demo and follow the engineering as it develops.</p>
+          <p class="creator-credit">An independent project by <a href="about.html">Chengepally Harshith Reddy</a></p>
+          <div class="actions hero-actions">
+            <a class="btn btn-primary" href="#code-maker">Try the live demo <span aria-hidden="true">↗</span></a>
+            <a class="btn" href="https://github.com/harshith934764-dev/veter">Explore source code</a>
+          </div>
+          <div class="hero-proof"><span><i></i> Public source repository</span><span><i></i> Automated compiler tests</span><span><i></i> Versioned documentation</span></div>
         </div>
+        <div class="hero-window" aria-label="Illustrative preview of the Veter code editor and output">
+          <div class="window-top"><div class="window-dots"><b></b><b></b><b></b></div><span>sample.vtr</span><span class="window-version">VETER CORE 1.0</span></div>
+          <div class="window-body">
+            <div class="window-code"><div class="window-gutter">01<br>02<br>03<br>04<br>05</div><pre><span class="syntax-key">remember</span> score <span class="syntax-key">as</span> <span class="syntax-num">95</span>
+<span class="syntax-key">remember</span> bonus <span class="syntax-key">as</span> <span class="syntax-num">5</span>
+
+<span class="syntax-key">revise</span> score <span class="syntax-key">as</span> score + bonus
+<span class="syntax-key">display</span> score</pre></div>
+            <div class="window-output"><div><span class="output-dot"></span> PROGRAM OUTPUT</div><strong>100</strong><small>Process finished</small></div>
+          </div>
+          <div class="window-foot"><span><b></b> Prototype preview</span><span>Illustrative code · verify version support</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="status-band" aria-label="Current project facts">
+      <div class="container status-grid">
+        <div><span class="status-kicker">SOURCE FORMAT</span><strong>.vtr</strong><small>Veter source files</small></div>
+        <div><span class="status-kicker">CURRENT MILESTONE</span><strong>Core 1.0</strong><small>Compiler prototype</small></div>
+        <div><span class="status-kicker">IMPLEMENTATION</span><strong>C++20</strong><small>Compiler implementation</small></div>
+        <div><span class="status-kicker">DEVELOPMENT</span><strong>Open</strong><small>Public repository &amp; tests</small></div>
       </div>
     </section>
 
@@ -235,7 +256,7 @@
       <div class="container">
         <div class="section-head">
           <h2>Explore <span class="gradient">Veter Products</span></h2>
-          <p>Discover the tools and technology being developed under the Veter project.</p>
+          <p>Explore the projects in the Veter ecosystem. Product status and availability are described on each project page.</p>
         </div>
         <div class="grid product-grid">
           <article class="card product-card">
@@ -290,7 +311,7 @@
       <div class="container">
         <div class="section-head">
           <h2>Veter Downloads</h2>
-          <p>Get the available VeterOS image and explore the Veter development tools.</p>
+          <p>Download the currently published project builds. Check each release note for supported systems and prototype limitations.</p>
         </div>
         <div class="grid">
           <article class="card download-card">
@@ -335,7 +356,7 @@
         </div>
         <div class="card">
           <h3>About Veter Language</h3>
-          <p>Veter Language includes a compiler, core programming features and a simple website-building workflow. Write projects in Veter syntax and run them with the Veter compiler. The browser playground below supports a documented subset of the language.</p>
+          <p>Veter Language is an original language and compiler project. Write projects in Veter syntax and run supported programs with the native compiler prototype. The browser playground below is a separate, limited demonstration and supports only its documented subset.</p>
         </div>
         <div class="veter-playground" id="code-maker">
           <div class="veter-playground-head"><strong>⌨️ Veter Code Maker</strong><span>Desktop and mobile browser</span></div>
