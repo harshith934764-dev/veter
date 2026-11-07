@@ -187,3 +187,13 @@ body.social-light .demo-disclaimer{background:#f5f0ff;border-color:#d8c9f3;color
 .follow-count{display:inline-block;margin-top:5px;color:#91a1bd;font-size:11px}.person-actions [data-follow-user],.person-actions [data-unfollow-user]{background:#563be8;color:white;border:0;border-radius:9px;padding:8px 12px;cursor:pointer}
 
 .veter-discovery-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 16px}.veter-spark-card,.veter-trending-card{min-width:0;padding:16px;border:1px solid #30415e;border-radius:14px;background:linear-gradient(145deg,#15243b,#101a2d)}.veter-spark-card>b{display:block;margin:9px 0 5px;color:#f1f5ff;font-size:17px}.veter-spark-card p{margin:0 0 12px;color:#aebbd2;font-size:12px}.veter-spark-card button,.trending-tags button{border:1px solid #405776;border-radius:9px;padding:8px 10px;background:#1b2d48;color:#c9f3ef;font-size:11px;font-weight:700;cursor:pointer}.trending-tags{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.trending-tags button small{opacity:.7;margin-left:4px}.veter-trending-card>small,.trending-empty{font-size:10px;color:#91a1bd}body.social-light .veter-spark-card,body.social-light .veter-trending-card{background:#fff;border-color:#d8e1ef}body.social-light .veter-spark-card>b{color:#17243a}@media(max-width:620px){.veter-discovery-row{grid-template-columns:1fr}}
+
+/* 18+ Veter Dating */
+.dating-safety-note{padding:13px 15px;border:1px solid #66533a;background:#241f19;color:#f4d9a7;border-radius:12px;font-size:12px;line-height:1.6;margin:0 0 18px}
+.dating-setup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding:18px;border:1px solid #293a55;border-radius:16px;background:#101c30}
+.dating-setup>label{display:grid;gap:7px;color:#b8c8e2;font-size:12px;font-weight:700}
+.dating-setup input:not([type=checkbox]),.dating-setup select{width:100%;min-width:0;padding:11px;border:1px solid #33445f;border-radius:9px;background:#111f34;color:#f2f6ff}
+.dating-setup .dating-consent{display:flex;align-items:center;gap:9px;grid-column:1/-1;font-weight:500}
+.dating-toolbar{display:flex;align-items:center;justify-content:space-between;margin:25px 0 12px}
+.dating-match-banner{padding:14px;border:1px solid #6d477b;border-radius:12px;background:#241c30;color:#f0d7ff;margin-bottom:15px;font-size:13px}
+@media(max-width:620px){.dating-setup{grid-template-columns:1fr}}
