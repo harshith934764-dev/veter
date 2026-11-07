@@ -127,6 +127,37 @@ async function sendFriendRequest(uid) {
     await Promise.all([loadPeople(),loadFriendRequests()]);
   } catch(e) { status(friendly(e),true); }
 }
+async function sendFriendRequestByUsername(event) {
+  event.preventDefault();
+  const field = $("friend-veter-id");
+  const username = field.value.trim().replace(/^@/,"").toLowerCase();
+  if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+    status("Enter a valid Veter username (3–24 letters, numbers or underscores).",true);
+    return;
+  }
+  const button = $("add-by-id-form").querySelector("button");
+  button.disabled = true;
+  try {
+    const client = await getDb();
+    const {data: profile,error} = await client.from("user_profiles")
+      .select("uid,username").ilike("username",username).maybeSingle();
+    if (error) throw error;
+    if (!profile) {
+      status("No Veter account found with that username.",true);
+      return;
+    }
+    if (profile.uid === me.uid) {
+      status("You cannot send a friend request to yourself.",true);
+      return;
+    }
+    await sendFriendRequest(profile.uid);
+    field.value = "";
+  } catch (e) {
+    status(friendly(e),true);
+  } finally {
+    button.disabled = false;
+  }
+}
 async function loadFriendRequests() {
   try {
     const client = await getDb();
@@ -613,6 +644,7 @@ $("post-photo").addEventListener("change",e => {
 });
 $("remove-photo").addEventListener("click",clearPostPhoto);
 $("profile-form").addEventListener("submit",saveMyProfile);
+$("add-by-id-form").addEventListener("submit",sendFriendRequestByUsername);
 $("block-chat").addEventListener("click",blockPartner);
 $("report-chat").addEventListener("click",reportPartner);
 $("people-search").addEventListener("input",e => {
