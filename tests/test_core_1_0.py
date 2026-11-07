@@ -135,43 +135,43 @@ class VeterCoreTests(unittest.TestCase):
 
     def test_function_parameters_and_return_value(self):
         result = self.run_veter(
-            "remember answer as add(10, 20)\\n"
-            "display answer\\n"
-            "do add(first, second)\\n"
-            "give first + second\\n"
-            "end\\n"
+            "remember answer as add(10, 20)\n"
+            "display answer\n"
+            "do add(first, second)\n"
+            "give first + second\n"
+            "end\n"
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "30\\n")
+        self.assertEqual(result.stdout, "30\n")
 
     def test_function_arguments_can_be_expressions(self):
         result = self.run_veter(
-            "remember answer as multiply(2 + 3, 4)\\n"
-            "display answer\\n"
-            "do multiply(left, right)\\n"
-            "give left * right\\n"
-            "end\\n"
+            "remember answer as multiply(2 + 3, 4)\n"
+            "display answer\n"
+            "do multiply(left, right)\n"
+            "give left * right\n"
+            "end\n"
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "20\\n")
+        self.assertEqual(result.stdout, "20\n")
 
     def test_function_statement_call_discards_return_value(self):
         result = self.run_veter(
-            "run greet(\\"Veter\\")\\n"
-            "do greet(name)\\n"
-            "display name\\n"
-            "give 99\\n"
-            "end\\n"
+            "run greet(\"Veter\")\n"
+            "do greet(name)\n"
+            "display name\n"
+            "give 99\n"
+            "end\n"
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "Veter\\n")
+        self.assertEqual(result.stdout, "Veter\n")
 
     def test_function_argument_count_is_checked(self):
         result = self.run_veter(
-            "run add(1)\\n"
-            "do add(first, second)\\n"
-            "give first + second\\n"
-            "end\\n"
+            "run add(1)\n"
+            "do add(first, second)\n"
+            "give first + second\n"
+            "end\n"
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("expects 2 argument(s), got 1", result.stderr)
