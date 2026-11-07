@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b14">
+<meta name="description" content="Play the early VeterCity 2D city-walking prototype. Explore a small top-down city built by Veter.">
+<link rel="canonical" href="https://theveter.in/vetercity.html">
+<title>VeterCity 2D — Veter</title>
+<style>
+:root{color-scheme:dark;--bg:#080b14;--panel:#101625;--line:#253149;--cyan:#54e5e5;--muted:#a6b1c7}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#142b49,var(--bg) 55%);color:#f4f7ff;font:16px/1.6 system-ui,sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(1100px,92%);margin:auto}header{border-bottom:1px solid var(--line);background:#080b14eF}nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px}.logo{font-size:24px;font-weight:850}.logo span{color:var(--cyan)}.navlinks{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px}.hero{padding:48px 0 22px}.tag{color:var(--cyan);font-size:12px;letter-spacing:.12em;font-weight:800}.hero h1{font-size:clamp(36px,7vw,64px);line-height:1.05;margin:12px 0}.hero p{color:var(--muted);max-width:720px}.game-shell{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 24px 70px #0006}.hud{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:4px 4px 12px;color:var(--muted);font-size:14px}.hud strong{color:var(--cyan)}canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#182a31;border-radius:12px;border:1px solid #344657;image-rendering:pixelated}.controls{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:14px}.keys{color:var(--muted);font-size:13px}.btn{border:0;border-radius:10px;padding:10px 16px;background:linear-gradient(90deg,#69a7ff,var(--cyan));color:#07111b;font-weight:800;cursor:pointer}.pad{display:grid;grid-template-columns:repeat(3,42px);gap:5px}.pad button{height:38px;border:1px solid var(--line);border-radius:8px;background:#19263a;color:white;font-weight:800;touch-action:none}.pad button:nth-child(1){grid-column:2}.pad button:nth-child(2){grid-column:1;grid-row:2}.pad button:nth-child(3){grid-column:2;grid-row:2}.pad button:nth-child(4){grid-column:3;grid-row:2}.note{margin:18px 0 45px;padding:16px;border:1px solid var(--line);border-radius:12px;color:var(--muted);background:#101625}footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header><nav class="wrap"><a class="logo" href="/">Veter<span>.</span></a><div class="navlinks"><a href="/">Home</a><a href="/social.html">Veter Social</a><a href="/veteros.html">VeterOS</a><a href="/#language">Veter Language</a></div></nav></header>
+<main class="wrap">
+<section class="hero"><span class="tag">VETER GAME PROJECT · EARLY PLAYABLE PROTOTYPE</span><h1>Welcome to <span style="color:var(--cyan)">VeterCity.</span></h1><p>Take a little walk around the city. This is the first 2D browser prototype: explore the streets, visit the park and collect the glowing stars. More city systems can be added in future updates.</p></section>
+<section class="game-shell" aria-label="VeterCity game">
+<div class="hud"><span>⭐ Stars: <strong id="score">0 / 5</strong></span><span id="status" aria-live="polite">Explore the city!</span></div>
+<canvas id="city" width="960" height="540" aria-label="Top-down 2D city game. Use arrow keys or WASD to move the blue character."></canvas>
+<div class="controls"><div><button class="btn" id="reset" type="button">Restart game</button><p class="keys">Move with WASD or arrow keys. On touch screens, use the direction pad.</p></div><div class="pad" aria-label="Touch movement controls"><button data-dir="up" aria-label="Move up">▲</button><button data-dir="left" aria-label="Move left">◀</button><button data-dir="down" aria-label="Move down">▼</button><button data-dir="right" aria-label="Move right">▶</button></div></div>
+</section>
+<div class="note"><strong>Prototype note:</strong> This is a small playable 2D demo, not the complete VeterCity life simulation. Vehicles, NPCs, jobs, shops and a large open world are not implemented yet.</div>
+</main>
+<footer><div class="wrap">© 2026 Veter Project · <a href="/">Back to Veter home</a></div></footer>
+<script>
+(()=>{
+const canvas=document.getElementById('city'),ctx=canvas.getContext('2d'),scoreEl=document.getElementById('score'),statusEl=document.getElementById('status');
+const keys=new Set();let player,stars,score,won;
+const buildings=[{x:35,y:35,w:210,h:115,c:'#526b7c',label:'LIBRARY'},{x:715,y:35,w:210,h:115,c:'#795f70',label:'CAFE'},{x:35,y:390,w:210,h:115,c:'#6b7658',label:'MARKET'},{x:715,y:390,w:210,h:115,c:'#5b6687',label:'STUDIO'}];
+function reset(){player={x:480,y:270,r:15,speed:3.2};stars=[{x:300,y:220},{x:660,y:220},{x:300,y:330},{x:660,y:330},{x:480,y:85}];score=0;won=false;scoreEl.textContent='0 / 5';statusEl.textContent='Explore the city!';draw()}
+function draw(){
+ctx.clearRect(0,0,960,540);ctx.fillStyle='#315847';ctx.fillRect(0,0,960,540);
+ctx.fillStyle='#34404b';ctx.fillRect(0,190,960,160);ctx.fillRect(420,0,120,540);
+ctx.strokeStyle='#d6c58b';ctx.lineWidth=3;ctx.setLineDash([22,20]);ctx.beginPath();ctx.moveTo(0,270);ctx.lineTo(960,270);ctx.moveTo(480,0);ctx.lineTo(480,540);ctx.stroke();ctx.setLineDash([]);
+for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#47715a':'#3e6b53';ctx.beginPath();ctx.arc(270+i*60,90+(i%2)*350,17,0,Math.PI*2);ctx.fill();ctx.fillStyle='#735c43';ctx.fillRect(266+i*60,105+(i%2)*350,8,18)}
+for(const b of buildings){ctx.fillStyle='#1d2931';ctx.fillRect(b.x+7,b.y+8,b.w,b.h);ctx.fillStyle=b.c;ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle='#d9e4ec';ctx.font='bold 17px system-ui';ctx.fillText(b.label,b.x+18,b.y+34);ctx.fillStyle='#b5d5e4';for(let x=b.x+18;x<b.x+b.w-15;x+=48)for(let y=b.y+48;y<b.y+b.h-12;y+=38)ctx.fillRect(x,y,25,19)}
+ctx.fillStyle='#1b4a40';ctx.fillRect(390,390,180,115);ctx.fillStyle='#8dcf91';ctx.font='bold 16px system-ui';ctx.fillText('CITY PARK',430,420);
+for(const s of stars){ctx.fillStyle='#ffe17a';ctx.beginPath();ctx.arc(s.x,s.y,11,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff3b0';ctx.beginPath();ctx.arc(s.x-3,s.y-3,3,0,Math.PI*2);ctx.fill()}
+ctx.fillStyle='#102b49';ctx.beginPath();ctx.arc(player.x,player.y,player.r+3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#62c7ff';ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#07111b';ctx.beginPath();ctx.arc(player.x-5,player.y-3,2,0,Math.PI*2);ctx.arc(player.x+5,player.y-3,2,0,Math.PI*2);ctx.fill();
+}
+function tick(){let dx=0,dy=0;if(keys.has('arrowup')||keys.has('w'))dy--;if(keys.has('arrowdown')||keys.has('s'))dy++;if(keys.has('arrowleft')||keys.has('a'))dx--;if(keys.has('arrowright')||keys.has('d'))dx++;if(dx&&dy){dx*=.707;dy*=.707}player.x=Math.max(18,Math.min(942,player.x+dx*player.speed));player.y=Math.max(18,Math.min(522,player.y+dy*player.speed));stars=stars.filter(s=>{if(Math.hypot(s.x-player.x,s.y-player.y)<25){score++;scoreEl.textContent=score+' / 5';statusEl.textContent=score===5?'You explored the city! 🎉':'Nice find! Keep exploring.';if(score===5)won=true;return false}return true});draw();requestAnimationFrame(tick)}
+window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys.add(k)});
+window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>keys.clear());
+document.querySelectorAll('[data-dir]').forEach(b=>{const map={up:'arrowup',down:'arrowdown',left:'arrowleft',right:'arrowright'},k=map[b.dataset.dir];b.addEventListener('pointerdown',e=>{e.preventDefault();keys.add(k);b.setPointerCapture(e.pointerId)});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,()=>keys.delete(k)))});
+document.getElementById('reset').addEventListener('click',reset);reset();tick();
+})();
+</script>
+</body>
+</html>
