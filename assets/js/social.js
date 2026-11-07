@@ -20,7 +20,7 @@ const firebaseConfig = {
 };
 
 const SUPABASE_URL = "https://qqvfphefusvbveucqbrj.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_zhDEs1iTTWYV-x76-6kWAA_L5TAAzj";
+const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxdmZwaGVmdXN2YnZldWNxYnJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwNzA0MTYsImV4cCI6MjEwOTY0NjQxNn0.1C8kEAnmc7vLpF1bGiSsVVkm8egVsaPqsW7mGfApPJA";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
