@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b16">
+  <title>Downloads Center | Veter</title>
+  <meta name="description" content="Download available Veter project files for Windows and explore the Core 1.0 compiler source, sample program and installation notes.">
+  <link rel="canonical" href="https://theveter.in/downloads.html">
+  <link rel="stylesheet" href="/premium.css?v=1">
+  <style>
+    .wrap{width:min(1120px,92%);margin:auto}
+    .hero{padding:92px 0 58px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(61,113,190,.28),transparent 65%)}
+    .eyebrow,.pill{display:inline-block;padding:5px 12px;border:1px solid rgba(101,231,224,.25);border-radius:99px;color:#65e7e0;font-size:11px;letter-spacing:.1em;font-weight:800}
+    h1{font-size:clamp(42px,7vw,70px);line-height:1.05;letter-spacing:-.05em;margin:18px 0}
+    .lead{max-width:740px;margin:auto;color:#a8b5ce;font-size:17px}
+    section{padding:40px 0}
+    .section-head{text-align:center;margin-bottom:25px}
+    .section-head p{color:#a8b5ce;max-width:700px;margin:8px auto}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .card{padding:25px;border:1px solid rgba(153,178,226,.17);border-radius:20px;background:linear-gradient(150deg,#121d32,#0a111f);min-width:0}
+    .card h2,.card h3{margin:12px 0 7px;letter-spacing:-.03em}
+    .card p,.card li{color:#a8b5ce;font-size:14px}
+    .card ul{padding-left:19px;margin:12px 0}
+    .meta{font-size:12px;color:#8fa2c2;margin-top:12px;overflow-wrap:anywhere}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border:1px solid rgba(153,178,226,.2);border-radius:11px;background:#111d32;font-weight:750}
+    .btn-primary{background:linear-gradient(105deg,#7c9cff,#65e7e0);color:#07121d;border:0}
+    .notice{padding:18px 20px;border:1px solid rgba(153,178,226,.17);border-radius:14px;background:#0d1526;color:#a8b5ce;font-size:14px;margin-top:20px}
+    .steps{counter-reset:step;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .step{padding:20px;border:1px solid rgba(153,178,226,.17);border-radius:15px;background:#0d1526}
+    .step b{display:block;color:#65e7e0;margin-bottom:7px}
+    code{overflow-wrap:anywhere}
+    footer{padding:28px 0;border-top:1px solid rgba(153,178,226,.17);color:#8796b2;font-size:13px}
+    footer a{margin-right:14px}
+    @media(max-width:720px){.grid,.steps{grid-template-columns:1fr}.hero{padding:70px 0 45px}}
+  </style>
+</head>
+<body>
+<header><nav class="wrap" aria-label="Main navigation" style="min-height:76px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><a href="index.html" style="font-size:25px;font-weight:900">Veter<span style="color:#65e7e0">.</span></a><div style="display:flex;gap:15px;flex-wrap:wrap;font-size:14px"><a href="index.html">Home</a><a href="docs.html">Docs</a><a href="reference.html">Reference</a><a href="developers.html">Developers</a><a href="roadmap.html">Roadmap</a></div></nav></header>
+<main>
+<section class="hero"><div class="wrap"><span class="eyebrow">OFFICIAL PROJECT FILES</span><h1>Veter <span class="gradient">Downloads.</span></h1><p class="lead">Find the files currently published in the Veter repository. Check the package details and prototype notes before installing or building anything.</p><div class="actions" style="justify-content:center"><a class="btn btn-primary" href="#windows">Windows downloads ↓</a><a class="btn" href="https://github.com/harshith934764-dev/veter/releases">GitHub release history ↗</a></div></div></section>
+<section id="windows"><div class="wrap"><div class="section-head"><h2>Windows packages</h2><p>These are repository-hosted project files, not a claim of a stable, signed production release.</p></div><div class="grid">
+<article class="card"><span class="pill">WINDOWS · x64</span><h2>Veter Studio Setup</h2><p>Windows setup executable currently published in the repository.</p><ul><li>File: <code>VeterStudioSetup-1.0.0-x64.exe</code></li><li>Size: approximately 2.74 MiB</li><li>Version label in filename: 1.0.0</li></ul><div class="actions"><a class="btn btn-primary" href="https://raw.githubusercontent.com/harshith934764-dev/veter/main/downloads/VeterStudioSetup-1.0.0-x64.exe" download>Download setup ↗</a><a class="btn" href="https://github.com/harshith934764-dev/veter/blob/main/downloads/VeterStudioSetup-1.0.0-x64.exe">View file ↗</a></div><p class="meta">Before running an executable, verify its publisher and scan it with your security software. Stop if Windows shows an unexpected or untrusted publisher warning.</p></article>
+<article class="card"><span class="pill">WINDOWS · ZIP</span><h2>Veter Native Runtime bundle</h2><p>Windows ZIP package published at the repository root.</p><ul><li>File: <code>Veter-Native-Runtime-1.0-Windows.zip</code></li><li>Package label: 1.0</li><li>Extract the archive and read any included instructions before use.</li></ul><div class="actions"><a class="btn btn-primary" href="https://raw.githubusercontent.com/harshith934764-dev/veter/main/Veter-Native-Runtime-1.0-Windows.zip" download>Download ZIP ↗</a><a class="btn" href="https://github.com/harshith934764-dev/veter/blob/main/Veter-Native-Runtime-1.0-Windows.zip">View file ↗</a></div><p class="meta">The ZIP contents and compatibility should be checked on your machine before relying on this bundle.</p></article>
+</div><div class="notice"><strong>Release status:</strong> The repository also has a GitHub Release named <em>VeterOS v1.0.0</em>, currently without attached release assets. The two files above are repository downloads and are not represented as assets of that release. <a href="https://github.com/harshith934764-dev/veter/releases">See release history ↗</a></div></div></section>
+<section><div class="wrap"><div class="section-head"><h2>Compiler source and sample</h2><p>For developers who want to inspect the Core 1.0 prototype or build it themselves.</p></div><div class="grid">
+<article class="card"><span class="pill">C++20 SOURCE</span><h3>Veter Core 1.0 compiler</h3><p>Read the current C++ compiler source from the public repository.</p><div class="actions"><a class="btn btn-primary" href="https://raw.githubusercontent.com/harshith934764-dev/veter/main/downloads/veter_core_1_0.cpp">View / download source ↗</a><a class="btn" href="https://github.com/harshith934764-dev/veter/blob/main/downloads/Veter_Core_1_0_README.md">Build notes ↗</a></div></article>
+<article class="card"><span class="pill">VETER SAMPLE</span><h3>Core 1.0 test program</h3><p>A small <code>.vtr</code> sample file stored with the compiler project.</p><div class="actions"><a class="btn btn-primary" href="https://raw.githubusercontent.com/harshith934764-dev/veter/main/downloads/veter_core_1_0_test.vtr">Get sample file ↗</a><a class="btn" href="reference.html">Language reference →</a></div></article>
+</div></div></section>
+<section><div class="wrap"><div class="section-head"><h2>Build the compiler yourself</h2><p>The current Core 1.0 compiler README documents this C++20 build path.</p></div><div class="steps"><div class="step"><b>01 · Get the source</b><p>Download <code>veter_core_1_0.cpp</code> and the sample <code>.vtr</code> file.</p></div><div class="step"><b>02 · Install a compiler</b><p>Use a C++20-compatible compiler such as a current g++ toolchain.</p></div><div class="step"><b>03 · Build and run</b><p>Build with the command shown in the compiler notes, then run the sample program.</p></div></div><div class="notice"><code>g++ -std=c++20 -Wall -Wextra -pedantic veter_core_1_0.cpp -o veter</code><br><br>For Windows Git Bash, the notes show <code>./veter.exe veter_core_1_0_test.vtr</code> when the output executable is named <code>veter.exe</code>. See the full build notes before starting.</div></div></section>
+<section><div class="wrap"><div class="section-head"><h2>Version history and help</h2><p>Use the source repository and release page to see what changed. Do not assume a package version is stable just because it has a version number in its filename.</p></div><div class="actions" style="justify-content:center"><a class="btn btn-primary" href="https://github.com/harshith934764-dev/veter/releases">View releases ↗</a><a class="btn" href="https://github.com/harshith934764-dev/veter/commits/main">View commit history ↗</a><a class="btn" href="https://github.com/harshith934764-dev/veter/issues">Report a problem ↗</a><a class="btn" href="community.html">Community page →</a></div></div></section>
+</main>
+<footer><div class="wrap">© 2026 Veter Project · <a href="index.html">Home</a><a href="docs.html">Docs</a><a href="developers.html">Developers</a><a href="community.html">Community</a></div></footer>
+</body></html>
