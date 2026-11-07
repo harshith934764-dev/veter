@@ -10,6 +10,8 @@
 #include <limits>
 #include <algorithm>
 #include <memory>
+#include <filesystem>
+#include <set>
 
 // Veter Compiler v0.8 — C++20
 // Features: integers, strings, input, arithmetic precedence, comparisons, logical AND/OR/NOT,
@@ -422,6 +424,38 @@ private:const std::vector<Ins>& code_;
 };
 
 static std::string read_file(const std::string&p){std::ifstream f(p,std::ios::binary);if(!f)throw std::runtime_error("Cannot open source file: "+p);std::ostringstream s;s<<f.rdbuf();return s.str();}
+
+// Expand include directives before compiling. Paths are relative to the including file;
+// absolute paths and parent-directory traversal are deliberately rejected.
+static std::string load_project_source(const std::filesystem::path& path,
+                                       std::set<std::string>& included,
+                                       int depth=0) {
+    if(depth>20) throw std::runtime_error("Include depth exceeds 20 files");
+    const auto normalized=path.lexically_normal();
+    const std::string key=normalized.generic_string();
+    if(included.count(key)) return "";
+    included.insert(key);
+    const std::string source=read_file(key);
+    std::istringstream input(source); std::ostringstream output; std::string line;
+    while(std::getline(input,line)) {
+        const auto first=line.find_first_not_of(" \\t\\r");
+        const std::string trimmed=first==std::string::npos ? "" : line.substr(first);
+        if(trimmed.rfind("include ",0)==0) {
+            if(trimmed.size()<11 || trimmed[8]!='"' || trimmed.back()!='"')
+                throw std::runtime_error("Use include \"relative-file.vtr\"");
+            const std::string name=trimmed.substr(9,trimmed.size()-10);
+            const std::filesystem::path relative(name);
+            if(relative.empty() || relative.is_absolute())
+                throw std::runtime_error("Include path must be relative to the project");
+            for(const auto& part:relative)
+                if(part==".." || part==".")
+                    throw std::runtime_error("Include path cannot use '.' or '..' segments");
+            const auto child=(normalized.parent_path()/relative).lexically_normal();
+            output << load_project_source(child,included,depth+1);
+        } else output << line << '\n';
+    }
+    return output.str();
+}
 static std::string escape_listing(const std::string&s){std::string r;for(char c:s){if(c=='\n')r+="\\n";else if(c=='\t')r+="\\t";else if(c=='"')r+="\\\"";else r+=c;}return r;}
 static bool emit_listing(const std::string&p,const std::vector<Ins>&code){
     std::ofstream f(p);if(!f)return false;
@@ -552,7 +586,7 @@ static std::string veter_core_frontend(const std::string& source) {
 
 int main(int argc,char**argv){
     if(argc<2||argc>3){std::cerr<<"Veter Compiler Core 1.0\nUsage: veterc <source.vtr> [--emit-bytecode]\n";return 2;}
-    try{const std::string source=read_file(argv[1]);if(is_website_source(source)){generate_website(source,argv[1]);return 0;}const std::string core_source=veter_core_frontend(source);Compiler c(core_source);auto code=c.compile();if(argc==3&&std::string(argv[2])=="--emit-bytecode"){
+    try{std::set<std::string> included;const std::string source=load_project_source(argv[1],included);if(is_website_source(source)){generate_website(source,argv[1]);return 0;}const std::string core_source=veter_core_frontend(source);Compiler c(core_source);auto code=c.compile();if(argc==3&&std::string(argv[2])=="--emit-bytecode"){
         std::string out=std::string(argv[1])+".vbc";if(!emit_listing(out,code))throw std::runtime_error("Could not write bytecode file");std::cout<<"Bytecode written: "<<out<<'\n';
     }else{VM vm(code);vm.run(std::cin,std::cout);}}
     catch(const std::exception&e){std::cerr<<"Veter compiler error: "<<e.what()<<'\n';return 1;}return 0;

@@ -41,6 +41,31 @@ class VeterCoreTests(unittest.TestCase):
             text=True, capture_output=True
         )
 
+    def test_multi_file_include_shares_functions(self):
+        modules = self.work / "modules"
+        modules.mkdir(exist_ok=True)
+        (modules / "math.vtr").write_text(
+            "do add(first, second)\ngive first + second\nend\n",
+            encoding="utf-8"
+        )
+        main = self.work / "multi_main.vtr"
+        main.write_text(
+            'include "modules/math.vtr"\n'
+            'remember total as add(20, 22)\n'
+            'display total\n',
+            encoding="utf-8"
+        )
+        result = subprocess.run([str(self.exe), str(main)], text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "42\n")
+
+    def test_include_rejects_parent_directory_traversal(self):
+        main = self.work / "unsafe_include.vtr"
+        main.write_text('include "../outside.vtr"\ndisplay "no"\n', encoding="utf-8")
+        result = subprocess.run([str(self.exe), str(main)], text=True, capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("cannot use '.' or '..' segments", result.stderr)
+
     def test_arithmetic_precedence_and_parentheses(self):
         result = self.run_veter(
             "remember a as 10\nremember b as 3\n"
