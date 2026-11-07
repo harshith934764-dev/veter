@@ -14,6 +14,7 @@ Veter is an independently developed programming-language project created to make
 - **Example showcase:** https://theveter.in/showcase.html
 - **Community:** https://theveter.in/community.html
 - **Developers Portal:** https://theveter.in/developers.html
+- **Downloads Center:** https://theveter.in/downloads.html
 
 ## ✨ About Veter
 
