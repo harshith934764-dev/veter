@@ -38,7 +38,7 @@ function loadWasmCompiler(){
     print:(line)=>{compilerStdout.push(line);},
     printErr:(line)=>{compilerStderr.push(line);},
     stdin:()=>{if(!compilerInput.length)return null;const ch=compilerInput.charCodeAt(0);compilerInput=compilerInput.slice(1);return ch;}
-   }).then(resolve,(error)=>{wasmModulePromise=null;reject(error);});
+   }).then((module)=>{window.veterRuntime=module;resolve(module);},(error)=>{wasmModulePromise=null;reject(error);});
   };
   script.onerror=()=>{wasmModulePromise=null;reject(Error('The real Veter compiler is not deployed yet. Please try again after the WebAssembly build finishes.'));};
   document.head.appendChild(script);
@@ -47,6 +47,9 @@ function loadWasmCompiler(){
 }
 async function run(){
  const runButton=document.getElementById('run');
+ const artifactButton=document.getElementById('downloadartifact');
+ artifactButton.hidden=true;
+ document.getElementById('artifactstatus').textContent='';
  runButton.disabled=true;
  status.textContent='Loading compiler…';
  out.textContent='Starting the real Veter compiler…';
@@ -65,6 +68,8 @@ async function run(){
   const exitCode=runtime.callMain([sourcePath]);
   if(exitCode!==0)throw Error(compilerStderr.join('\\n').trim()||('Compiler exited with code '+exitCode));
   out.textContent=compilerStdout.join('\\n').trimEnd()||'Program finished with no output.';
+  const generatedPath=sourcePath+'.html';
+  if(runtime.FS.analyzePath(generatedPath).exists){artifactButton.dataset.path=generatedPath;artifactButton.hidden=false;document.getElementById('artifactstatus').textContent='Generated file is ready.';}
   out.classList.remove('error','empty');
   status.textContent='Compiled · Veter Core 1.0';
  }catch(e){
@@ -75,7 +80,7 @@ async function run(){
 }
 code.addEventListener('input',()=>{refresh();files[activeFile].content=code.value;scheduleSave();});code.addEventListener('scroll',()=>{gutter.scrollTop=code.scrollTop;});code.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const a=code.selectionStart,b=code.selectionEnd;code.setRangeText('  ',a,b,'end');refresh();}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();save();}});
 document.getElementById('examples').addEventListener('change',e=>{const name='main.vtr',content=examples[e.target.value]||examples.hello;let i=files.findIndex(f=>f.name===name);if(i<0){if(files.length>=30){alert('Workspace limit is 30 files. Delete a file first.');return;}files.push({name,content});i=files.length-1;}else files[i].content=content;activeFile=i;code.value=content;renderFiles();refresh();scheduleSave();status.textContent='Example loaded';});
-document.getElementById('run').addEventListener('click',run);document.getElementById('clear').addEventListener('click',()=>{code.value='';out.textContent='Output cleared.';out.classList.add('empty');out.classList.remove('error');status.textContent='Ready';refresh();});
+document.getElementById('run').addEventListener('click',run);document.getElementById('downloadartifact').addEventListener('click',()=>{try{const path=document.getElementById('downloadartifact').dataset.path;if(!path)throw Error('No generated file is available. Run a website project first.');const bytes=window.veterRuntime.FS.readFile(path);const blob=new Blob([bytes],{type:'text/html;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=path.split('/').pop();document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);document.getElementById('artifactstatus').textContent='Download started.';}catch(e){document.getElementById('artifactstatus').textContent=e.message;}});document.getElementById('clear').addEventListener('click',()=>{code.value='';out.textContent='Output cleared.';out.classList.add('empty');out.classList.remove('error');status.textContent='Ready';refresh();});
 document.getElementById('download').addEventListener('click',()=>{files[activeFile].content=code.value;save();});document.getElementById('open').addEventListener('click',()=>{file.accept='.vtr,.txt,text/plain';file.click();});file.addEventListener('change',async()=>{const f=file.files&&file.files[0];if(!f)return;try{const text=await f.text();if(f.name.endsWith('.json')){importProject(JSON.parse(text));}else{if(!/^[A-Za-z0-9_-]+\\.vtr$/i.test(f.name))throw Error('Choose a .vtr source file or Veter project .json file.');const existing=files.findIndex(x=>x.name.toLowerCase()===f.name.toLowerCase());if(existing>=0){files[existing].content=text;activeFile=existing;}else{if(files.length>=30)throw Error('Workspace limit is 30 files.');files.push({name:f.name,content:text});activeFile=files.length-1;}code.value=files[activeFile].content;renderFiles();refresh();persist();status.textContent='Source file opened';}}catch(e){alert('Could not open file: '+e.message);}finally{file.value='';}});document.getElementById('exportproject').addEventListener('click',exportProject);document.getElementById('importproject').addEventListener('click',()=>{file.accept='.json,application/json';file.click();});
 document.getElementById('newfile').addEventListener('click',newFile);document.getElementById('renamefile').addEventListener('click',renameFile);document.getElementById('deletefile').addEventListener('click',deleteFile);\nrenderFiles();refresh();
 })();
