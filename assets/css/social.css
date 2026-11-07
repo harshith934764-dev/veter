@@ -121,3 +121,7 @@ body.social-light .post-comments .post-comment,body.social-light .chat-messages,
 body.social-light .social-tab,body.social-light .social-theme-toggle{color:#33445f!important}
 @media(max-width:900px){.friends-columns{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.friends-columns{grid-template-columns:1fr}.friend-row{flex-wrap:wrap}.notification-row{gap:8px}}
+
+
+/* Add friends directly by Veter username */
+.add-by-id-panel{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 20px;padding:16px;border:1px solid #2b405d;border-radius:14px;background:#101d32}.add-by-id-panel>div{display:grid;gap:5px}.add-by-id-panel b{font-size:13px;color:#eaf2ff}.add-by-id-panel small{font-size:11px;color:#91a1bd}.add-by-id-panel form{display:flex;gap:8px;width:min(420px,100%)}.add-by-id-panel input{flex:1;min-width:0;padding:11px 12px;border:1px solid #33445f;border-radius:9px;background:#0b1729;color:#f2f6ff}.add-by-id-panel button{border:0;border-radius:9px;padding:10px 14px;background:linear-gradient(110deg,#78e2dc,#9c9aff);color:#081323;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}.add-by-id-panel button:disabled{opacity:.55;cursor:wait}body.social-light .add-by-id-panel{background:#fff;border-color:#d8e1ef}body.social-light .add-by-id-panel b{color:#17243a}body.social-light .add-by-id-panel input{background:#f7f9fd;color:#17243a;border-color:#d8e1ef}@media(max-width:620px){.add-by-id-panel{align-items:stretch;flex-direction:column}.add-by-id-panel form{width:100%}}
