@@ -93,3 +93,31 @@
 .social-comment-form textarea{flex:1;min-width:0;resize:vertical;padding:10px 12px;border:1px solid #344660;border-radius:9px;background:#0c182a;color:#e2ebfa;font:inherit;font-size:12px}
 .social-comment-form button{border:1px solid #3a526d;border-radius:9px;padding:9px 12px;background:#14243b;color:#bdece8;font-size:11px;font-weight:700;cursor:pointer}
 .social-comment-form button:disabled{opacity:.55;cursor:wait}
+
+/* New community features */
+.person-actions{display:flex;gap:7px;flex-wrap:wrap}
+.person-actions button,.friend-row button{border:1px solid #3a526d;border-radius:9px;padding:9px 11px;background:#14243b;color:#bdece8;font-size:11px;font-weight:700;cursor:pointer}
+.person-actions button:disabled{opacity:.55;cursor:default}
+.social-stack{display:grid;gap:10px}
+.friends-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.friends-columns h3{font-size:13px;color:#dce7f7}
+.friend-row,.notification-row{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #293a55;border-radius:12px;background:#101c30;min-width:0}
+.friend-row img,.notification-row img{width:38px;height:38px;border-radius:50%;object-fit:cover}
+.friend-row div,.notification-row div{flex:1;min-width:0}
+.friend-row b,.notification-row b{font-size:12px;color:#eaf2ff}
+.friend-row small,.notification-row small{display:block;font-size:10px;color:#91a1bd;margin-top:4px}
+.notification-row{align-items:flex-start}
+.notification-row>span{font-size:18px}
+.notification-row.unread{border-color:#68cfc8;background:#14283a}
+.reaction-bar{display:flex;align-items:center;gap:10px;margin-top:9px;color:#91a1bd;font-size:11px}
+.reaction-bar select{border:1px solid #344660;border-radius:8px;padding:7px 9px;background:#14243b;color:#dce7f7}
+.social-theme-toggle{border:1px solid #344660;border-radius:9px;padding:10px;background:transparent;color:#b9c9e2;cursor:pointer;text-align:left}
+body.social-light{background:#f3f6fc!important;color:#17243a!important}
+body.social-light .social-app-shell,body.social-light .social-main{background:#f3f6fc!important}
+body.social-light .social-sidebar,body.social-light .feed-post,body.social-light .post-composer,body.social-light .person-card,body.social-light .chat-list,body.social-light .chat-panel,body.social-light .safety-card,body.social-light .friend-row,body.social-light .notification-row{background:#fff!important;color:#17243a!important;border-color:#d8e1ef!important}
+body.social-light .social-view h2,body.social-light .feed-body,body.social-light .feed-author b,body.social-light .person-info b,body.social-light .friend-row b,body.social-light .notification-row b{color:#17243a!important}
+body.social-light .feed-body,body.social-light .post-comment span{color:#33445f!important}
+body.social-light .post-comments .post-comment,body.social-light .chat-messages,body.social-light .chat-compose input,body.social-light .profile-form input,body.social-light .profile-form textarea,body.social-light .post-composer textarea{background:#f7f9fd!important;color:#17243a!important;border-color:#d8e1ef!important}
+body.social-light .social-tab,body.social-light .social-theme-toggle{color:#33445f!important}
+@media(max-width:900px){.friends-columns{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.friends-columns{grid-template-columns:1fr}.friend-row{flex-wrap:wrap}.notification-row{gap:8px}}
