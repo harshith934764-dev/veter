@@ -185,17 +185,31 @@ async function loadFeed() {
     if (!posts?.length) { host.innerHTML = '<p class="empty-state">No posts yet. Be the first to share something with the community! 🌱</p>'; return; }
     const ids = posts.map(p => p.id);
     const authorIds = [...new Set(posts.map(p => p.author_uid))];
-    const [{data: profiles,error: profileError},{data: likes,error: likesError}] = await Promise.all([
+    const [{data: profiles,error: profileError},{data: likes,error: likesError},{data: comments,error: commentsError}] = await Promise.all([
       client.from("user_profiles").select("uid,display_name,avatar_url,username").in("uid",authorIds),
-      client.from("social_post_likes").select("post_id,user_uid").in("post_id",ids)
+      client.from("social_post_likes").select("post_id,user_uid").in("post_id",ids),
+      client.from("social_post_comments").select("id,post_id,author_uid,body,created_at").in("post_id",ids).order("created_at",{ascending:true})
     ]);
     if (profileError) throw profileError;
     if (likesError) throw likesError;
-    const byId = new Map((profiles || []).map(p => [p.uid,p]));
+    if (commentsError) throw commentsError;
+    const commentAuthors = [...new Set((comments || []).map(c => c.author_uid))];
+    let commentProfiles = [];
+    if (commentAuthors.length) {
+      const result = await client.from("user_profiles").select("uid,display_name,avatar_url").in("uid",commentAuthors);
+      if (result.error) throw result.error;
+      commentProfiles = result.data || [];
+    }
+    const byId = new Map([...(profiles || []), ...commentProfiles].map(p => [p.uid,p]));
     const likesByPost = new Map();
+    const commentsByPost = new Map();
     for (const like of likes || []) {
       if (!likesByPost.has(like.post_id)) likesByPost.set(like.post_id,[]);
       likesByPost.get(like.post_id).push(like.user_uid);
+    }
+    for (const comment of comments || []) {
+      if (!commentsByPost.has(comment.post_id)) commentsByPost.set(comment.post_id,[]);
+      commentsByPost.get(comment.post_id).push(comment);
     }
     host.innerHTML = posts.map(post => {
       const author = byId.get(post.author_uid) || {display_name:"Veter member"};
@@ -204,7 +218,11 @@ async function loadFeed() {
       return `<article class="feed-post" data-post-id="${esc(post.id)}">
         <div class="feed-author"><img src="${avatar(author)}" alt=""><div><b>${esc(author.display_name)}</b><small>${author.username ? "@"+esc(author.username)+" · " : ""}${new Date(post.created_at).toLocaleString()}</small></div>${mine ? '<button class="post-delete" data-delete-post>Delete</button>' : ""}</div>
         <p class="feed-body">${esc(post.body)}</p>
-        <div class="feed-actions"><button data-like-post class="${likedBy.includes(me.uid) ? "liked" : ""}">${likedBy.includes(me.uid) ? "♥ Liked" : "♡ Like"} · ${likedBy.length}</button><button data-comment-post>💬 Comment</button></div>
+        <div class="feed-actions"><button data-like-post class="${likedBy.includes(me.uid) ? "liked" : ""}">${likedBy.includes(me.uid) ? "♥ Liked" : "♡ Like"} · ${likedBy.length}</button><button data-comment-post>💬 Comment · ${(commentsByPost.get(post.id) || []).length}</button></div>
+        <div class="post-comments">${(commentsByPost.get(post.id) || []).map(comment => {
+          const commenter = byId.get(comment.author_uid) || {display_name:"Veter member"};
+          return `<div class="post-comment"><b>${esc(commenter.display_name)}</b><span>${esc(comment.body)}</span><small>${new Date(comment.created_at).toLocaleString()}</small></div>`;
+        }).join("") || '<p class="no-comments">No comments yet.</p>'}</div>
       </article>`;
     }).join("");
   } catch (e) { host.innerHTML = '<p class="empty-state">Could not load posts.</p>'; status(friendly(e),true); }
@@ -246,6 +264,7 @@ async function handleFeedAction(event) {
       const {error} = await client.from("social_post_comments").insert({post_id:postId,author_uid:me.uid,body:body.trim()});
       if (error) throw error;
       status("Comment added. Thanks for joining the conversation!");
+      await loadFeed();
     } else if (event.target.closest("[data-delete-post]")) {
       if (!confirm("Delete your post? This cannot be undone.")) return;
       const {error} = await client.from("social_posts").delete().eq("id",postId).eq("author_uid",me.uid);
