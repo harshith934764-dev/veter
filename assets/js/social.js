@@ -453,11 +453,26 @@ $("post-body").addEventListener("input",e => $("post-char-count").textContent = 
 $("post-photo").addEventListener("change",e => {
   const file = e.target.files?.[0];
   if (!file) { clearPostPhoto(); return; }
-  if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) { clearPostPhoto(); status("Choose an image file up to 8 MB.",true); return; }
+  const allowed = ["image/jpeg","image/png","image/webp","image/gif"];
+  if (!allowed.includes(file.type) || file.size > 8 * 1024 * 1024) {
+    clearPostPhoto();
+    status("Choose a JPG, PNG, WEBP or GIF image up to 8 MB.",true);
+    return;
+  }
   selectedPostPhoto = file;
   $("photo-file-name").textContent = file.name;
-  $("photo-preview").src = URL.createObjectURL(file);
-  $("photo-preview-wrap").hidden = false;
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (selectedPostPhoto !== file) return;
+    $("photo-preview").src = String(reader.result);
+    $("photo-preview-wrap").hidden = false;
+    status("Photo ready to preview.");
+  };
+  reader.onerror = () => {
+    clearPostPhoto();
+    status("Could not preview this photo. Please choose it again.",true);
+  };
+  reader.readAsDataURL(file);
 });
 $("remove-photo").addEventListener("click",clearPostPhoto);
 $("profile-form").addEventListener("submit",saveMyProfile);
