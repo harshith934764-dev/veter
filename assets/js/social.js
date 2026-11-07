@@ -143,6 +143,27 @@ function applyTheme(mode) {
   $("theme-toggle").textContent = themeMode === "light" ? "🌙 Dark mode" : "☀️ Light mode";
   try { localStorage.setItem("veter-social-theme",themeMode); } catch {}
 }
+async function toggleFollow(uid) {
+  if (!me || !uid || uid.startsWith("demo:")) return;
+  const client = await getDb();
+  const existing = (window.veterFollowRows || []).some(x=>x.follower_uid===me.uid && x.following_uid===uid);
+  const result = existing
+    ? await client.from("social_follows").delete().eq("follower_uid",me.uid).eq("following_uid",uid)
+    : await client.from("social_follows").insert({follower_uid:me.uid,following_uid:uid});
+  if (result.error) throw result.error;
+  await loadPeople();
+  status(existing ? "You unfollowed this member." : "You are now following this member.");
+}
+async function renderFollowingList() {
+  const host=$("following-list"); if(!host || !me)return;
+  const ids=(window.veterFollowRows||[]).filter(x=>x.follower_uid===me.uid).map(x=>x.following_uid);
+  $("following-count").textContent=ids.length?String(ids.length):"";
+  if(!ids.length){host.innerHTML='<p class="empty-state">You are not following anyone yet. Explore members and tap Follow.</p>';return;}
+  const client=await getDb();
+  const {data,error}=await client.from("user_profiles").select("uid,display_name,avatar_url,country,bio,username,is_verified").in("uid",ids);
+  if(error)throw error;
+  host.innerHTML=(data||[]).map(p=>'<article class="person-card"><img src="'+avatar(p)+'" alt=""><div class="person-info"><b>'+esc(p.display_name)+'</b><small>'+(p.username?'@'+esc(p.username):esc(p.country||'Veter member'))+'</small><p>'+esc(p.bio||'')+'</p></div><div class="person-actions"><button data-unfollow-user="'+esc(p.uid)+'">Unfollow</button><button data-chat-user="'+esc(p.uid)+'">Message</button></div></article>').join("");
+}
 async function sendFriendRequest(uid) {
   try {
     const client = await getDb();
@@ -407,20 +428,23 @@ function switchView(name) {
 async function loadPeople() {
   try {
     const client = await getDb();
-    const [{data: profiles,error}, {data: blocks,error: blockError}, {data: requests,error: requestError}, {data: demoProfiles,error: demoError}] = await Promise.all([
+    const [{data: profiles,error}, {data: blocks,error: blockError}, {data: requests,error: requestError}, {data: demoProfiles,error: demoError}, {data: followRows,error: followError}] = await Promise.all([
       client.from("user_profiles").select("uid,display_name,avatar_url,country,bio,username,is_verified").neq("uid",me.uid).order("updated_at",{ascending:false}).limit(60),
       client.from("blocks").select("blocked_uid").eq("blocker_uid",me.uid),
       client.from("social_friend_requests").select("id,sender_uid,receiver_uid,status").or(`sender_uid.eq.${me.uid},receiver_uid.eq.${me.uid}`),
-      client.from("social_demo_profiles").select("id,display_name,avatar_url,country,city,bio,username,is_demo").eq("is_demo",true).limit(30)
+      client.from("social_demo_profiles").select("id,display_name,avatar_url,country,city,bio,username,is_demo").eq("is_demo",true).limit(30),
+      client.from("social_follows").select("follower_uid,following_uid")
     ]);
     if (error) throw error; if (blockError) throw blockError; if (requestError) throw requestError;
-    if (demoError) throw demoError;
+    if (demoError) throw demoError; if (followError) throw followError;
+    window.veterFollowRows = followRows || [];
     const blocked = new Set((blocks || []).map(x => x.blocked_uid));
     const realProfiles = (profiles || []).filter(p => !blocked.has(p.uid));
     const previews = (demoProfiles || []).map(p => ({...p,uid:"demo:"+p.id,is_demo:true}));
     cachedPeople = [...realProfiles,...previews];
     window.veterFriendRequests = requests || [];
     renderPeople(cachedPeople);
+    renderFollowingList();
   } catch (e) { status(friendly(e), true); }
 }
 function renderPeople(profiles) {
@@ -430,11 +454,15 @@ function renderPeople(profiles) {
     Number(!!b.country && b.country === $("profile-country").value.trim()) -
     Number(!!a.country && a.country === $("profile-country").value.trim())
   );
-  host.innerHTML = sortedProfiles.map(p => `
+  const follows = window.veterFollowRows || [];
+  const followed = new Set(follows.filter(x=>x.follower_uid===me.uid).map(x=>x.following_uid));
+  const followerCounts = new Map();
+  for (const row of follows) followerCounts.set(row.following_uid,(followerCounts.get(row.following_uid)||0)+1);
+  host.innerHTML = sortedProfiles.map(p => 
     <article class="person-card ${p.is_demo ? "demo-person-card" : ""}">
       <img src="${avatar(p)}" alt="" loading="lazy">
       <div class="person-info"><b>${esc(p.display_name)}${p.is_verified ? ' <span class="verified-badge" title="Verified Veter profile">✓</span>' : ""}${p.is_demo ? ' <span class="demo-profile-badge">DEMO</span>' : ""}</b><small>${esc([p.username ? "@"+p.username : "",p.city || p.country].filter(Boolean).join(" · ") || "Veter member")}</small>${p.is_demo ? '<small class="demo-note">Fictional preview profile · not a real user</small>' : '<small data-online-user="'+esc(p.uid)+'" class="presence-label">Checking status…</small>'}
-      <p>${esc(p.bio || "Ready to meet new people.")}</p></div>
+      <p>${esc(p.bio || "Ready to meet new people.")}</p><small class="follow-count">${followerCounts.get(p.uid)||0} followers</small></div>
       <div class="person-actions">${p.is_demo ? '<span class="demo-preview-label">Preview only</span>' : '<button data-friend-user="'+esc(p.uid)+'">Add friend</button><button data-chat-user="'+esc(p.uid)+'">Message</button>'}</div>
     </article>`).join("");
 }
@@ -1104,7 +1132,11 @@ $("ai-character-list").addEventListener("click",e=>{const b=e.target.closest("[d
 $("ai-message-form").addEventListener("submit",sendAiMessage);
 $("ai-prompts").addEventListener("click",e=>{const b=e.target.closest("[data-ai-prompt]");if(b){$("ai-message-input").value=b.dataset.aiPrompt;$("ai-message-form").requestSubmit();}});
 renderAiRoster();renderAiChat();
+$("following-list").addEventListener("click",e=>{const b=e.target.closest("[data-unfollow-user]");if(b)toggleFollow(b.dataset.unfollowUser).catch(err=>status(friendly(err),true));else {const chat=e.target.closest("[data-chat-user]");if(chat)openConversation(chat.dataset.chatUser);}});
+$("following-refresh")?.addEventListener("click",()=>loadPeople());
 $("people-list").addEventListener("click",e => {
+  const followButton=e.target.closest("[data-follow-user]");
+  if(followButton){toggleFollow(followButton.dataset.followUser).catch(err=>status(friendly(err),true));return;}
   const friendButton = e.target.closest("[data-friend-user]");
   if (friendButton) { sendFriendRequest(friendButton.dataset.friendUser); return; }
   const button = e.target.closest("[data-chat-user]");
