@@ -104,12 +104,77 @@ function showSignedOut() {
   if (messageChannel && db) db.removeChannel(messageChannel);
   messageChannel = null;
 }
+
+function applyTheme(mode) {
+  themeMode = mode === "light" ? "light" : "dark";
+  document.body.classList.toggle("social-light",themeMode === "light");
+  $("theme-toggle").textContent = themeMode === "light" ? "🌙 Dark mode" : "☀️ Light mode";
+  try { localStorage.setItem("veter-social-theme",themeMode); } catch {}
+}
+async function sendFriendRequest(uid) {
+  try {
+    const client = await getDb();
+    const {data: prior,error: readError} = await client.from("social_friend_requests").select("id,status,sender_uid,receiver_uid").or(`and(sender_uid.eq.${me.uid},receiver_uid.eq.${uid}),and(sender_uid.eq.${uid},receiver_uid.eq.${me.uid})`).limit(1);
+    if (readError) throw readError;
+    const existing = prior?.[0];
+    if (existing?.status === "accepted") { status("You are already connected."); return; }
+    if (existing?.status === "pending") { status(existing.sender_uid === me.uid ? "Friend request already sent." : "This person has already sent you a request."); return; }
+    if (existing?.status === "rejected") { const {error} = await client.from("social_friend_requests").delete().eq("id",existing.id); if (error) throw error; }
+    const {error} = await client.from("social_friend_requests").insert({sender_uid:me.uid,receiver_uid:uid,status:"pending"});
+    if (error) throw error;
+    status("Friend request sent!");
+    await Promise.all([loadPeople(),loadFriendRequests()]);
+  } catch(e) { status(friendly(e),true); }
+}
+async function loadFriendRequests() {
+  try {
+    const client = await getDb();
+    const {data: rows,error} = await client.from("social_friend_requests").select("*").or(`sender_uid.eq.${me.uid},receiver_uid.eq.${me.uid}`).order("created_at",{ascending:false});
+    if (error) throw error;
+    const ids = [...new Set((rows || []).flatMap(r => [r.sender_uid,r.receiver_uid]).filter(id => id !== me.uid))];
+    let profiles = [];
+    if (ids.length) { const result = await client.from("user_profiles").select("uid,display_name,avatar_url,username").in("uid",ids); if (result.error) throw result.error; profiles = result.data || []; }
+    const byId = new Map(profiles.map(p => [p.uid,p]));
+    const card = (row,other,buttons="") => { const p = byId.get(other) || {display_name:"Veter member"}; return `<article class="friend-row"><img src="${avatar(p)}" alt=""><div><b>${esc(p.display_name)}</b><small>${row.status === "pending" ? "Pending request" : "Friends"}</small></div>${buttons}</article>`; };
+    const incoming = (rows || []).filter(r => r.receiver_uid === me.uid && r.status === "pending");
+    const outgoing = (rows || []).filter(r => r.sender_uid === me.uid && r.status === "pending");
+    const accepted = (rows || []).filter(r => r.status === "accepted");
+    $("incoming-friends").innerHTML = incoming.length ? incoming.map(r => card(r,r.sender_uid,`<button data-friend-response="accepted" data-request-id="${r.id}">Accept</button><button data-friend-response="rejected" data-request-id="${r.id}">Decline</button>`)).join("") : '<p class="empty-state">No incoming requests.</p>';
+    $("outgoing-friends").innerHTML = outgoing.length ? outgoing.map(r => card(r,r.receiver_uid)).join("") : '<p class="empty-state">No sent requests.</p>';
+    $("accepted-friends").innerHTML = accepted.length ? accepted.map(r => card(r,r.sender_uid === me.uid ? r.receiver_uid : r.sender_uid)).join("") : '<p class="empty-state">Your friend list is waiting to grow.</p>';
+    $("friend-count").textContent = incoming.length ? String(incoming.length) : "";
+    window.veterFriendRequests = rows || [];
+  } catch(e) { status(friendly(e),true); }
+}
+async function loadNotifications() {
+  try {
+    const client = await getDb();
+    const {data: rows,error} = await client.from("social_notifications").select("*").order("created_at",{ascending:false}).limit(60);
+    if (error) throw error;
+    const unread = (rows || []).filter(n => !n.read_at).length;
+    $("notification-count").textContent = unread ? String(unread) : "";
+    if (!rows?.length) { $("notification-list").innerHTML = '<p class="empty-state">You are all caught up. New activity will appear here.</p>'; return; }
+    const actorIds = [...new Set(rows.map(n => n.actor_uid))];
+    const {data: people,error: peopleError} = await client.from("user_profiles").select("uid,display_name,avatar_url").in("uid",actorIds);
+    if (peopleError) throw peopleError;
+    const byId = new Map((people || []).map(p => [p.uid,p]));
+    $("notification-list").innerHTML = rows.map(n => { const actor = byId.get(n.actor_uid) || {display_name:"A Veter member"}; const icon = ({friend_request:"👥",friend_accepted:"🤝",reaction:"❤️",comment:"💬"})[n.notification_type] || "🔔"; return `<article class="notification-row ${n.read_at ? "" : "unread"}"><img src="${avatar(actor)}" alt=""><div><b>${esc(actor.display_name)}</b> ${esc(n.message)}<small>${new Date(n.created_at).toLocaleString()}</small></div><span>${icon}</span></article>`; }).join("");
+  } catch(e) { status(friendly(e),true); }
+}
+async function markNotificationsRead() {
+  try { const client = await getDb(); const {error} = await client.from("social_notifications").update({read_at:new Date().toISOString()}).eq("recipient_uid",me.uid).is("read_at",null); if (error) throw error; await loadNotifications(); status("Notifications marked as read."); }
+  catch(e) { status(friendly(e),true); }
+}
+
 function switchView(name) {
   document.querySelectorAll(".social-tab").forEach(b => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".social-view").forEach(v => v.hidden = v.id !== "view-" + name);
   if (name === "feed") loadFeed();
   if (name === "chats") loadConversations();
   if (name === "discover") loadPeople();
+  if (name === "friends") loadFriendRequests();
+  if (name === "notifications") loadNotifications();
+  if (name === "saved") loadFeed("saved-list",true);
 }
 
 async function loadPeople() {
@@ -133,7 +198,7 @@ function renderPeople(profiles) {
       <img src="${avatar(p)}" alt="" loading="lazy">
       <div class="person-info"><b>${esc(p.display_name)}</b><small>${esc([p.username ? "@"+p.username : "",p.country].filter(Boolean).join(" · ") || "Veter member")}</small>
       <p>${esc(p.bio || "Ready to meet new people.")}</p></div>
-      <button data-chat-user="${esc(p.uid)}">Message</button>
+      <div class="person-actions"><button data-friend-user="${esc(p.uid)}">Add friend</button><button data-chat-user="${esc(p.uid)}">Message</button></div>
     </article>`).join("");
 }
 async function openConversation(partnerUid) {
@@ -459,6 +524,16 @@ $("sign-out").addEventListener("click", async () => {
   catch(e) { status(friendly(e),true); }
 });
 document.querySelectorAll(".social-tab").forEach(b => b.addEventListener("click",() => switchView(b.dataset.view)));
+
+$("theme-toggle").addEventListener("click",() => applyTheme(themeMode === "dark" ? "light" : "dark"));
+$("mark-notifications-read").addEventListener("click",markNotificationsRead);
+$("incoming-friends").addEventListener("click",async e => {
+  const button = e.target.closest("[data-friend-response]");
+  if (!button) return;
+  button.disabled = true;
+  try { const client = await getDb(); const {error} = await client.from("social_friend_requests").update({status:button.dataset.friendResponse,updated_at:new Date().toISOString()}).eq("id",button.dataset.requestId); if (error) throw error; status(button.dataset.friendResponse === "accepted" ? "Friend request accepted!" : "Friend request declined."); await Promise.all([loadFriendRequests(),loadPeople(),loadNotifications()]); }
+  catch(err) { status(friendly(err),true); button.disabled = false; }
+});
 $("people-list").addEventListener("click",e => {
   const button = e.target.closest("[data-chat-user]");
   if (button) openConversation(button.dataset.chatUser);
@@ -505,7 +580,7 @@ $("people-search").addEventListener("input",e => {
   renderPeople(cachedPeople.filter(p => [p.display_name,p.username,p.country,p.bio].some(v => (v || "").toLowerCase().includes(q))));
 });
 
-onAuthStateChanged(auth, async user => {
+try { applyTheme(localStorage.getItem("veter-social-theme") || "dark"); } catch { applyTheme("dark"); }\nonAuthStateChanged(auth, async user => {
   me = user;
   if (!user) { showSignedOut(); status("Sign in to join Veter Social."); return; }
   try {
