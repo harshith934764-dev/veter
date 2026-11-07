@@ -24,7 +24,54 @@ function importProject(data){if(!data||data.format!=='veter-studio-project'||dat
 function save(){const blob=new Blob([code.value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename.textContent.endsWith('.vtr')?filename.textContent:'main.vtr';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);status.textContent='Downloaded';}
 function tokenize(s){const t=[];let i=0;while(i<s.length){if(/\\s/.test(s[i])){i++;continue;}if(s[i]==='"'||s[i]==="'"){const q=s[i++];let v='';let closed=false;while(i<s.length){let c=s[i++];if(c===q){closed=true;break;}if(c==='\\\\'&&i<s.length){const e=s[i++];v+=e==='n'?'\\n':e==='t'?'\\t':e;}else v+=c;}if(!closed)throw Error('Unclosed string');t.push({k:'str',v});continue;}if(/[0-9]/.test(s[i])){let a=i++;while(i<s.length&&/[0-9.]/.test(s[i]))i++;const n=Number(s.slice(a,i));if(!Number.isFinite(n))throw Error('Invalid number');t.push({k:'num',v:n});continue;}if(/[A-Za-z_]/.test(s[i])){let a=i++;while(i<s.length&&/[A-Za-z0-9_]/.test(s[i]))i++;t.push({k:'id',v:s.slice(a,i)});continue;}if('+-*/%()'.includes(s[i])){t.push({k:s[i],v:s[i++]});continue;}throw Error('Unexpected character: '+s[i]);}return t;}
 function expression(source,vars){const ts=tokenize(source);let p=0;function atom(){const x=ts[p++];if(!x)throw Error('Expected a value');if(x.k==='num'||x.k==='str')return x.v;if(x.k==='id'){if(!(x.v in vars))throw Error('Unknown variable: '+x.v);return vars[x.v];}if(x.k==='-')return -Number(atom());if(x.k==='+')return Number(atom());if(x.k==='('){const v=expr(0);if(!ts[p]||ts[p++].k!==')')throw Error('Expected )');return v;}throw Error('Expected a value');}const prec={'+':10,'-':10,'*':20,'/':20,'%':20};function expr(min){let left=atom();while(ts[p]&&prec[ts[p].k]>=min){const op=ts[p++].k,right=expr(prec[op]+1);if(op==='+'&&(typeof left==='string'||typeof right==='string'))left=String(left)+String(right);else{const a=Number(left),b=Number(right);if(!Number.isFinite(a)||!Number.isFinite(b))throw Error('Arithmetic needs numbers');if((op==='/'||op==='%')&&b===0)throw Error('Cannot divide by zero');left=op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:op==='/'?a/b:a%b;}}return left;}const result=expr(0);if(p!==ts.length)throw Error('Unexpected token: '+ts[p].v);return result;}
-function run(){const vars=Object.create(null),lines=code.value.split('\\n'),logs=[];try{for(let i=0;i<lines.length;i++){let line=lines[i].trim();if(!line||line.startsWith('#'))continue;let m;if((m=line.match(/^remember\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+as\\s+(.+)$/))){if(m[1] in vars)throw Error('Line '+(i+1)+': variable already exists: '+m[1]);vars[m[1]]=expression(m[2],vars);continue;}if((m=line.match(/^revise\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+as\\s+(.+)$/))){if(!(m[1] in vars))throw Error('Line '+(i+1)+': unknown variable: '+m[1]);vars[m[1]]=expression(m[2],vars);continue;}if((m=line.match(/^display\\s+(.+)$/))){logs.push(String(expression(m[1],vars)));continue;}throw Error('Line '+(i+1)+': this browser preview does not support that command. See the Core 1.0 build guide.');}out.textContent=logs.length?logs.join('\\n'):'Program finished with no output.';out.classList.remove('error','empty');status.textContent='Finished';}catch(e){out.textContent='Demo error: '+e.message;out.classList.add('error');out.classList.remove('empty');status.textContent='Error';}}
+let wasmModulePromise=null;
+function loadWasmCompiler(){
+ if(wasmModulePromise)return wasmModulePromise;
+ wasmModulePromise=new Promise((resolve,reject)=>{
+  const script=document.createElement('script');
+  script.src='/assets/wasm/veterc.js';
+  script.async=true;
+  script.onload=()=>{
+   if(typeof window.createVeterModule!=='function'){reject(Error('Compiler loader did not initialize.'));return;}
+   window.createVeterModule({
+    locateFile:(path)=>'/assets/wasm/'+path,
+    print:()=>{},
+    printErr:()=>{}
+   }).then(resolve,reject);
+  };
+  script.onerror=()=>reject(Error('The real Veter compiler is not deployed yet. Please try again after the WebAssembly build finishes.'));
+  document.head.appendChild(script);
+ });
+ return wasmModulePromise;
+}
+async function run(){
+ const runButton=document.getElementById('run');
+ runButton.disabled=true;
+ status.textContent='Loading compiler…';
+ out.textContent='Starting the real Veter compiler…';
+ out.classList.remove('error','empty');
+ try{
+  const runtime=await loadWasmCompiler();
+  const workspace='/workspace';
+  try{runtime.FS.mkdir(workspace);}catch(e){}
+  const safeName=files[activeFile].name;
+  const sourcePath=workspace+'/'+safeName;
+  try{runtime.FS.unlink(sourcePath);}catch(e){}
+  runtime.FS.writeFile(sourcePath,code.value);
+  let stdout='',stderr='';
+  runtime.print=(line)=>{stdout+=line+'\\n';};
+  runtime.printErr=(line)=>{stderr+=line+'\\n';};
+  const exitCode=runtime.callMain([sourcePath]);
+  if(exitCode!==0)throw Error(stderr.trim()||('Compiler exited with code '+exitCode));
+  out.textContent=stdout.trimEnd()||'Program finished with no output.';
+  out.classList.remove('error','empty');
+  status.textContent='Compiled · Veter Core 1.0';
+ }catch(e){
+  out.textContent='Compiler error: '+(e&&e.message?e.message:String(e));
+  out.classList.add('error');out.classList.remove('empty');
+  status.textContent='Compiler unavailable or program failed';
+ }finally{runButton.disabled=false;}
+}
 code.addEventListener('input',()=>{refresh();files[activeFile].content=code.value;scheduleSave();});code.addEventListener('scroll',()=>{gutter.scrollTop=code.scrollTop;});code.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();const a=code.selectionStart,b=code.selectionEnd;code.setRangeText('  ',a,b,'end');refresh();}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();save();}});
 document.getElementById('examples').addEventListener('change',e=>{const name='main.vtr',content=examples[e.target.value]||examples.hello;let i=files.findIndex(f=>f.name===name);if(i<0){if(files.length>=30){alert('Workspace limit is 30 files. Delete a file first.');return;}files.push({name,content});i=files.length-1;}else files[i].content=content;activeFile=i;code.value=content;renderFiles();refresh();scheduleSave();status.textContent='Example loaded';});
 document.getElementById('run').addEventListener('click',run);document.getElementById('clear').addEventListener('click',()=>{code.value='';out.textContent='Output cleared.';out.classList.add('empty');out.classList.remove('error');status.textContent='Ready';refresh();});
