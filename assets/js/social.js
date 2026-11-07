@@ -32,7 +32,9 @@ let groupChannel = null;
 let typingStopTimer = null;
 
 function status(message, error = false) {
-  const node = $("app-status") || $("auth-status");
+  const appShell = $("social-app");
+  const signedInView = appShell && !appShell.hidden;
+  const node = signedInView ? $("app-status") : $("auth-status");
   if (node) {
     node.textContent = message;
     node.dataset.error = error ? "true" : "false";
