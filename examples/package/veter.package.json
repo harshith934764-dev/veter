@@ -1,0 +1,7 @@
+{
+  "name": "hello-veter",
+  "version": "1.0.0",
+  "description": "A starter Veter package",
+  "entry": "src/main.vtr",
+  "dependencies": {}
+}
