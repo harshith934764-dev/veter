@@ -98,5 +98,35 @@ class PackageValidatorTests(unittest.TestCase):
         self.assertIn("Usage:", result.stderr)
 
 
+
+    def test_new_creates_project_files_and_valid_manifest(self):
+        project = self.work / "starter-app"
+        result = subprocess.run([str(self.exe), "new", str(project)],
+                                cwd=self.work, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((project / "src" / "main.vtr").is_file())
+        self.assertTrue((project / "README.md").is_file())
+        manifest = json.loads((project / "veter.package.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["name"], "starter-app")
+        checked = subprocess.run([str(self.exe), "validate",
+                                  str(project / "veter.package.json")],
+                                 text=True, capture_output=True)
+        self.assertEqual(checked.returncode, 0, checked.stderr)
+
+    def test_new_rejects_invalid_project_name(self):
+        result = subprocess.run([str(self.exe), "new", "../escape"],
+                                cwd=self.work, text=True, capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+
+    def test_new_refuses_existing_directory(self):
+        project = self.work / "already-here"
+        project.mkdir(exist_ok=True)
+        marker = project / "keep.txt"
+        marker.write_text("keep", encoding="utf-8")
+        result = subprocess.run([str(self.exe), "new", "already-here"],
+                                cwd=self.work, text=True, capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(marker.read_text(encoding="utf-8"), "keep")
+
 if __name__ == "__main__":
     unittest.main()
