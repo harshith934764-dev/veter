@@ -9,8 +9,8 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // Public profile fields only. Keep email and phone in Firebase Auth
-    // or a private document, never in this public profile.
+    // Public profile only. Never put email, phone, tokens, or private
+    // account data in this collection.
     match /users/{uid} {
       allow read: if signedIn();
       allow create: if isSelf(uid)
@@ -18,18 +18,22 @@ service cloud.firestore {
           'displayName', 'photoURL', 'country', 'languages', 'createdAt'
         ])
         && request.resource.data.displayName is string
-        && request.resource.data.displayName.size() <= 40;
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 40
+        && request.resource.data.createdAt == request.time;
       allow update: if isSelf(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'displayName', 'photoURL', 'country', 'languages'
         ])
         && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
         && request.resource.data.displayName.size() <= 40;
       allow delete: if false;
     }
 
+    // Private profile data is accessible only by its owner.
     match /userPrivate/{uid} {
-      allow read, write: if isSelf(uid);
+      allow read, create, update, delete: if isSelf(uid);
     }
 
     match /conversations/{conversationId} {
@@ -39,13 +43,11 @@ service cloud.firestore {
       }
 
       allow read: if isParticipant();
-      // Conversation creation and participant assignment must be performed
-      // by trusted server code after validating the match.
-      allow create, delete: if false;
-      allow update: if isParticipant()
-        && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['lastMessageAt', 'state']);
-      
+
+      // Only trusted server code may create, update, or delete conversations.
+      // This prevents clients from adding participants or changing match state.
+      allow create, update, delete: if false;
+
       match /messages/{messageId} {
         function parentHasUser(uid) {
           return exists(/databases/$(database)/documents/conversations/$(conversationId))
@@ -59,22 +61,26 @@ service cloud.firestore {
           && request.resource.data.senderUid == request.auth.uid
           && request.resource.data.text is string
           && request.resource.data.text.size() > 0
-          && request.resource.data.text.size() <= 2000;
+          && request.resource.data.text.size() <= 2000
+          && request.resource.data.createdAt == request.time;
         allow update, delete: if false;
       }
     }
 
-    // Matchmaking, reports, and blocks are intentionally server-managed.
+    // Matchmaking and reports must go through trusted server validation.
     match /matchQueue/{uid} {
       allow read, write: if false;
     }
     match /reports/{reportId} {
       allow read, write: if false;
     }
+
+    // A user can manage only their own block list.
     match /blocks/{uid}/users/{blockedUid} {
-      allow read, write: if isSelf(uid);
+      allow read, create, update, delete: if isSelf(uid);
     }
 
+    // Deny all collections not explicitly listed above.
     match /{document=**} {
       allow read, write: if false;
     }
