@@ -181,8 +181,10 @@ static int create_project(const std::string& name) {
     if (!valid_name(name)) throw std::runtime_error("project name must use lowercase letters, numbers, and single hyphens");
     std::filesystem::path root(name);
     if (std::filesystem::exists(root)) throw std::runtime_error("destination already exists: " + name);
+    bool created = false;
     try {
-        if (!std::filesystem::create_directory(root)) throw std::runtime_error("could not create project directory");
+        created = std::filesystem::create_directory(root);
+        if (!created) throw std::runtime_error("could not create project directory");
         std::filesystem::create_directory(root / "src");
         write_file(root / "veter.package.json",
             "{\n  \"name\": \"" + name + "\",\n  \"version\": \"0.1.0\",\n  \"description\": \"A new Veter project\",\n  \"entry\": \"src/main.vtr\",\n  \"dependencies\": {}\n}\n");
@@ -190,7 +192,7 @@ static int create_project(const std::string& name) {
         write_file(root / "README.md", "# " + name + "\n\nA new Veter project.\n\nEdit src/main.vtr to start coding.\n");
     } catch (...) {
         std::error_code ignored;
-        std::filesystem::remove_all(root, ignored);
+        if (created) std::filesystem::remove_all(root, ignored);
         throw;
     }
     std::cout << "Created Veter project: " << name << "\n";
