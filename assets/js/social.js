@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -55,6 +55,10 @@ function avatar(profile, id = "") {
 function friendly(error) {
   console.error("Veter Social:", error);
   const code = error?.code || error?.message || "";
+  if (error?.code === "auth/unauthorized-domain") return "This website is not authorized for login. Add theveter.in in Firebase Authentication → Settings → Authorized domains.";
+  if (error?.code === "auth/popup-blocked") return "Your browser blocked the sign-in popup. Trying secure redirect login…";
+  if (error?.code === "auth/operation-not-allowed") return "Google or phone sign-in is not enabled in Firebase Authentication yet.";
+  if (error?.code === "auth/network-request-failed") return "Network error. Check your internet connection and try again.";
   if (String(code).includes("Invalid API key") || String(code).includes("Invalid API")) return "Supabase rejected the API key. Check that the Supabase project key is active and copied correctly.";
   if (String(code).includes("JWT") || String(code).includes("third-party")) return "Firebase token is not accepted by Supabase yet. Check the Firebase third-party integration in Supabase.";
   if (error?.code === "42501" || error?.code === "PGRST301") return "Database permissions are blocking this action. Check the Veter Social database policies.";
@@ -674,11 +678,27 @@ async function sendGroupMessage(event) {
 $("google-sign-in").addEventListener("click", async () => {
   const button = $("google-sign-in");
   button.disabled = true;
-  status("Opening Google sign-in…");
+  status("Opening secure Google sign-in…");
   try {
-    await signInWithPopup(auth,new GoogleAuthProvider());
-  } catch(e) { status(friendly(e),true); }
-  finally { button.disabled = false; }
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      if (error?.code === "auth/popup-blocked") {
+        status("Popup blocked. Switching to redirect sign-in…");
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      throw error;
+    }
+  } catch(error) {
+    status(friendly(error),true);
+    button.disabled = false;
+  }
+});
+getRedirectResult(auth).catch(error => {
+  status(friendly(error),true);
 });
 async function ensurePhoneRecaptcha() {
   if (phoneRecaptcha) return phoneRecaptcha;
