@@ -44,6 +44,7 @@
 <aside class="social-sidebar">
 <div class="social-me"><img id="my-avatar" alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="><div><b id="my-name">Your profile</b><small id="my-email"></small></div></div>
 <button class="social-tab active" data-view="discover">🌍 Discover people</button>
+<button class="social-tab" data-view="feed">📰 Community feed</button>
 <button class="social-tab" data-view="chats">💬 My chats <span id="chat-count"></span></button>
 <button class="social-tab" data-view="profile">👤 Edit profile</button>
 <button class="social-tab" data-view="safety">🛡️ Safety</button>
@@ -54,6 +55,11 @@
 <section class="social-view" id="view-discover">
 <div class="social-view-head"><div><div class="social-kicker">YOUR COMMUNITY</div><h2>Discover people</h2><p>Find someone new and start a friendly conversation.</p></div><input id="people-search" type="search" placeholder="Search names, countries…"></div>
 <div class="people-grid" id="people-list"><p class="empty-state">Loading people…</p></div>
+</section>
+<section class="social-view" id="view-feed" hidden>
+<div class="social-view-head"><div><div class="social-kicker">SHARE SOMETHING GOOD</div><h2>Community feed</h2><p>Post updates, celebrate wins and share ideas with Veter members.</p></div></div>
+<form class="post-composer" id="post-form"><textarea id="post-body" maxlength="1000" rows="3" placeholder="What would you like to share?" required></textarea><div class="composer-footer"><small><span id="post-char-count">0</span>/1000</small><button type="submit">Publish post ✨</button></div></form>
+<div class="feed-list" id="feed-list"><p class="empty-state">Loading community posts…</p></div>
 </section>
 <section class="social-view" id="view-chats" hidden>
 <div class="social-view-head"><div><div class="social-kicker">KEEP IN TOUCH</div><h2>Your conversations</h2><p>Messages are private to the two conversation participants.</p></div></div>
