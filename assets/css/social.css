@@ -73,3 +73,10 @@
 .feed-actions button:hover,.feed-actions button.liked{border-color:#bd7190;color:#ffabc9;background:#301d30}
 .post-delete{font-size:10px;padding:6px 9px}
 @media(max-width:620px){.feed-post{padding:14px}.post-composer{padding:13px}}
+
+.post-comments{display:grid;gap:9px;margin-top:12px}
+.post-comment{display:grid;gap:4px;padding:10px 12px;border-left:2px solid #6fcfc8;background:#0c182a;border-radius:0 9px 9px 0}
+.post-comment b{font-size:11px;color:#c8e9e7}
+.post-comment span{font-size:12px;color:#dce7f7;white-space:pre-wrap;overflow-wrap:anywhere}
+.post-comment small,.no-comments{font-size:10px;color:#8394af}
+.no-comments{margin:4px 0}
