@@ -183,7 +183,7 @@ class VeterCoreTests(unittest.TestCase):
             'display at(scores, 1)\n'
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "3\\n20\\n")
+        self.assertEqual(result.stdout, "3\n20\n")
 
     def test_string_builtins(self):
         result = self.run_veter(
@@ -193,21 +193,21 @@ class VeterCoreTests(unittest.TestCase):
             'display contains("veter language", "lang")\n'
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "VETER\\nhello\\n8\\n1\\n")
+        self.assertEqual(result.stdout, "VETER\nhello\n8\n1\n")
 
     def test_function_local_variables_and_recursion(self):
         result = self.run_veter(
-            'display factorial(5)\\n'
-            'do factorial(n)\\n'
-            '    choose when n <= 1\\n'
-            '        give 1\\n'
-            '    close choice\\n'
-            '    remember previous as factorial(n - 1)\\n'
-            '    give n * previous\\n'
-            'end\\n'
+            'display factorial(5)\n'
+            'do factorial(n)\n'
+            '    choose when n <= 1\n'
+            '        give 1\n'
+            '    close choice\n'
+            '    remember previous as factorial(n - 1)\n'
+            '    give n * previous\n'
+            'end\n'
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, "120\\n")
+        self.assertEqual(result.stdout, "120\n")
 
     def test_unknown_function_is_reported(self):
         result = self.run_veter("run missing_function\n")
