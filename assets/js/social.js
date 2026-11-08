@@ -479,9 +479,9 @@ async function inspectShortFile(file){
  const url=URL.createObjectURL(file);
  try{
   const duration=await new Promise((resolve,reject)=>{
-   const v=document.createElement("video");v.preload="metadata";v.onloadedmetadata=()=>{const d=v.duration;URL.revokeObjectURL(v.src);resolve(d);};v.onerror=()=>{URL.revokeObjectURL(v.src);reject(new Error("This video could not be read. Try exporting it as MP4."));};v.src=url;
+   const v=document.createElement("video");v.preload="metadata";v.onloadedmetadata=()=>{const d=v.duration;resolve(d);};v.onerror=()=>{reject(new Error("This video could not be read. Try exporting it as MP4."));};v.src=url;
   });
-  if(!Number.isFinite(duration)||duration<=0||duration>90)throw new Error("Veter Shorts currently supports videos up to 90 seconds.");
+  if(!Number.isFinite(duration)||duration<=0||duration>90){URL.revokeObjectURL(url);throw new Error("Veter Shorts currently supports videos up to 90 seconds.");}
   return {url,duration:Math.ceil(duration)};
  }catch(e){URL.revokeObjectURL(url);throw e;}
 }
