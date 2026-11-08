@@ -518,7 +518,7 @@ function renderPeople(profiles) {
     return '<article class="person-card '+(p.is_demo ? 'demo-person-card' : '')+'"><img src="'+avatar(p)+'" alt="" loading="lazy"><div class="person-info"><b>'+esc(p.display_name)+(p.is_verified ? ' <span class="verified-badge">✓</span>' : '')+(p.is_demo ? ' <span class="demo-profile-badge">DEMO</span>' : '')+'</b><small>'+esc([p.username ? '@'+p.username : '',p.city || p.country].filter(Boolean).join(' · ') || 'Veter member')+'</small>'+(p.is_demo ? '<small class="demo-note">Fictional preview profile · not a real user</small>' : '<small data-online-user="'+esc(p.uid)+'" class="presence-label">Checking status…</small>')+'<p>'+esc(p.bio || 'Ready to meet new people.')+'</p><small class="follow-count">'+(followerCounts.get(p.uid)||0)+' followers</small></div><div class="person-actions">'+actions+'</div></article>';
   }).join("");
 }
-async async function openConversation(partnerUid) {
+async function openConversation(partnerUid) {
   try {
     const client = await getDb();
     status("Opening conversation…");
