@@ -110,6 +110,7 @@ function showSignedIn(user, profile) {
   $("profile-avatar").value = profile.avatar_url || "";
   $("my-veter-id").textContent = profile.veter_id || "ID will appear after refresh";
   $("profile-username").dataset.savedUsername = profile.username || "";
+  renderProfilePreview();
 }
 async function startPresence() {
   const client = await getDb();
@@ -970,6 +971,25 @@ async function reportPartner() {
   finally { button.disabled = false; }
 }
 
+
+function renderProfilePreview() {
+  const name = $("profile-name").value.trim() || "Your name";
+  const username = $("profile-username").value.trim().replace(/^@/,"").toLowerCase();
+  const country = $("profile-country").value.trim();
+  const bio = $("profile-bio").value.trim();
+  const avatarUrl = $("profile-avatar").value.trim();
+  $("profile-preview-name").textContent = name;
+  $("profile-preview-username").textContent = username ? "@"+username : "@your_username";
+  $("profile-preview-bio").textContent = bio || "Your introduction will appear here.";
+  $("profile-preview-country").textContent = country || "Add your country";
+  $("profile-preview-avatar").src = avatarUrl && /^https:\/\//i.test(avatarUrl) ? avatarUrl : $("my-avatar").src;
+  const checks = [!!$("profile-name").value.trim(),/^[a-z0-9_]{3,24}$/.test(username),!!country,!!bio,!!avatarUrl];
+  const percent = Math.round(checks.filter(Boolean).length / checks.length * 100);
+  $("profile-progress-value").textContent = percent+"%";
+  $("profile-progress-fill").style.width = percent+"%";
+  $("profile-progress-label").textContent = percent===100 ? "Lovely! Your profile is complete." : "Add "+(checks.length-checks.filter(Boolean).length)+" more detail(s) to complete your profile.";
+}
+
 async function saveMyProfile(event) {
   event.preventDefault();
   if (!me) { status("Please sign in before saving your profile.", true); return; }
@@ -1263,6 +1283,7 @@ $("vibe-viewer").addEventListener("click",e=>{
 $("vibe-viewer").addEventListener("submit",e=>{if(e.target.id==="vibe-reply-form")replyToVibe(e);});
 
 $("profile-form").addEventListener("submit",saveMyProfile);
+["profile-name","profile-username","profile-country","profile-bio","profile-avatar"].forEach(id => $(id).addEventListener("input",renderProfilePreview));
 $("dating-setup-form").addEventListener("submit",saveDatingProfile);
 $("dating-refresh").addEventListener("click",loadDating);
 $("dating-people").addEventListener("click",e=>{const b=e.target.closest("[data-dating-like]");if(b){b.disabled=true;sendDatingLike(b.dataset.datingLike);}});
