@@ -205,3 +205,10 @@ body.social-light .demo-disclaimer{background:#f5f0ff;border-color:#d8c9f3;color
 .profile-progress-track{height:8px;border-radius:20px;background:#263750;overflow:hidden}.profile-progress-track span{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#66d8ce,#9a8bff);transition:width .2s ease}
 .profile-preview-card{display:flex;align-items:flex-start;gap:13px;padding:14px;border:1px solid #344660;border-radius:12px;background:#0d192b}.profile-preview-card>img{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#263750}.profile-preview-card>div{min-width:0}.profile-preview-card b,.profile-preview-card small{display:block}.profile-preview-card b{color:#eef4ff;font-size:14px}.profile-preview-card small{color:#9daecc;font-size:11px;margin-top:3px}.profile-preview-card p{margin:8px 0;color:#d4deed;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.profile-preview-card span{font-size:10px;color:#8bd9d1}
 body.social-light .profile-progress-card{background:#fff;border-color:#d8e1ef}body.social-light .profile-progress-top b,body.social-light .profile-preview-card b{color:#17243a}body.social-light .profile-preview-card{background:#f7f9fd;border-color:#d8e1ef}body.social-light .profile-preview-card p{color:#33445f}
+
+.chat-unread-count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#69d7c9;color:#102033;font-size:11px;font-weight:800;font-style:normal}
+.message-reactions{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.message-reaction,.message-react-add{border:1px solid #40516b;background:#1a2940;color:#edf4ff;border-radius:20px;padding:3px 8px;font-size:12px;cursor:pointer}
+.message-reaction.selected{border-color:#69d7c9;background:#234b53}
+.message-react-add{opacity:.7}
+#chat-presence{min-height:16px}
