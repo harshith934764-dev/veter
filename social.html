@@ -157,6 +157,12 @@
 <section class="social-view" id="view-profile" hidden>
 <div class="social-view-head"><div><div class="social-kicker">MAKE IT YOURS</div><h2>Your profile</h2><p>Only share details you are comfortable showing to signed-in members.</p></div></div>
 <div class="veter-id-card"><div><small>YOUR UNIQUE VETER ID</small><b id="my-veter-id">Generating your ID…</b></div><button id="copy-veter-id" type="button">Copy ID</button><button id="share-profile" type="button">Share profile</button></div>
+<div class="profile-progress-card" aria-live="polite">
+  <div class="profile-progress-top"><div><b>Profile strength</b><small id="profile-progress-label">Complete your profile to help people know you.</small></div><strong id="profile-progress-value">20%</strong></div>
+  <div class="profile-progress-track"><span id="profile-progress-fill" style="width:20%"></span></div>
+  <div class="profile-preview-card"><img id="profile-preview-avatar" alt="Profile preview"><div><b id="profile-preview-name">Your name</b><small id="profile-preview-username">@username</small><p id="profile-preview-bio">Your introduction will appear here.</p><span id="profile-preview-country">Add your country</span></div></div>
+  <small class="profile-progress-hint">This preview is private to your profile editor until you save.</small>
+</div>
 <form class="profile-form" id="profile-form">
 <label>Display name<input id="profile-name" maxlength="40" required></label>
 <label>Username<input id="profile-username" maxlength="24" placeholder="e.g. harshith_01"></label>
