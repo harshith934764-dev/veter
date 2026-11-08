@@ -518,7 +518,7 @@ function renderPeople(profiles) {
     return '<article class="person-card '+(p.is_demo ? 'demo-person-card' : '')+'"><img src="'+avatar(p)+'" alt="" loading="lazy"><div class="person-info"><b>'+esc(p.display_name)+(p.is_verified ? ' <span class="verified-badge">✓</span>' : '')+(p.is_demo ? ' <span class="demo-profile-badge">DEMO</span>' : '')+'</b><small>'+esc([p.username ? '@'+p.username : '',p.city || p.country].filter(Boolean).join(' · ') || 'Veter member')+'</small>'+(p.is_demo ? '<small class="demo-note">Fictional preview profile · not a real user</small>' : '<small data-online-user="'+esc(p.uid)+'" class="presence-label">Checking status…</small>')+'<p>'+esc(p.bio || 'Ready to meet new people.')+'</p><small class="follow-count">'+(followerCounts.get(p.uid)||0)+' followers</small></div><div class="person-actions">'+actions+'</div></article>';
   }).join("");
 }
-async function openConversation(partnerUid) {
+async async function openConversation(partnerUid) {
   try {
     const client = await getDb();
     status("Opening conversation…");
@@ -551,7 +551,10 @@ async function openConversation(partnerUid) {
     $("chat-name").textContent = partner.display_name || "Veter member";
     $("chat-avatar").src = avatar(partner);
     await loadMessages();
+    await client.from("messages").update({seen_at:new Date().toISOString()}).eq("conversation_id",conversation.id).neq("sender_uid",me.uid).is("seen_at",null);
     subscribeMessages();
+    subscribeTyping();
+    await loadConversations();
     $("message-input").focus();
     status("Private conversation opened.");
   } catch (e) { status(friendly(e), true); }
@@ -813,7 +816,7 @@ async function handleFeedAction(event) {
   } catch (e) { status(friendly(e),true); }
 }
 
-async function loadConversations() {
+async async function loadConversations() {
   if (!me) return;
   try {
     const client = await getDb();
@@ -831,28 +834,68 @@ async function loadConversations() {
       profiles = p.data || [];
     }
     const byId = new Map(profiles.map(p => [p.uid,p]));
+    const unreadByConversation = new Map();
+    if (conversations.length) {
+      const ids = conversations.map(c=>c.id);
+      const {data:unread,error:unreadError} = await client.from("messages").select("conversation_id")
+        .in("conversation_id",ids).neq("sender_uid",me.uid).is("seen_at",null);
+      if (unreadError) throw unreadError;
+      for (const m of unread || []) unreadByConversation.set(m.conversation_id,(unreadByConversation.get(m.conversation_id)||0)+1);
+    }
+    const unreadTotal = [...unreadByConversation.values()].reduce((a,b)=>a+b,0);
+    $("chat-count").textContent = unreadTotal ? String(unreadTotal) : "";
     const host = $("chat-list");
     if (!conversations.length) { host.innerHTML = '<p class="empty-state">No conversations yet. Discover someone to say hello.</p>'; return; }
     host.innerHTML = conversations.map(c => {
       const id = c.participant_a === me.uid ? c.participant_b : c.participant_a;
       const p = byId.get(id) || {display_name:"Veter member"};
-      return `<button class="chat-list-item" data-open-chat="${esc(id)}"><img src="${avatar(p)}" alt=""><span><b>${esc(p.display_name)}</b><small>${new Date(c.last_message_at || c.created_at).toLocaleString()}</small></span></button>`;
+      const unread = unreadByConversation.get(c.id)||0;
+      return `<button class="chat-list-item" data-open-chat="${esc(id)}"><img src="${avatar(p)}" alt=""><span><b>${esc(p.display_name)}</b><small>${new Date(c.last_message_at || c.created_at).toLocaleString()}</small></span>${unread ? `<em class="chat-unread-count">${unread}</em>` : ""}</button>`;
     }).join("");
   } catch (e) { status(friendly(e), true); }
 }
+let messageReactionCache = new Map();
 async function loadMessages() {
   if (!activeConversation) return;
   const client = await getDb();
   const {data,error} = await client.from("messages").select("*")
     .eq("conversation_id",activeConversation.id).order("created_at",{ascending:true}).limit(200);
   if (error) throw error;
+  const ids = (data || []).map(m => m.id);
+  messageReactionCache = new Map();
+  if (ids.length) {
+    const {data: reactions,error: reactionError} = await client.from("message_reactions").select("message_id,user_uid,reaction").in("message_id",ids);
+    if (reactionError) throw reactionError;
+    for (const r of reactions || []) {
+      if (!messageReactionCache.has(r.message_id)) messageReactionCache.set(r.message_id,[]);
+      messageReactionCache.get(r.message_id).push(r);
+    }
+  }
   const host = $("chat-messages");
   host.innerHTML = (data || []).map(renderMessage).join("");
   host.scrollTop = host.scrollHeight;
 }
 function renderMessage(m) {
   const mine = m.sender_uid === me.uid;
-  return `<div class="message-row ${mine ? "mine" : ""}" data-message-id="${esc(m.id)}"><div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}${mine ? " · "+(m.seen_at ? "Seen ✓✓" : m.delivered_at ? "Delivered ✓✓" : "Sent ✓") : ""}</small></div></div>`;
+  const reactions = messageReactionCache.get(m.id) || [];
+  const summary = ["❤️","😂","👍","😮","😢","🔥"].map(emoji => {
+    const matching = reactions.filter(r => r.reaction === emoji);
+    return matching.length ? `<button type="button" class="message-reaction ${matching.some(r=>r.user_uid===me.uid)?"selected":""}" data-message-react="${esc(m.id)}" data-reaction="${emoji}" aria-label="React ${emoji}">${emoji} <span>${matching.length}</span></button>` : "";
+  }).join("");
+  return `<div class="message-row ${mine ? "mine" : ""}" data-message-id="${esc(m.id)}"><div class="message-bubble">${esc(m.body)}<small>${new Date(m.created_at).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}${mine ? " · "+(m.seen_at ? "Seen ✓✓" : m.delivered_at ? "Delivered ✓✓" : "Sent ✓") : ""}</small><div class="message-reactions">${summary}<button type="button" class="message-react-add" data-message-react="${esc(m.id)}" data-reaction="❤️" aria-label="Add heart reaction">＋</button></div></div></div>`;
+}
+async function toggleMessageReaction(messageId, reaction) {
+  if (!me || !activeConversation) return;
+  const client = await getDb();
+  const existing = (messageReactionCache.get(messageId) || []).find(r => r.user_uid === me.uid);
+  if (existing?.reaction === reaction) {
+    const {error} = await client.from("message_reactions").delete().eq("message_id",messageId).eq("user_uid",me.uid);
+    if (error) throw error;
+  } else {
+    const {error} = await client.from("message_reactions").upsert({message_id:messageId,user_uid:me.uid,reaction},{onConflict:"message_id,user_uid"});
+    if (error) throw error;
+  }
+  await loadMessages();
 }
 function subscribeTyping() {
   if (typingChannel && db) db.removeChannel(typingChannel);
@@ -880,7 +923,7 @@ function subscribeMessages() {
       }
     }).on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation.id},() => loadMessages()).subscribe();
 }
-async function clientMarkDelivered(id) {
+async async function clientMarkDelivered(id) {
   try { const client = await getDb(); await client.from("messages").update({delivered_at:new Date().toISOString()}).eq("id",id); } catch {}
 }
 async function sendMessage(event) {
@@ -1222,6 +1265,11 @@ $("chat-list").addEventListener("click",e => {
   if (button) openConversation(button.dataset.openChat);
 });
 $("message-form").addEventListener("submit",sendMessage);
+$("chat-messages").addEventListener("click",e=>{
+  const b=e.target.closest("[data-message-react]");
+  if(!b)return;
+  toggleMessageReaction(b.dataset.messageReact,b.dataset.reaction).catch(err=>status(friendly(err),true));
+});
 $("post-form").addEventListener("submit",publishPost);
 $("feed-sort")?.addEventListener("change",e=>{feedSortMode=e.target.value;loadFeed();});
 $("feed-refresh")?.addEventListener("click",()=>loadFeed());
