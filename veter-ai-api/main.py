@@ -106,7 +106,7 @@ async def chat(body: ChatInput, authorization: str = Header(default="")):
     uid = user["id"]
     thread_id = body.thread_id
     if thread_id:
-        rows = await db_request("GET",f"ai_threads?select=id& id=eq.{thread_id}&owner_uid=eq.{uid}&limit=1",token)
+        rows = await db_request("GET",f"ai_threads?select=id&id=eq.{thread_id}&owner_uid=eq.{uid}&limit=1",token)
         if not rows: raise HTTPException(404,"Conversation not found.")
     else:
         title = body.content.strip().replace("\n"," ")[:72] or "New conversation"
