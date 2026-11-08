@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080b14">
 
-  <title>Veter Programming Language — Official Website</title>
-  <meta name="description" content="Discover Veter, an independently developed programming language with .vtr source files, an evolving compiler project, tutorials, technical documentation and developer resources.">
+  <title>Veter — Build, Learn, Create | Official Platform</title>
+  <meta name="description" content="Explore Veter: an independent technology ecosystem for programming, developer tools, AI experiments, community and learning. Try the browser demo, explore projects and follow development.">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <meta name="author" content="Chengepally Harshith Reddy">
   <meta name="creator" content="Chengepally Harshith Reddy">
@@ -16,7 +16,7 @@
   <meta property="og:image" content="https://theveter.in/assets/veter-native-logo.png">
   <meta name="twitter:image" content="https://theveter.in/assets/veter-native-logo.png">
   <meta property="og:title" content="Veter Programming Language | Official Website">
-  <meta property="og:description" content="Meet Veter: explore its .vtr source format, compiler project, language reference, tutorials and public source repository.">
+  <meta property="og:description" content="Build, learn and create with Veter. Explore the programming language, developer tools, AI experiments and community projects.">
   <meta property="og:url" content="https://theveter.in/">
   <meta property="og:site_name" content="Veter">
 
@@ -210,33 +210,32 @@
 
   </style>
   <link rel="stylesheet" href="/premium.css?v=1">
+
+  <style>
+    .nav-links{gap:clamp(10px,1.5vw,20px);flex-wrap:wrap}
+    .nav-links a{white-space:nowrap}
+    #start-here .tag{margin-bottom:14px}
+    #faq .card h3{font-size:18px}
+    @media(max-width:760px){
+      header nav{align-items:flex-start}
+      .nav-links{width:100%;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding:4px 0 10px;scrollbar-width:thin}
+      .nav-links a{flex:0 0 auto}
+    }
+  </style>
+
 </head>
 <body>
   <header>
     <nav class="container" aria-label="Main navigation">
       <a class="logo" href="#home" aria-label="Veter home">Veter<span>.</span></a>
       <div class="nav-links">
-        <a href="#language">Veter Language</a>
+        <a href="#products">Products</a>
         <a href="learn.html">Learn</a>
         <a href="social.html">Veter Social</a>
-        <a href="vetercity.html">VeterCity 2D Game</a>
-        <a href="veteros.html">VeterOS</a>
-        <a href="veter-programming-language.html">What is Veter?</a>
-        <a href="docs.html">Documentation</a>
-        <a href="reference.html">Reference</a>
-        <a href="ecosystem.html">Ecosystem</a>
-        <a href="platform.html">Platform</a>
-        <a href="studio.html">Studio</a>
-        <a href="showcase.html">Showcase</a>
+        <a href="veter-ai.html">Veter AI</a>
+        <a href="docs.html">Docs</a>
+        <a href="downloads.html">Downloads</a>
         <a href="community.html">Community</a>
-        <a href="social.html">Social</a>
-        <a href="developers.html">Developers</a>
-        <a href="packages.html">Packages</a>
-        <a href="downloads.html">Downloads Center</a>
-        <a href="#code-maker">Playground</a>
-        <a href="#downloads">Downloads</a>
-        <a href="products.html">Products</a>
-        <a href="#contact">Contact</a>
       </div>
     </nav>
   </header>
@@ -320,6 +319,27 @@
             <h3>VeterCity</h3>
             <p>A future city-life simulation project. Development details and previews will be shared when ready.</p>
             <a class="btn btn-primary" href="vetercity.html">Play VeterCity 2D →</a>
+          </article>
+          <article class="card product-card">
+            <div class="coming-art" role="img" aria-label="Veter Social community">◎</div>
+            <span class="label">COMMUNITY · EARLY ACCESS</span>
+            <h3>Veter Social</h3>
+            <p>Explore community posts, creator profiles, messaging and member-uploaded Shorts. Some preview profiles are demos, clearly labelled in the product.</p>
+            <a class="btn btn-primary" href="social.html">Explore Veter Social →</a>
+          </article>
+          <article class="card product-card">
+            <div class="coming-art" role="img" aria-label="Veter AI assistant">✦</div>
+            <span class="label">AI WORKSPACE · EARLY ACCESS</span>
+            <h3>Veter AI</h3>
+            <p>Try the Veter AI workspace for learning, planning and coding assistance. Sign-in and AI service availability depend on the configured backend.</p>
+            <a class="btn btn-primary" href="veter-ai.html">Open Veter AI →</a>
+          </article>
+          <article class="card product-card">
+            <div class="coming-art" role="img" aria-label="Veter Studio code editor">⌘</div>
+            <span class="label">DEVELOPER TOOL</span>
+            <h3>Veter Studio</h3>
+            <p>Discover the desktop editor, supported .vtr workflows and current release notes.</p>
+            <a class="btn" href="studio.html">Explore Veter Studio →</a>
           </article>
         </div>
 
@@ -466,6 +486,32 @@ say score</textarea>
             <p>Create .vtr source files and explore the language through practical examples.</p>
             <a class="btn" href="#language">Explore the language →</a>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="start-here">
+      <div class="container">
+        <div class="section-head">
+          <span class="tag">YOUR NEXT STEP</span>
+          <h2>Start building with <span class="gradient">Veter.</span></h2>
+          <p>Choose one clear path. You can learn the language, explore the community or inspect the source code without guessing where to begin.</p>
+        </div>
+        <div class="grid">
+          <article class="card"><span class="label">BEGINNER</span><h3>Learn in small steps</h3><p>Start with the learning guide, then try the browser playground and save your first .vtr example.</p><a class="btn btn-primary" href="learn.html">Start learning →</a></article>
+          <article class="card"><span class="label">CREATORS</span><h3>Join the community</h3><p>Explore posts and creator tools. Upload only content you own or have permission to share.</p><a class="btn" href="social.html">Visit Veter Social →</a></article>
+          <article class="card"><span class="label">DEVELOPERS</span><h3>Explore the engineering</h3><p>Read the language specification, inspect the public source and review what is implemented versus planned.</p><a class="btn" href="https://github.com/harshith934764-dev/veter" target="_blank" rel="noopener noreferrer">View GitHub →</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-head"><h2>Quick answers</h2><p>Clear information helps new visitors decide whether Veter is right for them.</p></div>
+        <div class="grid">
+          <article class="card"><h3>Is Veter free?</h3><p>The public website, learning materials and source repository can be explored freely. Check each download and product page for its own availability and terms.</p></article>
+          <article class="card"><h3>Is Veter ready for production?</h3><p>Veter is an evolving independent project. Some tools are prototypes or early-access experiences. Review each page's current limitations before relying on it.</p></article>
+          <article class="card"><h3>How can I contribute?</h3><p>Share feedback, report reproducible issues or explore the public repository. Please include the page, device and steps that caused a problem.</p><a class="btn" href="community.html">Community &amp; feedback →</a></article>
         </div>
       </div>
     </section>
