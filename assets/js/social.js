@@ -816,7 +816,7 @@ async function handleFeedAction(event) {
   } catch (e) { status(friendly(e),true); }
 }
 
-async async function loadConversations() {
+async function loadConversations() {
   if (!me) return;
   try {
     const client = await getDb();
@@ -923,7 +923,7 @@ function subscribeMessages() {
       }
     }).on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages",filter:"conversation_id=eq."+activeConversation.id},() => loadMessages()).subscribe();
 }
-async async function clientMarkDelivered(id) {
+async function clientMarkDelivered(id) {
   try { const client = await getDb(); await client.from("messages").update({delivered_at:new Date().toISOString()}).eq("id",id); } catch {}
 }
 async function sendMessage(event) {
