@@ -464,10 +464,103 @@ async function sendDatingLike(uid){
  catch(e){status(friendly(e),true);}
 }
 
+
+let selectedShortFile = null;
+let shortPreviewUrl = null;
+function clearShortSelection(){
+ selectedShortFile=null;$("short-video-file").value="";$("short-file-info").textContent="MP4, WebM or MOV · up to 100 MB · 90 seconds max";
+ if(shortPreviewUrl){URL.revokeObjectURL(shortPreviewUrl);shortPreviewUrl=null;}
+ $("short-video-preview").hidden=true;$("short-video-preview").innerHTML="";
+}
+async function inspectShortFile(file){
+ const types=["video/mp4","video/webm","video/quicktime"];
+ if(!types.includes(file.type))throw new Error("Choose an MP4, WebM or MOV video.");
+ if(file.size>100*1024*1024)throw new Error("Your video must be 100 MB or smaller.");
+ const url=URL.createObjectURL(file);
+ try{
+  const duration=await new Promise((resolve,reject)=>{
+   const v=document.createElement("video");v.preload="metadata";v.onloadedmetadata=()=>{const d=v.duration;URL.revokeObjectURL(v.src);resolve(d);};v.onerror=()=>{URL.revokeObjectURL(v.src);reject(new Error("This video could not be read. Try exporting it as MP4."));};v.src=url;
+  });
+  if(!Number.isFinite(duration)||duration<=0||duration>90)throw new Error("Veter Shorts currently supports videos up to 90 seconds.");
+  return {url,duration:Math.ceil(duration)};
+ }catch(e){URL.revokeObjectURL(url);throw e;}
+}
+async function chooseShortFile(file){
+ clearShortSelection();if(!file)return;
+ try{
+  const meta=await inspectShortFile(file);selectedShortFile={file,duration:meta.duration};shortPreviewUrl=meta.url;
+  $("short-video-preview").innerHTML='<video controls playsinline muted src="'+esc(meta.url)+'"></video>';
+  $("short-video-preview").hidden=false;
+  $("short-file-info").textContent=file.name+" · "+(file.size/1048576).toFixed(1)+" MB · "+meta.duration+" sec";
+ }catch(e){status(e.message,true);clearShortSelection();}
+}
+async function publishShort(event){
+ event.preventDefault();if(!me){status("Sign in before uploading a Short.",true);return;}
+ if(!selectedShortFile){status("Choose a video first.",true);return;}
+ const button=$("short-publish");button.disabled=true;
+ let uploadedPath=null;
+ try{
+  const client=await getDb();const file=selectedShortFile.file;
+  const ext={"video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov"}[file.type];
+  uploadedPath=me.uid+"/"+crypto.randomUUID()+"."+ext;
+  status("Uploading your video… keep this tab open.");
+  const {error:uploadError}=await client.storage.from("veter-shorts").upload(uploadedPath,file,{cacheControl:"3600",upsert:false,contentType:file.type});
+  if(uploadError)throw uploadError;
+  const {error}=await client.from("veter_shorts").insert({author_uid:me.uid,caption:$("short-caption").value.trim(),video_path:uploadedPath,mime_type:file.type,file_size_bytes:file.size,duration_seconds:selectedShortFile.duration});
+  if(error)throw error;
+  $("short-caption").value="";clearShortSelection();status("Your Short is published! 🎉");await loadShorts();
+ }catch(e){
+  if(uploadedPath){try{const client=await getDb();await client.storage.from("veter-shorts").remove([uploadedPath]);}catch{}}
+  status(friendly(e),true);
+ }finally{button.disabled=false;}
+}
+async function loadShorts(){
+ const host=$("shorts-feed");if(!host||!me)return;
+ host.innerHTML='<p class="empty-state">Loading real community videos…</p>';
+ try{
+  const client=await getDb();
+  const {data:shorts,error}=await client.from("veter_shorts").select("*").eq("is_hidden",false).order("created_at",{ascending:false}).limit(40);
+  if(error)throw error;
+  if(!shorts?.length){host.innerHTML='<div class="shorts-empty"><b>Be the first Veter creator. 🎬</b><p>No Shorts yet. Upload your first video and invite a friend to join.</p></div>';return;}
+  const ids=shorts.map(x=>x.id),uids=[...new Set(shorts.map(x=>x.author_uid))];
+  const [{data:profiles,error:pe},{data:likes,error:le},{data:following,error:fe}]=await Promise.all([
+   client.from("user_profiles").select("uid,display_name,avatar_url,username").in("uid",uids),
+   client.from("veter_short_likes").select("short_id,user_uid").in("short_id",ids),
+   client.from("social_follows").select("following_uid").eq("follower_uid",me.uid).in("following_uid",uids)
+  ]);
+  if(pe)throw pe;if(le)throw le;if(fe)throw fe;
+  const people=new Map((profiles||[]).map(x=>[x.uid,x]));
+  const followed=new Set((following||[]).map(x=>x.following_uid));
+  host.innerHTML=shorts.map(s=>{
+   const p=people.get(s.author_uid)||{display_name:"Veter member"};
+   const rows=(likes||[]).filter(x=>x.short_id===s.id),mine=rows.some(x=>x.user_uid===me.uid);
+   const url=client.storage.from("veter-shorts").getPublicUrl(s.video_path).data.publicUrl;
+   return '<article class="short-card" data-short-id="'+esc(s.id)+'"><video class="short-player" src="'+esc(url)+'" controls playsinline preload="metadata" loop></video><div class="short-overlay"><div class="short-author"><img src="'+avatar(p)+'" alt=""><div><b>'+esc(p.display_name)+'</b><small>@'+esc(p.username||"veter-member")+'</small></div>'+(s.author_uid===me.uid?'<button data-delete-short="'+esc(s.id)+'" data-path="'+esc(s.video_path)+'">Delete</button>':(followed.has(s.author_uid)?'<span class="short-following">Following</span>':'<button data-follow-short="'+esc(s.author_uid)+'">＋ Follow</button>'))+'</div><p>'+esc(s.caption)+'</p><div class="short-actions"><button data-like-short="'+esc(s.id)+'" class="'+(mine?'liked':'')+'">'+(mine?'♥':'♡')+' '+rows.length+'</button><small>'+new Date(s.created_at).toLocaleDateString()+'</small></div></div></article>';
+  }).join("");
+  const players=[...host.querySelectorAll(".short-player")];
+  if("IntersectionObserver" in window){
+   const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{const v=entry.target;if(entry.isIntersecting&&entry.intersectionRatio>.65){players.forEach(other=>{if(other!==v)other.pause();});v.play().catch(()=>{});}else v.pause();}),{threshold:[.2,.65]});
+   players.forEach(v=>observer.observe(v));
+  }
+ }catch(e){host.innerHTML='<p class="empty-state">Could not load Shorts.</p>';status(friendly(e),true);}
+}
+async function toggleShortLike(id){
+ const client=await getDb();const {data:existing,error:readError}=await client.from("veter_short_likes").select("short_id").eq("short_id",id).eq("user_uid",me.uid).maybeSingle();if(readError)throw readError;
+ const result=existing?await client.from("veter_short_likes").delete().eq("short_id",id).eq("user_uid",me.uid):await client.from("veter_short_likes").insert({short_id:id,user_uid:me.uid});
+ if(result.error)throw result.error;await loadShorts();
+}
+async function deleteShort(id,path){
+ if(!confirm("Delete your Short permanently?"))return;
+ const client=await getDb();const {error}=await client.from("veter_shorts").delete().eq("id",id).eq("author_uid",me.uid);if(error)throw error;
+ const {error:storageError}=await client.storage.from("veter-shorts").remove([path]);if(storageError)console.warn("Video row deleted; storage cleanup needs attention",storageError);
+ status("Your Short was deleted.");await loadShorts();
+}
+
 function switchView(name) {
   document.querySelectorAll(".social-tab").forEach(b => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".social-view").forEach(v => v.hidden = v.id !== "view-" + name);
   if (name === "feed") loadFeed();
+  if (name === "shorts") loadShorts();
   if (name === "chats") loadConversations();
   if (name === "dating") loadDating();
   if (name === "discover") loadPeople();
@@ -1305,6 +1398,10 @@ $("chat-messages").addEventListener("click",e=>{
   toggleMessageReaction(b.dataset.messageReact,b.dataset.reaction).catch(err=>status(friendly(err),true));
 });
 $("post-form").addEventListener("submit",publishPost);
+$("short-upload-form").addEventListener("submit",publishShort);
+$("short-video-file").addEventListener("change",e=>chooseShortFile(e.target.files?.[0]));
+$("shorts-refresh").addEventListener("click",loadShorts);
+$("shorts-feed").addEventListener("click",e=>{const like=e.target.closest("[data-like-short]");if(like){toggleShortLike(like.dataset.likeShort).catch(err=>status(friendly(err),true));return;}const follow=e.target.closest("[data-follow-short]");if(follow){toggleFollow(follow.dataset.followShort).then(loadShorts).catch(err=>status(friendly(err),true));return;}const del=e.target.closest("[data-delete-short]");if(del)deleteShort(del.dataset.deleteShort,del.dataset.path).catch(err=>status(friendly(err),true));});
 $("feed-sort")?.addEventListener("change",e=>{feedSortMode=e.target.value;loadFeed();});
 $("feed-refresh")?.addEventListener("click",()=>loadFeed());
 $("feed-search")?.addEventListener("input",applyFeedSearch);
@@ -1394,7 +1491,7 @@ onAuthStateChanged(auth, async user => {
     showSignedIn(user,profile);
     restorePostDraft();
     status("Welcome back, " + profile.display_name + "!");
-    await Promise.all([loadPeople(),loadConversations(),loadFeed(),loadFriendRequests(),loadNotifications(),loadGroups(),startPresence()]);
+    await Promise.all([loadPeople(),loadConversations(),loadFeed(),loadShorts(),loadFriendRequests(),loadNotifications(),loadGroups(),startPresence()]);
     await openSharedProfileIfRequested();
   } catch(e) {
     showSignedOut();
