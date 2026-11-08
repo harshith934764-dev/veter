@@ -234,3 +234,8 @@ body.social-light .profile-progress-card{background:#fff;border-color:#d8e1ef}bo
 .shorts-empty{padding:35px 20px;border:1px dashed #405776;border-radius:16px;text-align:center;color:#dceaff}.shorts-empty p{color:#91a1bd;font-size:12px}
 body.social-light .short-upload-form{background:#fff;border-color:#d8e1ef}body.social-light #short-caption{background:#f7f9fd;color:#17243a;border-color:#d8e1ef}
 @media(max-width:620px){.shorts-feed{grid-template-columns:1fr}.short-card{height:72vh;min-height:420px}.short-upload-footer{align-items:stretch;flex-direction:column}.short-upload-footer button{width:100%}}
+
+/* Keep Shorts in a focused vertical swipe-style lane */
+.shorts-feed{grid-template-columns:minmax(0,430px);justify-content:center;scroll-snap-type:y proximity}
+.short-card{width:100%;max-width:430px;height:min(78vh,760px);min-height:480px}
+@media(max-width:620px){.shorts-feed{grid-template-columns:minmax(0,1fr)}.short-card{max-width:none;height:76vh;min-height:420px}}
