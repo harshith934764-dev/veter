@@ -1,0 +1,13 @@
+{
+  "name": "Veter AI",
+  "short_name": "Veter AI",
+  "description": "Your AI workspace, powered by Veter.",
+  "start_url": "/veter-ai.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080b14",
+  "theme_color": "#080b14",
+  "icons": [
+    {"src": "/assets/images/veter-ai-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}
