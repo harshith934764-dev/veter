@@ -212,3 +212,6 @@ body.social-light .profile-progress-card{background:#fff;border-color:#d8e1ef}bo
 .message-reaction.selected{border-color:#69d7c9;background:#234b53}
 .message-react-add{opacity:.7}
 #chat-presence{min-height:16px}
+
+/* Post draft tools */
+.composer-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.composer-actions{display:flex;align-items:center;gap:10px}.composer-actions .small-action{padding:10px 14px}
