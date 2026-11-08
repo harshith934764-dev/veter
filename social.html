@@ -58,6 +58,7 @@
 <button class="social-tab active" data-view="discover">🌍 Explore</button>
 <button class="social-tab" data-view="following">➕ Following <span id="following-count"></span></button>
 <button class="social-tab" data-view="feed">📰 Community feed</button>
+<button class="social-tab" data-view="shorts">▶ Veter Shorts <span class="ai-pill">NEW</span></button>
 <button class="social-tab" data-view="vibes">✨ Veter Vibes <span id="vibe-count"></span></button>
 <button class="social-tab" data-view="friends">👥 Friends <span id="friend-count"></span></button>
 <button class="social-tab" data-view="notifications">🔔 Notifications <span id="notification-count"></span></button>
@@ -89,6 +90,16 @@
 <div class="veter-discovery-row"><div class="veter-spark-card"><div class="social-kicker">DAILY COMMUNITY PROMPT</div><b id="daily-spark-title">Small wins count 🌱</b><p id="daily-spark-text">What is one small win you had today?</p><button type="button" id="use-daily-spark">Answer this prompt →</button></div><div class="veter-trending-card"><div class="social-kicker">TRENDING IN VETER</div><div id="trending-tags" class="trending-tags"><span>Loading community topics…</span></div><small>Based on posts currently loaded.</small></div></div><form class="post-composer" id="post-form"><textarea id="post-body" maxlength="1000" rows="3" placeholder="What would you like to share?"></textarea><div class="post-photo-picker"><label for="post-photo">📷 Add a photo</label><input id="post-photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><span id="photo-file-name">No photo selected · max 8 MB</span></div><div id="photo-preview-wrap" class="photo-preview-wrap" hidden><img id="photo-preview" alt="Photo preview"><button id="remove-photo" type="button">Remove photo</button></div><div class="composer-footer"><small><span id="post-char-count">0</span>/1000 · <span id="post-draft-status" aria-live="polite">Drafts save on this device</span></small><div class="composer-actions"><button type="button" class="small-action" id="discard-post-draft">Discard draft</button><button type="submit">Publish post ✨</button></div></div></form>
 <div class="feed-search-row"><input id="feed-search" type="search" maxlength="80" placeholder="🔎 Search posts, people or #hashtags…"><button type="button" id="feed-search-clear">Clear</button></div><div class="feed-search-hint" id="feed-search-hint">Search the posts currently loaded in your feed.</div><div class="feed-list" id="feed-list"><p class="empty-state">Loading community posts…</p></div>
 
+</section>
+<section class="social-view shorts-view" id="view-shorts" hidden>
+<div class="social-view-head"><div><div class="social-kicker">VETER ORIGINALS + COMMUNITY</div><h2>Veter Shorts</h2><p>Real videos from real members. Upload your own vertical video and discover creators.</p></div><button class="small-action" id="shorts-refresh" type="button">↻ Refresh</button></div>
+<form id="short-upload-form" class="short-upload-form">
+<label class="short-file-label" for="short-video-file">＋ Choose a video</label><input id="short-video-file" type="file" accept="video/mp4,video/webm,video/quicktime" required>
+<div id="short-video-preview" class="short-video-preview" hidden></div>
+<textarea id="short-caption" maxlength="500" rows="2" placeholder="Add a caption, topic or #hashtag…"></textarea>
+<div class="short-upload-footer"><small id="short-file-info">MP4, WebM or MOV · up to 100 MB · 90 seconds max</small><button type="submit" class="social-primary" id="short-publish">Upload Short</button></div>
+</form>
+<div id="shorts-feed" class="shorts-feed" aria-live="polite"><p class="empty-state">Sign in to see Veter Shorts.</p></div>
 </section>
 <section class="social-view" id="view-vibes" hidden>
  <div class="social-view-head"><div><div class="social-kicker">YOUR MOMENTS · 24 HOURS</div><h2>✨ Veter Vibes</h2><p>Share a moment with your people. Stories expire after 24 hours and move to your private archive.</p></div><button class="small-action" id="vibe-archive-toggle" type="button">📦 My archive</button></div>
