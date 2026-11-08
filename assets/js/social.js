@@ -714,6 +714,38 @@ function applyFeedSearch() {
   });
   $("feed-search-hint").textContent = q ? shown + " matching post(s) in the loaded feed." : "Search the posts currently loaded in your feed.";
 }
+function postDraftKey() { return me?.uid ? "veter-social-post-draft:" + me.uid : null; }
+function savePostDraft() {
+  const key = postDraftKey();
+  if (!key) return;
+  try {
+    const body = $("post-body").value;
+    if (body.trim()) localStorage.setItem(key, body);
+    else localStorage.removeItem(key);
+    $("post-draft-status").textContent = body.trim() ? "Draft saved on this device" : "Drafts save on this device";
+  } catch {
+    $("post-draft-status").textContent = "Draft saving unavailable";
+  }
+}
+function restorePostDraft() {
+  const key = postDraftKey();
+  if (!key) return;
+  try {
+    const draft = localStorage.getItem(key);
+    if (draft && !$("post-body").value.trim()) {
+      $("post-body").value = draft;
+      $("post-char-count").textContent = String(draft.length);
+      $("post-draft-status").textContent = "Your draft was restored";
+    }
+  } catch { $("post-draft-status").textContent = "Draft saving unavailable"; }
+}
+function discardPostDraft() {
+  const key = postDraftKey();
+  try { if (key) localStorage.removeItem(key); } catch {}
+  $("post-body").value = "";
+  $("post-char-count").textContent = "0";
+  $("post-draft-status").textContent = "Draft discarded";
+}
 async function publishPost(event) {
   event.preventDefault();
   const body = $("post-body").value.trim();
@@ -728,6 +760,8 @@ async function publishPost(event) {
     if (error) throw error;
     $("post-body").value = "";
     $("post-char-count").textContent = "0";
+    try { const key = postDraftKey(); if (key) localStorage.removeItem(key); } catch {}
+    $("post-draft-status").textContent = "Post published";
     clearPostPhoto();
     status("Your post is live in the Veter community!");
     await loadFeed();
@@ -1283,7 +1317,8 @@ $("feed-list").addEventListener("submit",handleFeedAction);
 $("saved-list").addEventListener("click",handleFeedAction);
 $("saved-list").addEventListener("change",handleFeedAction);
 $("saved-list").addEventListener("submit",handleFeedAction);
-$("post-body").addEventListener("input",e => $("post-char-count").textContent = String(e.target.value.length));
+$("post-body").addEventListener("input",e => { $("post-char-count").textContent = String(e.target.value.length); savePostDraft(); });
+$("discard-post-draft")?.addEventListener("click",discardPostDraft);
 $("post-photo").addEventListener("change",e => {
   const file = e.target.files?.[0];
   if (!file) { clearPostPhoto(); return; }
@@ -1357,6 +1392,7 @@ onAuthStateChanged(auth, async user => {
     status("Signed in. Preparing your profile…");
     const profile = await saveProfile(user);
     showSignedIn(user,profile);
+    restorePostDraft();
     status("Welcome back, " + profile.display_name + "!");
     await Promise.all([loadPeople(),loadConversations(),loadFeed(),loadFriendRequests(),loadNotifications(),loadGroups(),startPresence()]);
     await openSharedProfileIfRequested();
