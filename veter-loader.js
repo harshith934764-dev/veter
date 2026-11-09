@@ -8,7 +8,8 @@
     .veter-loader-mark{width:104px;height:104px;position:relative;display:grid;place-items:center;perspective:500px;filter:drop-shadow(0 12px 30px #29dce955)}
     .veter-loader-orbit{position:absolute;inset:5px;border:1px solid #54e5e588;border-radius:28px;transform:rotateX(62deg) rotateZ(0deg);animation:veterOrbit 2.2s linear infinite}
     .veter-loader-orbit:before{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:#54e5e5;top:8px;left:12px;box-shadow:0 0 18px #54e5e5}
-    .veter-loader-core{width:72px;height:72px;display:grid;place-items:center;border:1px solid #83edff99;border-radius:22px;background:linear-gradient(145deg,#2e6b9b,#10243c 58%,#0b1527);box-shadow:inset 4px 4px 12px #ffffff22,inset -8px -8px 16px #02081399,0 0 26px #54e5e544;transform:rotateX(12deg) rotateY(-17deg);animation:veterFloat 1.8s ease-in-out infinite}
+    .veter-loader-core{width:78px;height:78px;display:grid;place-items:center;border:1px solid #83edff66;border-radius:22px;background:linear-gradient(145deg,#2e6b9b55,#10243c99 58%,#0b1527cc);box-shadow:inset 4px 4px 12px #ffffff22,inset -8px -8px 16px #02081399,0 0 26px #54e5e544;transform:rotateX(12deg) rotateY(-17deg);animation:veterFloat 1.8s ease-in-out infinite;overflow:hidden}
+    .veter-loader-core img{width:100%;height:100%;object-fit:contain;border-radius:17px}
     .veter-loader-core span{font:900 38px/1 system-ui,sans-serif;letter-spacing:-4px;color:#efffff;text-shadow:0 2px 14px #54e5e5aa}
     .veter-loader-name{font:900 19px/1 system-ui,sans-serif;letter-spacing:.24em;color:#f4f7ff}
     .veter-loader-caption{font:12px/1.4 system-ui,sans-serif;letter-spacing:.12em;color:#9db4d1}
@@ -27,7 +28,7 @@
     overlay.id = 'veter-loading-screen';
     overlay.setAttribute('role','status');
     overlay.setAttribute('aria-label','Loading VETER');
-    overlay.innerHTML = '<div class="veter-loader-inner"><div class="veter-loader-mark" aria-hidden="true"><div class="veter-loader-orbit"></div><div class="veter-loader-core"><span>V</span></div></div><div class="veter-loader-name">VETER</div><div class="veter-loader-caption">BUILDING WHAT\'S NEXT</div><div class="veter-loader-track" aria-hidden="true"></div></div>';
+    overlay.innerHTML = '<div class="veter-loader-inner"><div class="veter-loader-mark" aria-hidden="true"><div class="veter-loader-orbit"></div><div class="veter-loader-core"><img src="/assets/veter-native-logo.png" alt="VETER logo"></div></div><div class="veter-loader-name">VETER</div><div class="veter-loader-caption">BUILDING WHAT\'S NEXT</div><div class="veter-loader-track" aria-hidden="true"></div></div>';
     document.body.appendChild(overlay);
     const started = Date.now();
     let dismissed = false;
