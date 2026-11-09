@@ -36,14 +36,17 @@ def main():
     ids = torch.tensor(tok.encode(corpus).ids, dtype=torch.long)
     if len(ids) < a.seq_len + 2: raise SystemExit("Not enough tokens in corpus.")
     cfg = VETERConfig(vocab_size=tok.get_vocab_size(), max_seq_len=a.seq_len)
-    model = VETERCore(cfg).to(device)
-    opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=0.1)
     start = 0
+    ckpt = None
     if a.resume:
         ckpt = torch.load(a.resume, map_location=device, weights_only=False)
         cfg = VETERConfig(**ckpt["config"])
-        model = VETERCore(cfg).to(device); model.load_state_dict(ckpt["model"])
-        opt.load_state_dict(ckpt["optimizer"]); start = ckpt["step"]
+    model = VETERCore(cfg).to(device)
+    opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=0.1)
+    if ckpt:
+        model.load_state_dict(ckpt["model"])
+        opt.load_state_dict(ckpt["optimizer"])
+        start = ckpt["step"]
     scaler = torch.amp.GradScaler("cuda", enabled=device == "cuda")
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     print(f"Device={device}; tokens={len(ids):,}; parameters={sum(p.numel() for p in model.parameters()):,}")
