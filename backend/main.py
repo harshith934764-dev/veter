@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "veter-social")
 MODEL_URL = os.getenv("VETER_MODEL_URL", "").rstrip("/")
 MODEL_NAME = os.getenv("VETER_MODEL_NAME", "veter-core")
+MODEL_TOKEN = os.getenv("VETER_MODEL_TOKEN", "")
 ALLOWED_ORIGINS = [
     item.strip()
     for item in os.getenv(
@@ -80,8 +81,8 @@ def health():
     return {
         "status": "ok",
         "service": "veter-ai-api",
-        "engine_configured": bool(MODEL_URL),
-        "engine": MODEL_NAME if MODEL_URL else None,
+        "engine_configured": bool(MODEL_URL and MODEL_TOKEN),
+        "engine": MODEL_NAME if MODEL_URL and MODEL_TOKEN else None,
     }
 
 
@@ -101,12 +102,11 @@ def list_messages(thread_id: str, user: dict = Depends(current_user)):
 
 @app.post("/v1/chat")
 async def chat(payload: ChatRequest, user: dict = Depends(current_user)):
-    if not MODEL_URL:
+    if not MODEL_URL or not MODEL_TOKEN:
         raise HTTPException(
             status_code=503,
             detail=(
-                "VETER AI API is online, but its own model engine is not connected yet. "
-                "The next step is to connect the VETER model runtime."
+                "VETER AI API is online, but its model runtime URL or authentication token is not configured yet."
             ),
         )
 
@@ -129,6 +129,7 @@ async def chat(payload: ChatRequest, user: dict = Depends(current_user)):
         async with httpx.AsyncClient(timeout=httpx.Timeout(120.0, connect=10.0)) as client:
             response = await client.post(
                 f"{MODEL_URL}/api/chat",
+                headers={"Authorization": f"Bearer {MODEL_TOKEN}"},
                 json={
                     "model": payload.model or MODEL_NAME,
                     "messages": history[-20:],
