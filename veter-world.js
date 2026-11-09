@@ -36,35 +36,49 @@ for(const x of [-39,39])for(const z of [-39,39]){box(.45,19,.45,dark,x,9.5,z);co
 for(let side of [-1,1]){for(let i=0;i<28;i++){let x=side* (32+Math.random()*10),z=-44+i*3.2;box(1.4,2+Math.random()*2,1.2,i%3?blue:dark,x,1,z)}}
 function human(x,z,jersey,isKeeper=false){
 const g=new THREE.Group();g.position.set(x,0,z);
-const kit=mat(jersey,.72),shorts=mat(isKeeper?0x26364a:0x202936),skinTone=mat(0xb87952,.82),sock=mat(isKeeper?0xffd34f:0xe8e8e8),shoe=mat(0x11151b,.55),hairMat=mat(0x241a15,.9),detail=mat(0x211813);
-function part(geo,m,parent,pos,scale){const o=new THREE.Mesh(geo,m);o.position.set(...pos);if(scale)o.scale.set(...scale);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
-function limb(parent,x,y,z,length,radius,m){const pivot=new THREE.Group();pivot.position.set(x,y,z);parent.add(pivot);part(new THREE.CapsuleGeometry(radius,length-radius*2,5,10),m,pivot,[0,-length/2,0]);return pivot}
-const body=new THREE.Group();body.position.y=1.05;g.add(body);
-// Tapered torso, neck and shoulders: classic late-90s/early-2000s open-world character proportions
-part(new THREE.CylinderGeometry(.29,.43,.92,12),kit,body,[0,.53,0]);
-part(new THREE.SphereGeometry(1,16,12),kit,body,[0,.93,0],[.43,.22,.25]);
-part(new THREE.CylinderGeometry(.115,.14,.19,10),skinTone,body,[0,1.12,0]);
-const head=new THREE.Group();head.position.set(0,1.42,-.015);body.add(head);
-part(new THREE.SphereGeometry(1,20,16),skinTone,head,[0,.12,0],[.255,.34,.235]);
-part(new THREE.SphereGeometry(1,12,10),skinTone,head,[-.25,.12,0],[.055,.095,.075]);
-part(new THREE.SphereGeometry(1,12,10),skinTone,head,[.25,.12,0],[.055,.095,.075]);
-// Nose, brows and eyes face toward the front (-Z)
-part(new THREE.ConeGeometry(.055,.14,8),skinTone,head,[0,.12,-.235],[1,1,1]).rotation.x=-Math.PI/2;
-const eyeMat=mat(0xf5eee0),pupil=mat(0x171717);
-for(const side of [-1,1]){part(new THREE.SphereGeometry(.035,8,8),eyeMat,head,[side*.09,.19,-.211]);part(new THREE.SphereGeometry(.017,8,8),pupil,head,[side*.09,.19,-.241]);part(new THREE.BoxGeometry(.09,.025,.025),hairMat,head,[side*.09,.245,-.21]);}
-part(new THREE.SphereGeometry(1,16,10,0,Math.PI*2,0,Math.PI*.48),hairMat,head,[0,.27,0],[1.02,.72,1.02]);
-// shorts and two articulated legs
-part(new THREE.CylinderGeometry(.34,.3,.34,12),shorts,body,[0,-.02,0]);
-const legs=[],arms=[];
-for(const side of [-1,1]){
- const hip=limb(body,side*.19,-.16,0,.57,.115,skinTone);legs.push(hip);
- part(new THREE.CylinderGeometry(.125,.13,.23,10),sock,hip,[0,-.48,0]);
- part(new THREE.BoxGeometry(.2,.12,.34),shoe,hip,[0,-.61,-.09]);
- const shoulder=limb(body,side*.48,.91,0,.62,.105,skinTone);shoulder.rotation.z=-side*.12;arms.push(shoulder);
- part(new THREE.CylinderGeometry(.135,.14,.22,10),kit,shoulder,[0,-.06,0]);
+const kit=mat(jersey,.94),pants=mat(isKeeper?0x26364a:0x30343b,.96),skinTone=mat(0x986447,.92),sock=mat(isKeeper?0xffd34f:0xb9b9b2),shoe=mat(0x17191d,.72),hairMat=mat(0x17120f,.98),eyeWhite=mat(0xe6dfd1),iris=mat(0x30251e),mouthMat=mat(0x59352d),seam=mat(0x111923);
+function part(geo,m,parent,pos,scale,rot){const o=new THREE.Mesh(geo,m);o.position.set(...pos);if(scale)o.scale.set(...scale);if(rot)o.rotation.set(...rot);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function segment(parent,x,y,z,len,r1,r2,m){const pivot=new THREE.Group();pivot.position.set(x,y,z);parent.add(pivot);part(new THREE.CylinderGeometry(r2,r1,len,12,1),m,pivot,[0,-len/2,0]);return pivot}
+const body=new THREE.Group();body.position.y=1.02;g.add(body);
+// Athletic human silhouette: hips, tapered waist, broad chest and shoulders
+part(new THREE.CylinderGeometry(.31,.39,.34,16),pants,body,[0,-.02,0]);
+part(new THREE.CylinderGeometry(.34,.47,.72,16,1),kit,body,[0,.52,0]);
+part(new THREE.SphereGeometry(1,18,12),kit,body,[0,.88,0],[.46,.19,.27]);
+part(new THREE.CylinderGeometry(.105,.12,.18,12),skinTone,body,[0,1.02,0]);
+// Head with jaw, cheek volume and visible front-facing features
+const head=new THREE.Group();head.position.set(0,1.28,-.015);body.add(head);
+part(new THREE.SphereGeometry(1,24,18),skinTone,head,[0,.12,0],[.245,.325,.225]);
+part(new THREE.SphereGeometry(1,16,12),skinTone,head,[0,-.055,-.015],[.205,.17,.207]);
+for(const s of [-1,1]){
+ part(new THREE.SphereGeometry(1,12,10),skinTone,head,[s*.242,.105,0],[.052,.085,.07]);
+ part(new THREE.SphereGeometry(1,12,10),eyeWhite,head,[s*.087,.17,-.205],[.041,.027,.018]);
+ part(new THREE.SphereGeometry(1,10,8),iris,head,[s*.087,.17,-.222],[.018,.02,.009]);
+ part(new THREE.BoxGeometry(.09,.022,.025),hairMat,head,[s*.087,.222,-.205],[1,1,1]);
 }
-part(new THREE.CylinderGeometry(.12,.12,.055,12),kit,body,[0,1.02,-.005]);
-if(isKeeper){const gloves=mat(0xffcc36);for(const side of [-1,1])part(new THREE.SphereGeometry(.12,12,10),gloves,arms[side===-1?0:1],[0,-.62,0]);}
+part(new THREE.SphereGeometry(1,12,10),skinTone,head,[0,.095,-.226],[.043,.075,.045]);
+part(new THREE.BoxGeometry(.075,.012,.012),mouthMat,head,[0,-.025,-.213]);
+part(new THREE.SphereGeometry(1,18,12,0,Math.PI*2,0,Math.PI*.48),hairMat,head,[0,.285,.005],[1.03,.78,1.02]);
+// Hairline and side hair give the head a more finished silhouette
+part(new THREE.BoxGeometry(.09,.22,.19),hairMat,head,[-.205,.19,.015]);
+part(new THREE.BoxGeometry(.09,.22,.19),hairMat,head,[.205,.19,.015]);
+// Shirt collar and sleeve caps
+part(new THREE.TorusGeometry(.115,.025,8,16),seam,body,[0,.99,-.005],[1,1,1],[Math.PI/2,0,0]);
+const legs=[],arms=[];
+for(const s of [-1,1]){
+ const leg=segment(body,s*.19,-.17,0,.56,.135,.105,pants);legs.push(leg);
+ part(new THREE.CylinderGeometry(.105,.09,.42,12),pants,leg,[0,-.48,0]);
+ part(new THREE.CylinderGeometry(.092,.09,.13,12),sock,leg,[0,-.75,0]);
+ part(new THREE.BoxGeometry(.19,.12,.34),shoe,leg,[0,-.84,-.09]);
+ part(new THREE.BoxGeometry(.19,.025,.31),seam,leg,[0,-.902,-.09]);
+ const arm=segment(body,s*.47,.83,0,.42,.125,.095,kit);arm.rotation.z=-s*.16;arms.push(arm);
+ part(new THREE.CylinderGeometry(.092,.075,.31,12),skinTone,arm,[0,-.37,0]);
+ part(new THREE.SphereGeometry(.085,12,10),skinTone,arm,[0,-.56,-.005]);
+ // Fingers are small separate shapes, visible at close camera distance
+ for(let f=0;f<4;f++)part(new THREE.CapsuleGeometry(.014,.075,3,6),skinTone,arm,[s*.025+(f-1.5)*.026,-.625,-.012]);
+ if(isKeeper)part(new THREE.SphereGeometry(.115,12,10),mat(0xffcc36),arm,[0,-.57,0]);
+}
+// Shirt hem and side seams make the outfit read as clothing rather than a single capsule
+part(new THREE.TorusGeometry(.335,.018,6,20),seam,body,[0,.17,0],[1,1,1],[Math.PI/2,0,0]);
 g.userData.kit=kit;g.userData.legs=legs;g.userData.arms=arms;g.userData.body=body;g.userData.walkPhase=Math.random()*Math.PI*2;scene.add(g);return g}
 const player=human(0,27,0x111827),opponents=[human(-5,-8,0xb62f36),human(5,-15,0xb62f36),human(0,-23,0xb62f36)],keeper=human(0,-39,0xf0c52d,true);
 const ball=new THREE.Mesh(new THREE.SphereGeometry(.38,28,20),ballmat);ball.position.set(0,.4,23);ball.castShadow=true;scene.add(ball);
