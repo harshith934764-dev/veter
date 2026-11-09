@@ -101,6 +101,10 @@
     header{position:sticky;top:0;z-index:10;background:rgba(8,11,20,.94);backdrop-filter:blur(15px);border-bottom:1px solid var(--border)}
     nav{min-height:72px;display:flex;justify-content:space-between;align-items:center;gap:20px}
     .logo{font-size:25px;font-weight:850;letter-spacing:-1px}
+    .logo-brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;white-space:nowrap}
+    .logo-brand img{width:38px;height:38px;object-fit:contain;border-radius:50%;box-shadow:0 0 22px rgba(101,231,224,.2)}
+    .logo-brand .logo-word{color:var(--text)}
+    .logo-brand .logo-dot{color:var(--cyan);margin-left:-9px}
     .logo span{color:var(--cyan)}
     .nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:18px;font-size:14px;color:var(--muted)}
     .nav-links a:hover,footer a:hover{color:var(--cyan)}
@@ -231,7 +235,7 @@
 <body>
   <header>
     <nav class="container" aria-label="Main navigation">
-      <a class="logo" href="#home" aria-label="Veter home">Veter<span>.</span></a>
+      <a class="logo logo-brand" href="#home" aria-label="Veter home"><img src="/assets/veter-native-logo.png" alt="" width="38" height="38" decoding="async"><span class="logo-word">Veter</span><span class="logo-dot">.</span></a>
       <div class="nav-links">
         <a href="#products">Products</a>
         <a href="learn.html">Learn</a>
