@@ -42,6 +42,7 @@
 
  // 40 original VETER browser mini-games. No external game assets or paid services.
  const gameSpecs=[
+ ["Penalty Pro","football","Score goals past the goalkeeper in a five-shot shootout.","⚽",5],["Cricket Power Play","cricket","Time your shots and score runs in a short over.","🏏",6],["VETER Temple Dash","runner","Switch lanes, dodge barriers and survive the endless run.","🏃",30],
  ["Tap Sprint","tap","Tap 20 times as quickly as possible.","👆",20],["Turbo Tap 30","tap","Tap 30 times before the timer ends.","⚡",30],["One-Minute Tapper","tap","Reach 45 taps before time runs out.","🔥",45],["Rapid Click 60","tap","Complete 60 quick taps.","🚀",60],
  ["Quick Maths","math","Solve 8 quick arithmetic questions.","➕",8],["Number Ninja","math","Solve 12 mixed maths questions.","🥷",12],["Times Table Dash","math","Answer 10 multiplication questions.","✖️",10],["Brain Calculator","math","Solve 15 harder number challenges.","🧮",15],
  ["Secret Number","guess","Find the hidden number from 1 to 20.","🔐",20],["High-Low 50","guess","Find the hidden number from 1 to 50.","🎲",50],["Mystery 100","guess","Find the hidden number from 1 to 100.","🕵️",100],["Lucky Number 500","guess","Find the hidden number from 1 to 500.","🍀",500],
@@ -62,7 +63,7 @@
  miniGrid.addEventListener("click",function(e){const btn=e.target.closest("button[data-game-index]");if(!btn)return;e.preventDefault();e.stopPropagation();const game=gameSpecs[Number(btn.dataset.gameIndex)];if(game)launchMiniGame(game);});
  modal.addEventListener("keydown",function(e){if(e.key==="Escape")closeMiniGame();});
  function launchMiniGame(g){activeGame=g;gameState={score:0,round:0,total:Math.max(5,Math.min(15,g[4]||8)),timer:null,sequence:[],seqIndex:0,wordIndex:0};document.getElementById("mini-game-title").textContent=g[3]+" "+g[0];document.getElementById("mini-game-instructions").textContent=g[2];feedback.textContent="";modal.classList.add("open");document.body.style.overflow="hidden";startMode(g[1]);}
- function closeMiniGame(){if(gameState.timer)clearInterval(gameState.timer);if(gameState.timeout)clearTimeout(gameState.timeout);modal.classList.remove("open");document.body.style.overflow="";}
+ function closeMiniGame(){if(gameState.timer)clearInterval(gameState.timer);if(gameState.timeout)clearTimeout(gameState.timeout);if(gameState.cleanup)gameState.cleanup();modal.classList.remove("open");document.body.style.overflow="";}
  document.getElementById("mini-game-close").addEventListener("click",closeMiniGame);modal.addEventListener("click",e=>{if(e.target===modal)closeMiniGame();});
  function setProgress(t){progress.textContent=t;}
  function setQuestion(t){stage.innerHTML="";const q=document.createElement("div");q.className="game-question";q.textContent=t;stage.appendChild(q);}
@@ -78,6 +79,26 @@
   if(mode==="target"){let hits=0,left=activeGame[4];setQuestion("Hit the star target");const count=document.createElement("div");count.className="game-big";count.textContent="0 / "+left;stage.appendChild(count);const grid=document.createElement("div");grid.className="game-target-grid";let target=0;function draw(){grid.innerHTML="";target=Math.floor(Math.random()*9);for(let i=0;i<9;i++)grid.appendChild(button(i===target?"⭐":"·",()=>{if(i===target){hits++;count.textContent=hits+" / "+left;if(hits>=left){finishGame("Excellent aim! You hit every target.");return;}draw();}else feedback.textContent="Miss! Find the star."; }));}stage.appendChild(grid);draw();return;}
   if(mode==="odd"){let round=0,total=activeGame[4];function next(){if(round>=total){finishGame("Sharp eyes! Score: "+gameState.score+"/"+total);return;}round++;const base=["🍎","🍎","🍎","🍎","🍊","🍎","🍎","🍎"];const odd=Math.floor(Math.random()*base.length);const box=document.createElement("div");box.className="game-target-grid";setQuestion("Find the different one");base.forEach((v,i)=>box.appendChild(button(i===odd?"🍊":"🍎",()=>{if(i===odd)gameState.score++;next();})));stage.appendChild(box);setProgress("Round "+round+" of "+total+" · Score "+gameState.score);}next();return;}
   if(mode==="scramble"){const list=["planet","garden","silver","rocket","window","bright","puzzle","friend","market","orange"];const word=list[Math.floor(Math.random()*list.length)];const scrambled=word.split("").sort(()=>Math.random()-.5).join("");setQuestion("Unscramble the letters");const letters=document.createElement("div");letters.className="game-big";letters.textContent=scrambled.toUpperCase();const input=document.createElement("input");input.placeholder="Your answer";const check=button("Check",()=>{if(input.value.trim().toLowerCase()===word)finishGame("Correct! The word was "+word+".");else feedback.textContent="Try again — rearrange the letters.";});stage.append(letters,input,check);input.addEventListener("keydown",e=>{if(e.key==="Enter")check.click();});input.focus();return;}
+
+  if(mode==="football"){
+   let shots=0,goals=0;setQuestion("Penalty shootout — choose your shot direction");const score=document.createElement("div");score.className="game-big";score.textContent="Goals: 0 / 5";stage.appendChild(score);
+   const keeper=document.createElement("div");keeper.className="game-question";keeper.textContent="🥅  Goalkeeper is ready!";stage.appendChild(keeper);
+   const choices=document.createElement("div");choices.className="game-options";["Shoot left ↖","Shoot centre ↑","Shoot right ↗"].forEach((label,i)=>choices.appendChild(button(label,()=>{if(shots>=5)return;shots++;const save=Math.floor(Math.random()*3);const goal=i!==save; if(goal)goals++;score.textContent="Goals: "+goals+" / 5";keeper.textContent=goal?"⚽ GOAL!":"🧤 Saved!";setProgress("Shot "+shots+" of 5");if(shots===5){finishGame("Full time! You scored "+goals+" out of 5.");} })));stage.appendChild(choices);setProgress("5 penalty shots");return;
+  }
+  if(mode==="cricket"){
+   let balls=0,runs=0;setQuestion("Cricket Power Play — tap Swing when the ball arrives");const score=document.createElement("div");score.className="game-big";score.textContent="Runs: 0 · Balls: 0/6";stage.appendChild(score);
+   const ball=document.createElement("div");ball.className="game-question";ball.textContent="🏏 Ready at the crease?";stage.appendChild(ball);
+   const swing=button("🏏 SWING",()=>{if(balls>=6)return;balls++;const outcome=[0,1,2,4,6][Math.floor(Math.random()*5)];runs+=outcome;ball.textContent=outcome===0?"Dot ball!":outcome===6?"SIX! 🚀":outcome===4?"FOUR!":"+"+outcome+" runs";score.textContent="Runs: "+runs+" · Balls: "+balls+"/6";setProgress("Over progress: "+balls+"/6");if(balls===6)finishGame("Innings complete! You scored "+runs+" runs.");},"game-primary");swing.style.width="100%";swing.style.minHeight="90px";stage.appendChild(swing);setProgress("6 balls · build your score");return;
+  }
+  if(mode==="runner"){
+   let lane=1,steps=0,score=0,obstacle=2,ended=false;setQuestion("VETER Temple Dash — dodge the barriers");const info=document.createElement("div");info.className="game-big";info.textContent="Score: 0";stage.appendChild(info);
+   const board=document.createElement("div");board.className="game-target-grid";board.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";stage.appendChild(board);
+   const draw=()=>{board.innerHTML="";for(let i=0;i<3;i++){const b=button(i===lane?"🏃":(i===obstacle?"🚧":"·"),()=>{if(ended)return;lane=i;});b.style.minHeight="76px";board.appendChild(b);}};
+   const controls=document.createElement("div");controls.className="game-options";controls.append(button("← Left",()=>{lane=Math.max(0,lane-1);draw();}),button("Right →",()=>{lane=Math.min(2,lane+1);draw();}));stage.appendChild(controls);draw();
+   const tick=()=>{if(ended)return;steps++;obstacle=Math.floor(Math.random()*3);if(lane===obstacle){ended=true;clearInterval(gameState.timer);finishGame("You hit a barrier! Distance score: "+score+".");return;}score+=10;info.textContent="Score: "+score;setProgress("Distance: "+steps+" · Dodge the next barrier");draw();if(steps>=30){ended=true;clearInterval(gameState.timer);finishGame("Amazing run! You completed the 30-step dash.");}};
+   gameState.timer=setInterval(tick,850);
+   const keyHandler=e=>{if(e.key==="ArrowLeft"){lane=Math.max(0,lane-1);draw();}if(e.key==="ArrowRight"){lane=Math.min(2,lane+1);draw();}};document.addEventListener("keydown",keyHandler);gameState.cleanup=()=>document.removeEventListener("keydown",keyHandler);return;
+  }
  }
  renderMiniGames();
  const reactionPad=document.getElementById("reaction-pad"),reactionStatus=document.getElementById("reaction-status"),reactionScore=document.getElementById("reaction-score");
