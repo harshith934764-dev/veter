@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-const firebaseConfig={apiKey:"AIzaSyB6ky_ETioOqiON9qT4uousDRpOzOMRRn0",authDomain:"veter-social.firebaseapp.com",projectId:"veter-social",storageBucket:"veter-social.firebasestorage.app",messagingSenderId:"504664421504",appId:"1:504664421504:web:a1f681566757c31b69a265"};
+const firebaseConfig={apiKey:"AIzaSyB6ky_ETioOqiONq9T4uousDRpOzOMRRn0",authDomain:"veter-social.firebaseapp.com",projectId:"veter-social",storageBucket:"veter-social.firebasestorage.app",messagingSenderId:"504664421504",appId:"1:504664421504:web:a1f681566757c31b69a265"};
 const SUPABASE_URL="https://qqvfphefusvbveucqbrj.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxdmZwaGVmdXN2YnZldWNxYnJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwNzA0MTYsImV4cCI6MjEwOTY0NjQxNn0.1C8kEAnmc7vLpF1bGiSsVVkm8egVsaPqsW7mGfApPJA";
 const API=(document.querySelector('meta[name="veter-ai-api"]')?.content||"https://veter-ai-api.onrender.com").replace(/\/$/,"");
