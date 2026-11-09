@@ -54,3 +54,105 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
  section{scroll-margin-top:88px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+/* Veter colorful refresh — v2 */
+:root{
+  --v-bg:#080b18;
+  --v-panel:#11172b;
+  --v-panel-2:#171f3b;
+  --v-text:#fbfaff;
+  --v-muted:#bac4df;
+  --v-line:rgba(170,180,255,.2);
+  --v-blue:#7c9cff;
+  --v-cyan:#55f0df;
+  --v-violet:#c18aff;
+  --v-radius:22px;
+}
+body{
+  background:
+    radial-gradient(ellipse at 8% 8%,rgba(0,213,255,.17),transparent 29%),
+    radial-gradient(ellipse at 92% 10%,rgba(177,83,255,.19),transparent 30%),
+    radial-gradient(ellipse at 52% 52%,rgba(255,93,160,.075),transparent 38%),
+    linear-gradient(145deg,#080b18 0%,#0c1023 48%,#100b20 100%)!important;
+}
+header{
+  background:linear-gradient(100deg,rgba(8,13,29,.94),rgba(22,12,42,.9),rgba(8,22,36,.94))!important;
+  border-bottom:1px solid rgba(143,161,255,.25)!important;
+}
+.logo span{
+  background:linear-gradient(110deg,#52e8ff,#a88cff,#ff83c6);
+  -webkit-background-clip:text;background-clip:text;color:transparent!important;
+}
+.hero{
+  background:
+    radial-gradient(ellipse at 15% 15%,rgba(0,214,255,.2),transparent 38%),
+    radial-gradient(ellipse at 85% 5%,rgba(186,92,255,.2),transparent 40%),
+    radial-gradient(ellipse at 50% 100%,rgba(255,93,166,.09),transparent 45%)!important;
+}
+.hero:before{
+  border-color:rgba(139,164,255,.15);
+  box-shadow:0 0 100px rgba(95,111,255,.08);
+}
+.gradient{
+  background:linear-gradient(100deg,#69e7ff 0%,#8f9dff 34%,#d49aff 67%,#ff9bc8 100%)!important;
+  -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
+}
+.tag,.eyebrow,.label{
+  border-color:rgba(117,222,255,.34)!important;
+  background:linear-gradient(100deg,rgba(36,203,255,.12),rgba(177,104,255,.12))!important;
+  color:#91efff!important;
+}
+.btn-primary{
+  background:linear-gradient(105deg,#66dfff 0%,#8e9cff 48%,#d69aff 100%)!important;
+  color:#10132b!important;
+  box-shadow:0 10px 32px rgba(119,139,255,.25)!important;
+}
+.btn:hover,button:hover,.button:hover{
+  border-color:rgba(137,220,255,.72)!important;
+  box-shadow:0 14px 38px rgba(117,103,255,.2),0 0 0 1px rgba(117,210,255,.08);
+}
+.card,.panel,.content,.item,.product-detail,.notice{
+  background:
+    linear-gradient(145deg,rgba(23,30,57,.96),rgba(13,18,38,.97))!important;
+  border-color:rgba(155,166,255,.2)!important;
+}
+.card{position:relative;overflow:hidden}
+.card:before{
+  content:"";position:absolute;left:18px;right:18px;top:0;height:2px;
+  background:linear-gradient(90deg,#50dfff,#8d91ff,#c88cff,#ff8fc5);
+  opacity:.52;
+}
+.card:hover{
+  border-color:rgba(136,178,255,.55)!important;
+  box-shadow:0 24px 65px rgba(58,63,145,.22),0 0 28px rgba(81,207,255,.07)!important;
+}
+.coming-art{
+  background:
+    radial-gradient(circle at 25% 25%,rgba(56,219,255,.38),transparent 35%),
+    radial-gradient(circle at 78% 72%,rgba(207,110,255,.35),transparent 42%),
+    linear-gradient(135deg,#18234a,#24183f)!important;
+}
+.status-grid{
+  background:linear-gradient(120deg,rgba(18,37,65,.9),rgba(35,20,59,.85))!important;
+  border-color:rgba(150,166,255,.25)!important;
+}
+.status-grid>div:nth-child(1){box-shadow:inset 0 3px #53dfff}
+.status-grid>div:nth-child(2){box-shadow:inset 0 3px #8e9cff}
+.status-grid>div:nth-child(3){box-shadow:inset 0 3px #c58cff}
+.status-grid>div:nth-child(4){box-shadow:inset 0 3px #ff8fc5}
+.window-top,.window-foot{
+  background:linear-gradient(100deg,#121e3a,#21183e,#10263b)!important;
+}
+.window-output{
+  border-color:rgba(86,231,220,.3)!important;
+  background:linear-gradient(120deg,rgba(49,205,220,.1),rgba(171,111,255,.1))!important;
+}
+footer{
+  background:linear-gradient(100deg,rgba(7,14,29,.9),rgba(25,12,42,.75),rgba(7,18,30,.9))!important;
+  border-top-color:rgba(155,166,255,.22)!important;
+}
+::selection{background:rgba(177,126,255,.38);color:#fff}
+@media(prefers-reduced-motion:no-preference){
+  .hero-window{box-shadow:0 35px 90px rgba(0,0,0,.38),0 0 70px rgba(81,132,219,.18),0 0 110px rgba(191,105,255,.08)}
+}
