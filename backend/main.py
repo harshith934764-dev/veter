@@ -16,6 +16,9 @@ PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "veter-social")
 MODEL_URL = os.getenv("VETER_MODEL_URL", "").rstrip("/")
 MODEL_NAME = os.getenv("VETER_MODEL_NAME", "veter-core")
 MODEL_TOKEN = os.getenv("VETER_MODEL_TOKEN", "")
+CHAT_API_BASE = os.getenv("VETER_CHAT_API_BASE", "").rstrip("/")
+CHAT_API_KEY = os.getenv("VETER_CHAT_API_KEY", "")
+CHAT_MODEL = os.getenv("VETER_CHAT_MODEL", "llama-3.3-70b-versatile")
 ALLOWED_ORIGINS = [
     item.strip()
     for item in os.getenv(
@@ -81,8 +84,9 @@ def health():
     return {
         "status": "ok",
         "service": "veter-ai-api",
-        "engine_configured": bool(MODEL_URL and MODEL_TOKEN),
-        "engine": MODEL_NAME if MODEL_URL and MODEL_TOKEN else None,
+        "engine_configured": bool((MODEL_URL and MODEL_TOKEN) or (CHAT_API_BASE and CHAT_API_KEY)),
+        "engine": (CHAT_MODEL if CHAT_API_BASE and CHAT_API_KEY else MODEL_NAME if MODEL_URL and MODEL_TOKEN else None),
+        "mode": "direct-api" if CHAT_API_BASE and CHAT_API_KEY else "self-hosted" if MODEL_URL and MODEL_TOKEN else "not-configured",
     }
 
 
@@ -102,12 +106,12 @@ def list_messages(thread_id: str, user: dict = Depends(current_user)):
 
 @app.post("/v1/chat")
 async def chat(payload: ChatRequest, user: dict = Depends(current_user)):
-    if not MODEL_URL or not MODEL_TOKEN:
+    direct_api = bool(CHAT_API_BASE and CHAT_API_KEY)
+    legacy_model = bool(MODEL_URL and MODEL_TOKEN)
+    if not direct_api and not legacy_model:
         raise HTTPException(
             status_code=503,
-            detail=(
-                "VETER AI API is online, but its model runtime URL or authentication token is not configured yet."
-            ),
+            detail="VETER AI is online, but its AI provider is not connected. Add VETER_CHAT_API_BASE, VETER_CHAT_API_KEY and VETER_CHAT_MODEL in Render Environment.",
         )
 
     thread_id = payload.thread_id or str(uuid.uuid4())
@@ -127,18 +131,29 @@ async def chat(payload: ChatRequest, user: dict = Depends(current_user)):
     history.append({"role": "user", "content": payload.content})
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(120.0, connect=10.0)) as client:
-            response = await client.post(
-                f"{MODEL_URL}/api/chat",
-                headers={"Authorization": f"Bearer {MODEL_TOKEN}"},
-                json={
-                    "model": payload.model or MODEL_NAME,
-                    "messages": history[-20:],
-                    "stream": False,
-                },
-            )
-            response.raise_for_status()
-            result = response.json()
-        answer = result.get("message", {}).get("content", "").strip()
+            if direct_api:
+                response = await client.post(
+                    f"{CHAT_API_BASE}/chat/completions",
+                    headers={"Authorization": f"Bearer {CHAT_API_KEY}"},
+                    json={
+                        "model": payload.model or CHAT_MODEL,
+                        "messages": [{"role": "system", "content": "You are VETER AI, a helpful assistant created for the VETER technology ecosystem. Be accurate, explain clearly, and help with programming, learning and building projects. Never claim to have executed code unless a tool actually did so."}] + history[-20:],
+                        "stream": False,
+                        "temperature": 0.5,
+                    },
+                )
+                response.raise_for_status()
+                result = response.json()
+                answer = (result.get("choices") or [{}])[0].get("message", {}).get("content", "").strip()
+            else:
+                response = await client.post(
+                    f"{MODEL_URL}/api/chat",
+                    headers={"Authorization": f"Bearer {MODEL_TOKEN}"},
+                    json={"model": payload.model or (CHAT_MODEL if direct_api else MODEL_NAME), "messages": history[-20:], "stream": False},
+                )
+                response.raise_for_status()
+                result = response.json()
+                answer = result.get("message", {}).get("content", "").strip()
         if not answer:
             raise ValueError("The VETER model returned an empty response.")
     except Exception as exc:
