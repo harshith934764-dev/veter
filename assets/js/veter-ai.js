@@ -24,3 +24,5 @@ $("messages").addEventListener("click",e=>{const b=e.target.closest("[data-promp
 onAuthStateChanged(auth,async u=>{user=u;if(!u){showAuth();return}try{await showWorkspace()}catch(e){status(e.message,true)}});
 getRedirectResult(auth).catch(e=>$("auth-status").textContent=e.message);
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;$("install-app").hidden=false});$("install-app").addEventListener("click",async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$("install-app").hidden=true}});
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
