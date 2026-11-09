@@ -40,7 +40,14 @@ header{background:rgba(255,255,255,.94)!important;border-color:#dce7f1!important
 .game-filter.active{background:#dff2ff!important;color:#155a91!important}
 #snake-canvas{background:#eaf3fa}
 </style>
-</head>
+<style id="arcade-tools-style">
+.arcade-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0;padding:14px;background:#fff;border:1px solid #dce7f1;border-radius:16px;box-shadow:0 6px 20px rgba(36,75,110,.06)}
+.arcade-stat{display:flex;flex-direction:column;min-width:100px;padding:3px 10px}.arcade-stat strong{font-size:22px;color:#087f8c;line-height:1.2}.arcade-stat span{font-size:12px;color:#60758a}
+.arcade-tool-btn,.favorite-game{border:1px solid #cbddea;border-radius:11px;background:#eff7fc;color:#1d4c70;padding:10px 14px;font-weight:750;cursor:pointer}
+.favorite-game{float:right;padding:6px 10px;margin-top:8px}.favorite-game[aria-pressed="true"]{background:#fff0f2;color:#bd3654;border-color:#f2c5cf}
+.arcade-tool-btn[aria-pressed="true"]{background:#dff4f2;color:#075d66;border-color:#b9e5e0}
+@media(max-width:600px){.arcade-stat{min-width:80px}.arcade-tool-btn{flex:1}}
+</style></head>
 <body>
 <header><nav class="wrap"><a class="brand" href="/">Veter<span>.</span></a><div class="navlinks"><a href="/">Home</a><a href="games.html">Free Games</a><a href="products.html" aria-current="page">Products</a><a href="social.html">Social</a><a href="studio.html">Studio</a><a href="veteros.html">VeterOS</a></div></nav></header>
 <main class="wrap">
@@ -65,6 +72,13 @@ header{background:rgba(255,255,255,.94)!important;border-color:#dce7f1!important
 <section class="game-library" aria-labelledby="game-library-title">
 <div class="game-library-head"><div><h3 id="game-library-title">🎮 VETER Arcade — Search & Play</h3><p>Find a game by name or type. Choose a category, tap Play, and play in your browser.</p></div><input class="game-search" id="mini-game-search" type="search" placeholder="Search games, e.g. maths, memory, typing…" aria-label="Search games"></div>
 <div class="game-filters" id="game-filters" aria-label="Filter games"><button type="button" class="game-filter active" data-filter="all">All games</button><button type="button" class="game-filter" data-filter="tap">Arcade</button><button type="button" class="game-filter" data-filter="math">Maths</button><button type="button" class="game-filter" data-filter="guess">Number</button><button type="button" class="game-filter" data-filter="memory">Memory</button><button type="button" class="game-filter" data-filter="pattern">Patterns</button><button type="button" class="game-filter" data-filter="typing">Typing</button><button type="button" class="game-filter" data-filter="reaction">Reaction</button><button type="button" class="game-filter" data-filter="target">Target</button><button type="button" class="game-filter" data-filter="odd">Spot it</button><button type="button" class="game-filter" data-filter="scramble">Word games</button></div>
+<div class="arcade-tools" id="arcade-tools">
+ <div class="arcade-stat"><strong id="arcade-played">0</strong><span>Games played</span></div>
+ <div class="arcade-stat"><strong id="arcade-completed">0</strong><span>Challenges won</span></div>
+ <div class="arcade-stat"><strong id="arcade-fav-count">0</strong><span>Favourites</span></div>
+ <button type="button" id="arcade-favs-toggle" class="arcade-tool-btn" aria-pressed="false">♡ My favourites</button>
+ <button type="button" id="arcade-daily" class="arcade-tool-btn">⭐ Daily challenge</button>
+</div>
 <div class="game-results" id="game-results" aria-live="polite"></div><div class="game-library-grid" id="mini-game-grid"></div>
 </section>
 <div class="game-modal" id="mini-game-modal" role="dialog" aria-modal="true" aria-labelledby="mini-game-title">
