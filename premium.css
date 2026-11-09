@@ -156,3 +156,131 @@ footer{
 @media(prefers-reduced-motion:no-preference){
   .hero-window{box-shadow:0 35px 90px rgba(0,0,0,.38),0 0 70px rgba(81,132,219,.18),0 0 110px rgba(191,105,255,.08)}
 }
+
+
+/* Veter visual refinement — v3: restrained, editorial, product-led */
+:root{
+  --v-bg:#0b1018;
+  --v-panel:#121a25;
+  --v-panel-2:#182333;
+  --v-text:#f1f3f5;
+  --v-muted:#aab4c1;
+  --v-line:rgba(190,205,222,.14);
+  --v-blue:#8fb7ff;
+  --v-cyan:#7edbd0;
+  --v-violet:#b6a0e8;
+  --v-radius:14px;
+}
+html{scroll-behavior:smooth}
+body{
+  background:#0b1018!important;
+  color:#f1f3f5!important;
+  letter-spacing:0;
+  line-height:1.68;
+}
+header{
+  background:rgba(11,16,24,.96)!important;
+  backdrop-filter:blur(10px)!important;
+  border-bottom:1px solid rgba(190,205,222,.13)!important;
+  box-shadow:none!important;
+}
+header nav{min-height:70px}
+.logo-brand img{box-shadow:none!important;border:1px solid rgba(255,255,255,.12)}
+.logo-brand .logo-word{color:#f1f3f5!important}
+.logo-brand .logo-dot{color:#7edbd0!important}
+.hero{
+  background:
+    linear-gradient(115deg,rgba(33,67,94,.32),transparent 52%),
+    #0b1018!important;
+}
+.hero:before{display:none!important}
+.hero h1,h1{letter-spacing:-.045em!important;line-height:1.08!important}
+.gradient{
+  background:none!important;
+  color:#8edbd2!important;
+  -webkit-text-fill-color:currentColor!important;
+}
+.tag,.eyebrow,.label{
+  display:inline-flex;
+  border:1px solid rgba(126,219,208,.25)!important;
+  background:rgba(126,219,208,.07)!important;
+  color:#9ce4dc!important;
+  border-radius:5px!important;
+  letter-spacing:.075em!important;
+}
+.btn,button,.button{
+  border:1px solid rgba(190,205,222,.2)!important;
+  border-radius:8px!important;
+  background:#172231!important;
+  box-shadow:none!important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease!important;
+}
+.btn:hover,button:hover,.button:hover{
+  transform:none!important;
+  background:#202f40!important;
+  border-color:rgba(142,219,210,.55)!important;
+  box-shadow:none!important;
+}
+.btn-primary{
+  background:#8edbd2!important;
+  color:#0b1719!important;
+  border-color:#8edbd2!important;
+  box-shadow:none!important;
+}
+.btn-primary:hover{background:#a5e8df!important;color:#081416!important}
+.section-head{margin-bottom:34px!important}
+.section-head h2,h2{letter-spacing:-.035em!important}
+.card,.panel,.content,.item,.product-detail,.notice{
+  background:#121a25!important;
+  border:1px solid rgba(190,205,222,.13)!important;
+  border-radius:14px!important;
+  box-shadow:none!important;
+}
+.card{padding:25px!important}
+.card:before{display:none!important}
+.card:hover{
+  transform:translateY(-2px)!important;
+  border-color:rgba(142,219,210,.38)!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.16)!important;
+}
+.card h3,h3{letter-spacing:-.02em!important}
+.coming-art{
+  background:linear-gradient(135deg,#1a3342,#20233b)!important;
+  border-color:rgba(190,205,222,.16)!important;
+}
+.status-grid{
+  background:#121a25!important;
+  border:1px solid rgba(190,205,222,.14)!important;
+}
+.status-grid>div{box-shadow:none!important}
+.status-grid>div+div{border-left:1px solid rgba(190,205,222,.12)}
+.window-top,.window-foot{background:#172231!important}
+.window-output{
+  background:#102a2b!important;
+  border-color:rgba(126,219,208,.22)!important;
+}
+.hero-window{
+  box-shadow:0 22px 55px rgba(0,0,0,.28)!important;
+  border-color:rgba(190,205,222,.18)!important;
+}
+footer{
+  background:#090e15!important;
+  border-top:1px solid rgba(190,205,222,.13)!important;
+}
+input,textarea,select{
+  background:#0e1621!important;
+  border:1px solid rgba(190,205,222,.2)!important;
+  border-radius:8px!important;
+}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:2px solid #8edbd2!important;
+  outline-offset:3px;
+}
+::selection{background:rgba(126,219,208,.25);color:#fff}
+@media(max-width:760px){
+  .hero{background:linear-gradient(180deg,rgba(33,67,94,.24),transparent 65%),#0b1018!important}
+  .card{padding:21px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
