@@ -38,7 +38,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#080b14] text-slate-100">
+    <div className="veter-app min-h-screen overflow-hidden bg-[#080b14] text-slate-100">
       <div className="pointer-events-none fixed inset-0 -z-0 bg-[radial-gradient(ellipse_at_15%_0%,rgba(36,99,170,.2),transparent_38%),radial-gradient(ellipse_at_90%_20%,rgba(20,155,150,.12),transparent_32%)]" />
       <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#080b14]/85 backdrop-blur-2xl">
         <nav className="relative mx-auto flex min-h-[76px] max-w-7xl items-center justify-between px-5 lg:px-8" aria-label="Main navigation">
@@ -59,7 +59,7 @@ function App() {
       </header>
 
       <main className="relative z-10">
-        <section className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-20 pt-20 sm:pt-28 lg:grid-cols-[1.08fr_.92fr] lg:px-8 lg:pb-28">
+        <section className="veter-hero mx-auto grid max-w-7xl items-center gap-14 px-5 pb-20 pt-20 sm:pt-28 lg:grid-cols-[1.08fr_.92fr] lg:px-8 lg:pb-28">
           <div>
             <Badge><span className="size-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_#6ee7b7]" /> INDEPENDENT TECHNOLOGY ECOSYSTEM</Badge>
             <h1 className="mt-7 max-w-3xl text-5xl font-semibold leading-[1.04] tracking-[-.055em] sm:text-6xl lg:text-[76px]">Build beyond<br />the <span className="bg-gradient-to-r from-blue-300 via-cyan-200 to-teal-200 bg-clip-text text-transparent">ordinary.</span></h1>
@@ -76,7 +76,7 @@ function App() {
 
           <div className="relative mx-auto w-full max-w-xl">
             <div className="absolute -inset-8 rounded-[40px] bg-cyan-400/[0.08] blur-3xl" />
-            <Card className="relative overflow-hidden border-cyan-200/15 bg-[#0b1220]/90">
+            <Card className="veter-float relative overflow-hidden border-cyan-200/15 bg-[#0b1220]/90">
               <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
                 <div className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-rose-400" /><span className="size-2.5 rounded-full bg-amber-300" /><span className="size-2.5 rounded-full bg-emerald-300" /><span className="ml-3 text-xs text-slate-500">hello.vtr</span></div>
                 <span className="text-[10px] font-bold tracking-[.16em] text-cyan-200">VETER CORE</span>
@@ -108,7 +108,7 @@ function App() {
             <a className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 hover:text-cyan-100" href="/ecosystem.html">View ecosystem <ArrowUpRight size={16} /></a>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map(({icon:Icon,name,tag,description,href,action}) => <Card key={name} className="group transition duration-300 hover:-translate-y-1 hover:border-cyan-200/25 hover:bg-white/[0.055]">
+            {projects.map(({icon:Icon,name,tag,description,href,action}) => <Card key={name} className="veter-motion-card group transition duration-300 hover:-translate-y-1 hover:border-cyan-200/25 hover:bg-white/[0.055]">
               <CardHeader><div className="flex items-center justify-between"><span className="grid size-11 place-items-center rounded-xl border border-cyan-200/10 bg-cyan-200/[0.07] text-cyan-200"><Icon size={20} /></span><span className="text-[10px] font-bold tracking-[.15em] text-slate-600">{tag}</span></div><h3 className="pt-3 text-lg font-semibold">{name}</h3></CardHeader>
               <CardContent><p className="min-h-[72px] text-sm leading-6 text-slate-400">{description}</p><a href={href} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition group-hover:gap-3">{action}<ArrowRight size={15} /></a></CardContent>
             </Card>)}
