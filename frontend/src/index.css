@@ -10,90 +10,40 @@
   background: #080b14;
 }
 * { box-sizing: border-box; }
-html { min-width: 320px; scroll-behavior: smooth; }
+html { min-width: 320px; scroll-behavior: auto; }
 body { min-width: 320px; min-height: 100vh; margin: 0; }
 a { color: inherit; text-decoration: none; }
 button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { color: #07111b; background: #67e8f9; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-}
 
-/* VETER motion system: lightweight CSS animations, no extra runtime library. */
-.veter-app {
-  isolation: isolate;
-  position: relative;
-}
+/* Low-power mode: avoid large blurred layers, continuous motion and scroll-linked effects.
+   This keeps the site responsive on systems using software rendering or basic graphics. */
 .veter-app::before,
-.veter-app::after {
-  content: "";
-  position: fixed;
-  z-index: -1;
-  width: 28rem;
-  height: 28rem;
-  border-radius: 9999px;
-  pointer-events: none;
-  filter: blur(90px);
-  opacity: .16;
-  will-change: transform;
+.veter-app::after,
+.veter-app > div:first-child {
+  display: none !important;
 }
-.veter-app::before {
-  top: 12vh;
-  left: -14rem;
-  background: #2563eb;
-  animation: veter-orbit-a 22s ease-in-out infinite alternate;
+.veter-app *,
+.veter-app *::before,
+.veter-app *::after {
+  animation: none !important;
+  scroll-behavior: auto !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
-.veter-app::after {
-  right: -15rem;
-  top: 48vh;
-  background: #06b6d4;
-  animation: veter-orbit-b 26s ease-in-out infinite alternate;
-}
-.veter-hero > div:first-child {
-  animation: veter-enter-left .8s cubic-bezier(.2,.7,.2,1) both;
-}
-.veter-hero > div:last-child {
-  animation: veter-enter-right .9s .12s cubic-bezier(.2,.7,.2,1) both;
-}
-.veter-float {
-  animation: veter-float 7s ease-in-out 1s infinite;
-}
+.veter-float,
 .veter-motion-card {
-  animation: veter-rise .7s both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 22%;
+  animation: none !important;
+  transform: none !important;
 }
 .veter-motion-card:hover {
-  box-shadow: 0 18px 55px rgba(8, 145, 178, .12);
-}
-@keyframes veter-orbit-a {
-  from { transform: translate3d(0, -3vh, 0) scale(.9); }
-  to { transform: translate3d(18vw, 22vh, 0) scale(1.18); }
-}
-@keyframes veter-orbit-b {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(-18vw, -18vh, 0) scale(1.2); }
-}
-@keyframes veter-enter-left {
-  from { opacity: 0; transform: translate3d(-24px, 16px, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-@keyframes veter-enter-right {
-  from { opacity: 0; transform: translate3d(24px, 16px, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-@keyframes veter-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-9px); }
-}
-@keyframes veter-rise {
-  from { opacity: .45; transform: translateY(22px); }
-  to { opacity: 1; transform: translateY(0); }
+  box-shadow: none !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  .veter-app::before, .veter-app::after, .veter-hero > div,
-  .veter-float, .veter-motion-card {
+  *, *::before, *::after {
     animation: none !important;
-    transform: none !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
   }
 }
