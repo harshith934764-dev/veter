@@ -9,16 +9,19 @@ import { Card, CardContent, CardHeader } from "./components/ui/card";
 import { LegacyHomeSections } from "./LegacyHomeSections";
 
 const links = [
+  { label: "Dashboard", href: "/dashboard.html" },
   { label: "Language", href: "/veter-programming-language.html" },
   { label: "Learn", href: "/learn.html" },
   { label: "Documentation", href: "/docs.html" },
   { label: "Games", href: "/games.html" },
   { label: "VETER World", href: "/veter-world.html" },
+  { label: "VETER City", href: "/veter-world-city.html" },
   { label: "Social", href: "/social.html" },
   { label: "VETER AI", href: "/veter-ai.html" },
   { label: "Downloads", href: "/downloads.html" },
   { label: "Studio", href: "/studio.html" },
   { label: "Community", href: "/community.html" },
+  { label: "Support", href: "/support.html" },
   { label: "Developers", href: "/developers.html" },
 ];
 
@@ -128,7 +131,7 @@ function App() {
       <footer className="relative z-10 border-t border-white/[0.08]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <div><div className="mb-1 text-base font-black tracking-tight text-slate-200">VETER<span className="text-cyan-300">.</span></div><p>Independent technology projects. Built to explore.</p></div>
-          <div className="flex flex-wrap gap-x-5 gap-y-3">{[["About","/about.html"],["Docs","/docs.html"],["Community","/community.html"],["Support","/support.html"],["Privacy","/privacy.html"],["GitHub","https://github.com/harshith934764-dev/veter"]].map(([label,href])=><a key={label} href={href} className="transition hover:text-cyan-200">{label}</a>)}</div>
+          <div className="flex flex-wrap gap-x-5 gap-y-3">{[["About","/about.html"],["Docs","/docs.html"],["Downloads","/downloads.html"],["Games","/games.html"],["VETER City","/veter-world-city.html"],["Community","/community.html"],["Developers","/developers.html"],["Support","/support.html"],["Privacy","/privacy.html"],["Terms","/terms.html"],["GitHub","https://github.com/harshith934764-dev/veter"]].map(([label,href])=><a key={label} href={href} className="transition hover:text-cyan-200">{label}</a>)}</div>
           <span>© 2026 VETER Project</span>
         </div>
       </footer>
