@@ -1,0 +1,102 @@
+/* VETER Premium Interface System v5
+   Shared visual layer for the existing HTML site. No framework migration required. */
+:root{
+  color-scheme:dark;
+  --v5-bg:#080b14;--v5-surface:#0d1320;--v5-surface-2:#111a2b;
+  --v5-text:#f5f7fb;--v5-muted:#a5afc0;--v5-line:rgba(226,232,240,.10);
+  --v5-cyan:#67e8f9;--v5-blue:#8aa8ff;--v5-violet:#b69aff;
+  --v5-radius:22px;
+}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{
+ color:var(--v5-text)!important;
+ background:
+  radial-gradient(ellipse at 12% 0%,rgba(47,130,180,.17),transparent 34%),
+  radial-gradient(ellipse at 88% 8%,rgba(120,82,190,.14),transparent 34%),
+  linear-gradient(145deg,#080b14 0%,#0b1020 55%,#090d18 100%)!important;
+ font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(103,232,249,.28);color:#fff}
+a{transition:color .2s ease,background-color .2s ease,border-color .2s ease,transform .2s ease}
+header,header.ai-top{
+ background:rgba(8,12,22,.76)!important;
+ border-bottom:1px solid var(--v5-line)!important;
+ box-shadow:0 10px 35px rgba(0,0,0,.16)!important;
+ backdrop-filter:blur(22px) saturate(145%)!important;
+ -webkit-backdrop-filter:blur(22px) saturate(145%)!important;
+}
+header nav{min-height:74px}
+.logo,.brand,.ai-brand{color:#fff!important;letter-spacing:-.045em}
+.nav-links a,header nav a,nav a{color:#b6c0d1!important;font-weight:600}
+.nav-links a:hover,header nav a:hover,nav a:hover{color:var(--v5-cyan)!important}
+.hero,.hero-product{
+ position:relative;isolation:isolate;
+ background:
+  radial-gradient(ellipse at 22% 10%,rgba(54,164,204,.14),transparent 40%),
+  radial-gradient(ellipse at 82% 12%,rgba(133,99,215,.14),transparent 42%)!important;
+}
+.hero h1,h1{letter-spacing:-.055em!important;line-height:1.04!important;text-wrap:balance}
+.gradient{
+ background:linear-gradient(105deg,#fff 0%,#9beafa 42%,#a9a7ff 88%)!important;
+ -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
+}
+.tag,.eyebrow,.label,.ai-pill{
+ border:1px solid rgba(103,232,249,.2)!important;
+ background:rgba(103,232,249,.07)!important;color:#a5eff8!important;
+ border-radius:999px!important;
+}
+.hero p,.section-head p,.card p,.card li,p,li{color:var(--v5-muted)}
+.btn,button,.button,.ai-install,.ai-login,.ai-send{
+ border:1px solid var(--v5-line)!important;border-radius:13px!important;
+ transition:transform .22s ease,border-color .22s ease,background .22s ease,box-shadow .22s ease!important;
+}
+.btn:hover,button:hover,.button:hover{transform:translateY(-2px);border-color:rgba(103,232,249,.42)!important}
+.btn-primary,.btn.primary{
+ color:#07111b!important;background:linear-gradient(110deg,#a5e9f4,#b4c4ff)!important;
+ border-color:transparent!important;box-shadow:0 8px 28px rgba(103,232,249,.12)!important;
+}
+.card,.panel,.content,.item,.product-detail,.notice,.step,.feature,.stat,.game,.player-tools,.recent-strip{
+ background:linear-gradient(150deg,rgba(18,27,44,.92),rgba(11,17,29,.96))!important;
+ border:1px solid var(--v5-line)!important;border-radius:var(--v5-radius)!important;
+ box-shadow:0 16px 48px rgba(0,0,0,.14)!important;
+}
+.card,.game,.feature,.step{transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease!important}
+.card:hover,.game:hover,.feature:hover,.step:hover{
+ transform:translateY(-4px)!important;border-color:rgba(103,232,249,.27)!important;
+ box-shadow:0 22px 55px rgba(0,0,0,.22),0 0 28px rgba(103,232,249,.045)!important;
+}
+.card h3,.game-body h3,h2,h3{color:var(--v5-text)!important;letter-spacing:-.035em}
+section{scroll-margin-top:95px}
+input,textarea,select,.search,.filter,.hub-actions select{
+ color:var(--v5-text)!important;background:rgba(8,13,23,.84)!important;
+ border:1px solid var(--v5-line)!important;border-radius:12px!important;
+}
+.filter.active,.filter[aria-pressed=true]{background:rgba(103,232,249,.13)!important;color:#b8f4fb!important;border-color:rgba(103,232,249,.35)!important}
+.game-body p,.game-meta span,.stat span,.player-tools small{color:var(--v5-muted)!important}
+.game-meta span,.pill{background:rgba(255,255,255,.06)!important;color:#c5d0df!important;border:1px solid var(--v5-line)!important}
+.play{background:linear-gradient(110deg,#a5e9f4,#b4c4ff)!important;color:#07111b!important;border:0!important;border-radius:11px!important}
+.arcade-player,.arcade-player-head{background:#0d1727!important;border-color:var(--v5-line)!important}
+.arcade-frame{background:#050a12!important;border-top:1px solid rgba(103,232,249,.25)!important}
+pre,#veter-code,#veter-output,.veter-playground{
+ background:#080e19!important;border-color:var(--v5-line)!important;border-radius:16px!important;
+}
+.window-top,.window-foot,.window-output{border-color:var(--v5-line)!important}
+.window-output{background:rgba(103,232,249,.06)!important}
+footer{background:rgba(5,9,17,.4)!important;border-top:1px solid var(--v5-line)!important;color:#8491a5!important}
+.ai-layout,.ai-main,.ai-sidebar,.ai-composer-wrap,.ai-auth{
+ background:transparent!important;color:var(--v5-text)!important;
+}
+.ai-sidebar,.ai-composer{border-color:var(--v5-line)!important;background:rgba(12,18,30,.78)!important;backdrop-filter:blur(18px)}
+.ai-messages{color:var(--v5-text)!important}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+ outline:3px solid var(--v5-cyan)!important;outline-offset:4px!important;
+}
+@media(max-width:760px){
+ header nav{padding:12px 0}
+ .hero{padding-top:72px!important}
+ .card,.game,.feature,.step{border-radius:18px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
