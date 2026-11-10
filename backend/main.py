@@ -134,6 +134,7 @@ async def supabase_request(method: str, path: str, firebase_token: str, *, param
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": f"Bearer {firebase_token}",
         "Content-Type": "application/json",
+        "Prefer": "return=representation" if method == "POST" else "return=minimal",
     }
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(20.0, connect=8.0)) as client:
