@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f5f9fc">
-<title>VETER Games — Free 2D & 3D Browser Games</title>
+<meta name="theme-color" content="#021F28">
+<title>VETER Arcade — Cricket, Sports & Browser Games</title>
 <meta name="description" content="Play free VETER 2D and 3D browser games: city life, football, arcade, puzzles, memory, racing-style challenges and more.">
 <link rel="canonical" href="https://theveter.in/games.html">
 <meta property="og:type" content="website">
@@ -34,6 +34,47 @@ header{position:sticky;top:0;z-index:20;background:#ffffffed;border-bottom:1px s
 footer{border-top:1px solid var(--line);padding:25px 0;color:#60758a;font-size:12px;margin-top:25px}
 @media(max-width:850px){.games{grid-template-columns:repeat(2,minmax(0,1fr))}.cover{height:150px}}
 @media(max-width:560px){nav{padding:12px 0;align-items:flex-start;flex-direction:column}.navlinks{gap:11px}.hero{padding-top:22px}.hero-art{min-height:340px;padding:22px}.stats{gap:7px}.stat{padding:12px}.stat strong{font-size:20px}.games{grid-template-columns:1fr}.cover{height:190px}.feature-row{grid-template-columns:1fr}}
+
+/* CricketZone premium arcade refresh */
+:root{color-scheme:dark;--ink:#DFFCF3;--muted:#a6c9c3;--line:#24434a;--mint:#DFFCF3;--blue:#F44D78}
+html,body{background:#021F28;color:#DFFCF3}
+header{background:rgba(2,31,40,.94);border-color:#24434a}
+.navlinks a{color:#b9d9d3}.navlinks a:hover{color:#F44D78}
+.hero-art{background:linear-gradient(90deg,rgba(2,31,40,.96),rgba(2,31,40,.42)),url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1800&auto=format&fit=crop&q=85') center/cover;box-shadow:0 18px 55px #0006;border:1px solid #31565d}
+.hero h1,.section h2{color:#DFFCF3}.hero p,.section-head p{color:#a6c9c3}
+.btn{background:#DFFCF3;border-color:#DFFCF3;color:#021F28;transition:all .2s}
+.btn.primary{background:#F44D78;border-color:#F44D78;color:white;box-shadow:0 0 25px #F44D7840}
+.btn:hover,.filter:hover{transform:translateY(-2px);transition:all .2s}
+.stats .stat,.feature,.recent-strip,.player-tools{background:#0a3039;border-color:#244c54;color:#DFFCF3}
+.stat strong{color:#F44D78}.stat span,.player-tools small,.feature p{color:#a6c9c3}
+.search,.filter{background:#0a3039;border-color:#31565d;color:#DFFCF3}.search::placeholder{color:#9abbb5}
+.filter.active{background:#F44D78;border-color:#F44D78;color:white}
+.games{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.game{background:#DFFCF3;color:#021F28;border:1px solid transparent;transition:transform .2s,border-color .2s,box-shadow .2s}
+.game:hover{transform:translateY(-4px);border-color:#F44D78;box-shadow:0 0 26px #F44D7850}
+.game-body h3{color:#021F28}.game-body p{color:#315b57}
+.game-meta span{background:#c5eee3;color:#24534c}
+.play{background:#021F28;color:#DFFCF3;transition:all .2s}.play:hover{background:#F44D78;color:#fff}
+.fav-toggle{background:#021F28;color:#DFFCF3;border-color:#31565d;transition:all .2s}
+.fav-toggle[aria-pressed=true]{background:#F44D78;color:#fff;border-color:#F44D78}
+.empty{background:#0a3039;color:#DFFCF3;border-color:#31565d}
+.arcade-player{border-color:#F44D78;box-shadow:0 0 32px #F44D7830}
+.arcade-player-head{background:#0a3039;color:#DFFCF3}
+.arcade-player-head button{background:#F44D78;color:#fff;border-color:#F44D78}
+.feature a,.recent-strip a{color:#F44D78}footer{border-color:#24434a;color:#a6c9c3}
+.featured-cricket{margin:12px 0 32px;padding:20px;border:1px solid #F44D78;border-radius:20px;background:#0a3039;box-shadow:0 0 32px #F44D7825}
+.featured-cricket-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.featured-cricket h2{font-size:clamp(24px,4vw,34px);margin:0;color:#DFFCF3}
+.featured-cricket p{margin:5px 0 0;color:#a6c9c3}
+.cricket-frame-wrap{position:relative;aspect-ratio:16/9;min-height:260px;overflow:hidden;border-radius:14px;background:#071521}
+.cricket-frame{position:absolute;inset:0;width:100%;height:100%;border:0}
+.cricket-cta{display:inline-block;padding:10px 16px;border-radius:10px;background:#F44D78;color:#fff;text-decoration:none;font-weight:900;animation:cricketPulse 2.8s ease-in-out infinite}
+@keyframes cricketPulse{0%,100%{box-shadow:0 0 0 0 #F44D7800}50%{box-shadow:0 0 22px 2px #F44D7860}}
+@media(max-width:950px){.games{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:680px){.games{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.games{grid-template-columns:1fr}.cricket-frame-wrap{min-height:220px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
 </style>
 <link rel="stylesheet" href="/premium-v5.css?v=1">
 </head>
@@ -42,8 +83,12 @@ footer{border-top:1px solid var(--line);padding:25px 0;color:#60758a;font-size:1
 <main class="wrap">
 <section class="hero"><div class="hero-art"><div><div class="eyebrow">VETER ARCADE · PLAY FREE</div><h1>Find your next<br>favourite game.</h1><p>Jump into 2D arcade challenges and 3D worlds. Play straight in your browser on mobile or desktop — no game launcher needed.</p><div class="actions"><a class="btn primary" href="#game-library">Explore all games ↓</a><a class="btn" href="/arcade-100.html">Open 220 challenges</a></div></div></div></section>
 <div class="stats"><div class="stat"><strong>2D + 3D</strong><span>Different game styles</span></div><div class="stat"><strong>220</strong><span>Arcade challenge variations</span></div><div class="stat"><strong>Mobile</strong><span>Touch-friendly games</span></div></div>
+<section class="featured-cricket" aria-labelledby="featured-cricket-title">
+<div class="featured-cricket-head"><div><div class="eyebrow">FEATURED GAME · PLAY IN YOUR BROWSER</div><h2 id="featured-cricket-title">VETER Cricket 2D</h2><p>Step into the batting crease. Play the existing VETER cricket game right here.</p></div><a class="cricket-cta" href="/veter-cricket.html">Play fullscreen ↗</a></div>
+<div class="cricket-frame-wrap"><iframe class="cricket-frame" src="/veter-cricket.html" title="VETER 2D Cricket Game" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe></div>
+</section>
 <section class="section" id="game-library"><div class="section-head"><div><h2>Game library</h2><p>Choose a game and start playing.</p></div></div>
-<div class="toolbar"><input class="search" id="game-search" type="search" placeholder="Search games…" aria-label="Search games"><div class="filters" id="filters"><button class="filter active" data-filter="all">All games</button><button class="filter" data-filter="3d">3D worlds</button><button class="filter" data-filter="2d">2D games</button><button class="filter" data-filter="arcade">Arcade</button><button class="filter" data-filter="sports">Sports</button></div></div>
+<div class="toolbar"><input class="search" id="game-search" type="search" placeholder="Search games…" aria-label="Search games"><div class="filters" id="filters"><button class="filter active" data-filter="all">All games</button><button class="filter" data-filter="cricket">Cricket</button><button class="filter" data-filter="sports">Sports</button><button class="filter" data-filter="arcade">Arcade</button><button class="filter" data-filter="action">Action</button><button class="filter" data-filter="3d">3D worlds</button><button class="filter" data-filter="2d">2D games</button></div></div>
 <div class="player-tools" aria-label="Player tools">
 <div><strong>🎮 My Play Hub</strong><small id="hub-summary">Your favourites and recently played games stay on this device.</small></div>
 <div class="hub-actions"><button class="filter" id="fav-only" aria-pressed="false">☆ Favourites</button><select class="filter" id="game-sort" aria-label="Sort games"><option value="featured">Featured</option><option value="az">Name A–Z</option><option value="recent">Recently played</option></select></div>
@@ -51,7 +96,7 @@ footer{border-top:1px solid var(--line);padding:25px 0;color:#60758a;font-size:1
 <div class="recent-strip" id="recent-strip" hidden><strong>Continue playing</strong><div id="recent-links"></div></div>
 <div class="games" id="games"><article class="game" data-type="sports" data-tags="sports cricket football kabaddi basketball 2d 3d"><div class="cover"><img loading="lazy" src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=900&auto=format&fit=crop&q=85" alt="Sports stadium"><span class="pill">NEW SPORTS COLLECTION</span></div><div class="game-body"><h3>Sports Games — 2D & 3D</h3><p>Choose cricket, football, kabaddi or basketball. Each sport has its own game modes and controls.</p><div class="game-meta"><span>2D + 3D</span><span>Mobile + desktop</span></div><a class="play" href="/sports-games.html">Explore Sports Games →</a></div></article>
 <article class="game" data-type="2d" data-tags="2d cricket sports batting bowling wickets browser"><div class="cover"><img loading="lazy" src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=900&auto=format&fit=crop&q=85" alt="Cricket bat and ball on a field"><span class="pill">NEW · PLAYABLE CRICKET</span></div><div class="game-body"><h3>VETER Cricket 2D</h3><p>Play a two-over batting chase with shot selection, timing, wickets, boundaries and mobile controls.</p><div class="game-meta"><span>2D</span><span>12-ball match</span><span>Touch + keyboard</span></div><a class="play" href="/veter-cricket.html">Play Cricket →</a></div></article>
-<article class="game" data-type="3d" data-tags="3d battle royale arena survival multiplayer bots energy zone"><div class="cover"><img loading="lazy" src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900&auto=format&fit=crop&q=85" alt="Neon gaming arena"><span class="pill">3D ARENA ROYALE</span></div><div class="game-body"><h3>VETER 3D Arena Royale</h3><p>Outlast rival bots, collect energy orbs and stay inside the shrinking arena in a colourful survival showdown.</p><div class="game-meta"><span>3D</span><span>Survival</span><span>Touch + keyboard</span></div><a class="play" href="/battle-royale-3d.html">Enter Arena →</a></div></article>
+<article class="game" data-type="action" data-tags="action 3d battle royale arena survival multiplayer bots energy zone"><div class="cover"><img loading="lazy" src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900&auto=format&fit=crop&q=85" alt="Neon gaming arena"><span class="pill">3D ARENA ROYALE</span></div><div class="game-body"><h3>VETER 3D Arena Royale</h3><p>Outlast rival bots, collect energy orbs and stay inside the shrinking arena in a colourful survival showdown.</p><div class="game-meta"><span>3D</span><span>Survival</span><span>Touch + keyboard</span></div><a class="play" href="/battle-royale-3d.html">Enter Arena →</a></div></article>
 <article class="game" data-type="3d" data-tags="3d world life simulation city open world character missions"><div class="cover"><img loading="lazy" src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=900&auto=format&fit=crop&q=80" alt="Colourful city skyline at night"><span class="pill">3D WORLD</span></div><div class="game-body"><h3>VETER World 0.9</h3><p>Explore a city, meet citizens, take on missions, customise your character and discover activities.</p><div class="game-meta"><span>3D</span><span>City life</span><span>Mobile controls</span></div><a class="play" href="/veter-world-city.html">Play VETER World →</a></div></article>
 <article class="game" data-type="3d" data-tags="3d football soccer sports stadium world match"><div class="cover"><img loading="lazy" src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=900&auto=format&fit=crop&q=85" alt="Football stadium"><span class="pill">3D FOOTBALL</span></div><div class="game-body"><h3>VETER World — Football</h3><p>Enter the 3D football pitch and play directly inside the VETER Arcade.</p><div class="game-meta"><span>3D</span><span>Football</span><span>Touch + keyboard</span></div><a class="play" href="/veter-world.html">Play Football →</a></div></article><article class="game" data-type="2d" data-tags="2d city explore stars top down"><div class="cover"><img loading="lazy" src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=900&auto=format&fit=crop&q=80" alt="City streets and buildings"><span class="pill">2D EXPLORATION</span></div><div class="game-body"><h3>VeterCity 2D</h3><p>Walk around a small top-down city, explore streets and collect glowing stars.</p><div class="game-meta"><span>2D</span><span>Explore</span><span>WASD / touch pad</span></div><a class="play" href="/vetercity.html">Play VeterCity →</a></div></article>
 <article class="game" data-type="arcade" data-tags="snake classic arcade reflex"><div class="cover"><img loading="lazy" src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=900&auto=format&fit=crop&q=80" alt="Retro arcade gaming setup"><span class="pill">CLASSIC ARCADE</span></div><div class="game-body"><h3>Snake & Classic Arcade</h3><p>Play quick classic-style games including snake and other mini challenges.</p><div class="game-meta"><span>2D</span><span>Arcade</span><span>Quick rounds</span></div><a class="play" href="/veter-2d-games.html">Play Classic Arcade →</a></div></article>
@@ -84,7 +129,7 @@ document.getElementById('arcade-close').addEventListener('click',closeGame);
 cards.forEach(card=>{const id=cardId(card),btn=document.createElement('button');btn.className='fav-toggle';btn.type='button';btn.setAttribute('aria-label','Add '+id+' to favourites');btn.textContent='☆';card.appendChild(btn);btn.addEventListener('click',()=>{favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];write('veter-game-favorites',favorites);paintFavorites();apply()});const link=card.querySelector('a.play');if(link)link.addEventListener('click',event=>{event.preventDefault();recent=[id,...recent.filter(x=>x!==id)].slice(0,5);write('veter-game-recent',recent);paintRecent();openGame(link)})});
 function paintFavorites(){cards.forEach(card=>{const id=cardId(card),btn=card.querySelector('.fav-toggle'),on=favorites.includes(id);btn.textContent=on?'★':'☆';btn.setAttribute('aria-pressed',String(on));btn.setAttribute('aria-label',(on?'Remove ':'Add ')+id+' '+(on?'from':'to')+' favourites')});}
 function paintRecent(){recentLinks.innerHTML='';recent.forEach(id=>{const card=cards.find(c=>cardId(c)===id);if(!card)return;const a=document.createElement('a');a.href=card.querySelector('a.play')?.href||'#';a.textContent=id+' →';recentLinks.appendChild(a)});recentStrip.hidden=recentLinks.children.length===0;summary.textContent=favorites.length+' favourites · '+recent.length+' recently played · saved on this device'}
-function apply(){const q=search.value.trim().toLowerCase();let shown=0;cards.forEach(card=>{const id=cardId(card),matchesKind=kind==='all'||card.dataset.type===kind,matchesText=(card.dataset.tags+' '+card.innerText).toLowerCase().includes(q),matchesFav=!favOnly.getAttribute('aria-pressed')||!favOnly.matches('[aria-pressed=true]')||favorites.includes(id);card.hidden=!(matchesKind&&matchesText&&matchesFav);if(!card.hidden)shown++});const ordered=[...cards].sort((a,b)=>{if(sort.value==='az')return cardId(a).localeCompare(cardId(b));if(sort.value==='recent')return (recent.indexOf(cardId(a))<0?999:recent.indexOf(cardId(a)))-(recent.indexOf(cardId(b))<0?999:recent.indexOf(cardId(b)));return 0});ordered.forEach(c=>grid.appendChild(c));empty.classList.toggle('show',shown===0)}
+function apply(){const q=search.value.trim().toLowerCase();let shown=0;cards.forEach(card=>{const id=cardId(card),matchesKind=kind==='all'||card.dataset.type===kind||(kind==='cricket'&&card.dataset.tags.toLowerCase().includes('cricket'))||(kind==='sports'&&card.dataset.tags.toLowerCase().includes('sports')),matchesText=(card.dataset.tags+' '+card.innerText).toLowerCase().includes(q),matchesFav=!favOnly.getAttribute('aria-pressed')||!favOnly.matches('[aria-pressed=true]')||favorites.includes(id);card.hidden=!(matchesKind&&matchesText&&matchesFav);if(!card.hidden)shown++});const ordered=[...cards].sort((a,b)=>{if(sort.value==='az')return cardId(a).localeCompare(cardId(b));if(sort.value==='recent')return (recent.indexOf(cardId(a))<0?999:recent.indexOf(cardId(a)))-(recent.indexOf(cardId(b))<0?999:recent.indexOf(cardId(b)));return 0});ordered.forEach(c=>grid.appendChild(c));empty.classList.toggle('show',shown===0)}
 document.querySelectorAll('.arcade-open-link').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();openGame(link)}));
 filters.forEach(btn=>btn.addEventListener('click',()=>{kind=btn.dataset.filter;filters.forEach(x=>x.classList.toggle('active',x===btn));apply()}));search.addEventListener('input',apply);favOnly.addEventListener('click',()=>{const on=favOnly.getAttribute('aria-pressed')!=='true';favOnly.setAttribute('aria-pressed',String(on));favOnly.classList.toggle('active',on);apply()});sort.addEventListener('change',apply);paintFavorites();paintRecent();apply()})();
 </script>
