@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5f8fb">
+<meta name="description" content="Your VETER dashboard: one starting point for VETER AI, Social, Studio, games, learning and developer tools.">
+<link rel="canonical" href="https://theveter.in/dashboard.html">
+<link rel="stylesheet" href="/premium.css?v=4">
+<title>My VETER Dashboard</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f5f8fb;color:#172637;font:15px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(1120px,92%);margin:auto}header{background:#fff;border-bottom:1px solid #dfe7ed}.nav{min-height:68px;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.brand{font-size:24px;font-weight:900;color:#172637;text-decoration:none}.brand span{color:#168d88}.navlinks{display:flex;gap:16px;flex-wrap:wrap}.navlinks a{color:#455b6f;text-decoration:none;font-weight:650}.hero{padding:54px 0 35px;background:linear-gradient(120deg,#eaf3f8,#f5f8fb 60%,#eaf5f3)}.eyebrow{color:#147b78;font-weight:800;font-size:11px;letter-spacing:.13em}.hero h1{font-size:clamp(34px,6vw,58px);line-height:1.08;letter-spacing:-.04em;margin:10px 0}.muted{color:#617386}.auth{margin:25px 0 0;padding:20px;border:1px solid #dfe7ed;border-radius:15px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.auth p{margin:3px 0;color:#617386}.btn{border:1px solid #d4e0e8;border-radius:9px;padding:10px 15px;background:#fff;color:#29465d;font-weight:750;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:#176f78;border-color:#176f78;color:#fff}.btn:disabled{opacity:.6;cursor:wait}.status{font-size:13px;color:#526b7c;min-height:20px}.section{padding:35px 0}.section h2{font-size:25px;margin:0 0 6px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}.card{background:#fff;border:1px solid #dfe7ed;border-radius:15px;padding:21px;min-width:0}.card h3{margin:5px 0;font-size:19px}.card p{color:#617386;font-size:14px;min-height:48px}.pill{display:inline-block;font-size:10px;font-weight:850;letter-spacing:.08em;color:#147b78;background:#e7f4f2;border:1px solid #c9e6e1;padding:4px 8px;border-radius:99px}.card .btn{margin-top:8px}.notice{padding:16px;border:1px solid #dfe7ed;border-radius:12px;background:#edf4f8;color:#526b7c;font-size:13px;margin-top:22px}.account-name{font-weight:800;color:#1c3448}footer{padding:24px 0;border-top:1px solid #dfe7ed;color:#617386;font-size:13px;margin-top:30px}footer a{margin-right:14px;color:#176c83}@media(max-width:760px){.grid{grid-template-columns:1fr}.nav{padding:12px 0;align-items:flex-start;flex-direction:column}.hero{padding:42px 0 28px}.card p{min-height:0}}
+</style>
+</head>
+<body>
+<header><nav class="wrap nav"><a class="brand" href="/">VETER<span>.</span></a><div class="navlinks"><a href="/">Home</a><a href="/developers.html">Developers</a><a href="/support.html">Support</a></div></nav></header>
+<main>
+<section class="hero"><div class="wrap"><div class="eyebrow">ONE PLACE TO START</div><h1>Your VETER workspace.</h1><p class="muted">Open your VETER tools, learning space and games from one simple page.</p>
+<div class="auth"><div><div class="account-name" id="account-name">You are browsing as a guest</div><p id="account-help">Sign in with the same Google account used by VETER Social and VETER AI.</p></div><div><button class="btn primary" id="sign-in" type="button">Continue with Google</button> <button class="btn" id="sign-out" type="button" hidden>Sign out</button></div><div class="status" id="auth-status" role="status" aria-live="polite">You can open public tools without signing in.</div></div>
+</div></section>
+<section class="section wrap"><h2>Your products</h2><p class="muted">These links open the existing VETER products. Some features are still prototypes.</p>
+<div class="grid">
+<article class="card"><span class="pill">AI WORKSPACE</span><h3>VETER AI</h3><p>Ask questions, work with code and save AI conversations to your signed-in account.</p><a class="btn primary" href="/veter-ai.html">Open VETER AI →</a></article>
+<article class="card"><span class="pill">COMMUNITY</span><h3>VETER Social</h3><p>Sign in, create your profile and use the available community features.</p><a class="btn" href="/social.html">Open Social →</a></article>
+<article class="card"><span class="pill">CODE EDITOR</span><h3>VETER Studio</h3><p>Try the browser-based Veter programming workspace and compiler demo.</p><a class="btn" href="/studio.html">Open Studio →</a></article>
+<article class="card"><span class="pill">GAMES</span><h3>VETER Games</h3><p>Browse the current collection of browser games.</p><a class="btn" href="/games.html">Play games →</a></article>
+<article class="card"><span class="pill">3D PROTOTYPE</span><h3>VETER World</h3><p>Explore the football game and the separate city-life simulation prototype.</p><a class="btn" href="/veter-world.html">Open football →</a> <a class="btn" href="/veter-world-city.html">Open city →</a></article>
+<article class="card"><span class="pill">LEARNING</span><h3>Learn Veter</h3><p>Read the language guides, examples and technical reference.</p><a class="btn" href="/learn.html">Start learning →</a></article>
+<article class="card"><span class="pill">DEVELOPER TOOLS</span><h3>Developer portal</h3><p>Find source code, releases, package tooling information and developer resources.</p><a class="btn" href="/developers.html">Open portal →</a></article>
+<article class="card"><span class="pill">PROJECT STATUS</span><h3>Roadmap</h3><p>See what exists today and what is still planned for the VETER ecosystem.</p><a class="btn" href="/roadmap.html">View roadmap →</a></article>
+<article class="card"><span class="pill">HELP</span><h3>Support centre</h3><p>Find documentation and report problems or share feedback.</p><a class="btn" href="/support.html">Get support →</a></article>
+</div>
+<div class="notice"><strong>Important:</strong> This is the first dashboard foundation. Google sign-in uses the existing VETER Firebase Authentication project. This page does not yet provide a shared profile database, billing, API-key management, package publishing, or saved game progress. Those need backend and database work before they can be safely enabled.</div>
+</section>
+</main>
+<footer><div class="wrap">© 2026 VETER Project · <a href="/">Home</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/support.html">Support</a></div></footer>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+const config={apiKey:"AIzaSyB6ky_ETioOqiONq9T4uousDRpOzOMRRn0",authDomain:"veter-social.firebaseapp.com",projectId:"veter-social",storageBucket:"veter-social.firebasestorage.app",messagingSenderId:"504664421504",appId:"1:504664421504:web:a1f681566757c31b69a265"};
+const auth=getAuth(initializeApp(config)), provider=new GoogleAuthProvider();
+const $=id=>document.getElementById(id), login=$("sign-in"), logout=$("sign-out"), status=$("auth-status");
+try{await getRedirectResult(auth)}catch(e){status.textContent="Sign-in could not finish: "+(e.message||"Please try again.");}
+onAuthStateChanged(auth,user=>{if(user){$("account-name").textContent=user.displayName||user.email||"Signed in";$("account-help").textContent="You are signed in with your VETER Google account.";login.hidden=true;logout.hidden=false;status.textContent="Signed in. Your existing VETER AI and Social pages keep their own features."}else{$("account-name").textContent="You are browsing as a guest";$("account-help").textContent="Sign in with the same Google account used by VETER Social and VETER AI.";login.hidden=false;logout.hidden=true;status.textContent="You can open public tools without signing in."}});
+login.addEventListener("click",async()=>{login.disabled=true;status.textContent="Opening Google sign-in…";try{await signInWithPopup(auth,provider)}catch(e){if(e.code==="auth/popup-blocked"||e.code==="auth/popup-closed-by-user"){try{await signInWithRedirect(auth,provider)}catch(x){status.textContent=x.message||"Could not start sign-in."}}else{status.textContent=e.message||"Could not sign in. Check Firebase authorized domains."}}finally{login.disabled=false}});
+logout.addEventListener("click",async()=>{try{await signOut(auth)}catch(e){status.textContent=e.message||"Could not sign out."}});
+</script>
+</body></html>
