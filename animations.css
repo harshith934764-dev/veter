@@ -1,0 +1,36 @@
+/* VETER motion layer — lightweight, accessible, no dependencies */
+:root { --v-motion-duration: 650ms; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+  .hero-copy > .tag, .hero-copy > h1, .hero-copy > p, .hero-copy > .actions, .hero-proof {
+    animation: veter-rise-in 700ms cubic-bezier(.2,.75,.25,1) both;
+  }
+  .hero-copy > h1 { animation-delay: 90ms; }
+  .hero-copy > p { animation-delay: 170ms; }
+  .hero-copy > .actions { animation-delay: 250ms; }
+  .hero-proof { animation-delay: 330ms; }
+  .hero-window { animation: veter-window-in 900ms cubic-bezier(.2,.75,.25,1) 140ms both; }
+  .hero-window .window-output strong { animation: veter-number-glow 2.8s ease-in-out 1s infinite alternate; }
+  .hero:after {
+    content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(ellipse at 78% 22%,rgba(22,141,136,.10),transparent 42%);
+    animation:veter-aura 12s ease-in-out infinite alternate;
+  }
+  .hero-layout, .hero-copy, .hero-window { position:relative; z-index:1; }
+  .veter-reveal { opacity:0; transform:translateY(24px); transition:opacity var(--v-motion-duration) ease, transform var(--v-motion-duration) cubic-bezier(.2,.7,.2,1); }
+  .veter-reveal.is-visible { opacity:1; transform:translateY(0); }
+  .grid .card.veter-reveal:nth-child(3n+2) { transition-delay:80ms; }
+  .grid .card.veter-reveal:nth-child(3n) { transition-delay:150ms; }
+  .btn, .nav-links a, .logo-brand img { transition:transform 220ms ease, color 220ms ease, background-color 220ms ease, box-shadow 220ms ease; }
+  .btn:hover { transform:translateY(-2px); }
+  .logo-brand:hover img { transform:rotate(-7deg) scale(1.06); }
+}
+@keyframes veter-rise-in { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes veter-window-in { from { opacity:0; transform:perspective(1100px) rotateY(-7deg) translateY(25px) scale(.98); } to { opacity:1; transform:perspective(1100px) rotateY(-4deg) translateY(0) scale(1); } }
+@keyframes veter-number-glow { from { text-shadow:0 0 0 rgba(22,141,136,0); } to { text-shadow:0 0 18px rgba(22,141,136,.25); } }
+@keyframes veter-aura { from { opacity:.45; transform:translateX(-1%); } to { opacity:1; transform:translateX(1%); } }
+@media (max-width:850px) { @media (prefers-reduced-motion:no-preference) { .hero-window { animation-name:veter-rise-in; } } }
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; }
+  .veter-reveal { opacity:1!important; transform:none!important; }
+}
