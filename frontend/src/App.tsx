@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from "./components/ui/card";
 import { LegacyHomeSections } from "./LegacyHomeSections";
 import { BatchOnePages } from "./BatchOnePages";
 import { BatchTwoPages } from "./BatchTwoPages";
+import { BatchThreePages } from "./BatchThreePages";
 
 const links = [
   { label: "Dashboard", href: "/dashboard.html" },
@@ -38,7 +39,7 @@ const projects = [
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const migratedPage = BatchOnePages() ?? BatchTwoPages();
+  const migratedPage = BatchOnePages() ?? BatchTwoPages() ?? BatchThreePages();
   if (migratedPage) return migratedPage;
 
   return (
