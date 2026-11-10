@@ -559,3 +559,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
+
+
+/* VETER ARCADE GLASS OVERRIDES — v3 */
+.game,.arcade-player,.arcade-player-head,.player-tools,.recent-strip,.feature{
+ background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.035))!important;
+ border:2px solid rgba(255,255,255,.68)!important;border-radius:5px!important;
+ box-shadow:7px 7px 0 rgba(140,92,255,.35)!important;
+ backdrop-filter:blur(18px) saturate(150%)!important;
+}
+.game{animation:veter-enter .7s both}
+.game-body h3,.section h2,.game-body p,.section-head p,.feature p,.stat span{color:#f4f0ff!important}
+.game-meta span,.pill{background:rgba(200,255,53,.12)!important;color:#d8ff70!important;border:1px solid rgba(200,255,53,.35)!important;border-radius:2px!important}
+.play{background:var(--v-acid)!important;color:#080a0b!important;border:2px solid var(--v-acid)!important;border-radius:2px!important;box-shadow:4px 4px 0 #fff!important}
+.play:hover{background:#fff!important;color:#090b0c!important}
+.search,.filter,.hub-actions select{background:rgba(5,7,14,.8)!important;color:#fff!important;border:2px solid rgba(255,255,255,.5)!important;border-radius:3px!important}
+.filter.active,.filter[aria-pressed=true]{background:var(--v-acid)!important;color:#080a0b!important;border-color:var(--v-acid)!important}
+.arcade-frame{border-top:2px solid var(--v-cyan)!important}
