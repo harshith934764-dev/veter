@@ -292,3 +292,136 @@ body.social-light .short-upload-form{background:#fff;border-color:#d8e1ef}body.s
  .social-page .social-sidebar{background:#101d31!important}
  .social-page .social-tab,.social-page .social-signout{min-height:42px!important}
 }
+
+
+/* VETER Social light theme — overrides dark-mode visibility patch */
+body.social-light{
+  background:#f4f7fb!important;color:#17243a!important;
+}
+body.social-light>header{
+  background:rgba(255,255,255,.96)!important;border-bottom:1px solid #dce4ef!important;
+}
+body.social-light .social-nav-links{color:#52627a!important}
+body.social-light .social-nav-links a{color:#52627a!important}
+body.social-light .social-nav-links a:hover,
+body.social-light .social-nav-links .active{color:#17243a!important}
+body.social-light .nav-cta{color:#245b61!important;border-color:#b9d8d8!important}
+body.social-light .social-app-shell,
+body.social-light .social-main{background:#f4f7fb!important;color:#17243a!important;border-color:#d7e0eb!important}
+body.social-light .social-sidebar{background:#fff!important;border-color:#dce4ef!important}
+body.social-light .social-me{border-color:#e2e8f0!important}
+body.social-light .social-me b{color:#17243a!important}
+body.social-light .social-me small{color:#64748b!important}
+body.social-light .social-tab,
+body.social-light .social-signout{
+  color:#33445f!important;background:transparent!important;border-color:transparent!important;
+}
+body.social-light .social-tab:hover,
+body.social-light .social-tab.active{
+  color:#123c45!important;background:#e7f4f3!important;border-color:#c4e2df!important;
+}
+body.social-light .social-signout{color:#a52e36!important;border-color:#f0d4d6!important}
+body.social-light .social-theme-toggle{
+  display:block!important;width:100%!important;padding:12px!important;border:1px solid #d5dfeb!important;
+  border-radius:10px!important;background:#f7f9fc!important;color:#33445f!important;
+  text-align:left!important;font:650 13px/1.45 system-ui,sans-serif!important;cursor:pointer;
+}
+body.social-light .social-theme-toggle:hover{background:#edf3f9!important}
+body.social-light .social-view h2,
+body.social-light .social-view h3,
+body.social-light .social-view-head h2,
+body.social-light .social-view-head h3{color:#17243a!important}
+body.social-light .social-view p,
+body.social-light .social-view-head p,
+body.social-light .empty-state{color:#52627a!important}
+body.social-light .social-kicker{color:#167c78!important}
+body.social-light .social-status{background:#e8f5f3!important;border-color:#c3e4df!important;color:#205b58!important}
+body.social-light .notification-row,
+body.social-light .friend-row,
+body.social-light .feed-post,
+body.social-light .person-card,
+body.social-light .post-composer,
+body.social-light .safety-card,
+body.social-light .chat-list,
+body.social-light .chat-panel,
+body.social-light .veter-id-card,
+body.social-light .add-by-id-panel{
+  background:#fff!important;border-color:#dce4ef!important;color:#17243a!important;
+}
+body.social-light .notification-row b,
+body.social-light .friend-row b,
+body.social-light .person-info b,
+body.social-light .feed-author b,
+body.social-light .veter-id-card b,
+body.social-light .add-by-id-panel b,
+body.social-light .safety-card h3{color:#17243a!important}
+body.social-light .notification-row small,
+body.social-light .friend-row small,
+body.social-light .person-info small,
+body.social-light .feed-author small,
+body.social-light .add-by-id-panel small{color:#64748b!important}
+body.social-light .notification-row.unread{background:#edf8f7!important;border-color:#75c9c1!important}
+body.social-light .feed-body,
+body.social-light .post-comment span,
+body.social-light .message-bubble{color:#26364d!important}
+body.social-light .post-comments .post-comment{background:#f4f7fb!important;border-color:#c8dedb!important}
+body.social-light .message-bubble{background:#e8eef7!important}
+body.social-light .message-row.mine .message-bubble{background:#d8efed!important}
+body.social-light .chat-heading{border-color:#dce4ef!important}
+body.social-light .chat-heading b{color:#17243a!important}
+body.social-light .chat-heading small{color:#64748b!important}
+body.social-light .chat-list-item{color:#26364d!important}
+body.social-light .chat-list-item:hover{background:#edf3f9!important}
+body.social-light .chat-compose,
+body.social-light .feed-actions{border-color:#dce4ef!important}
+body.social-light input,
+body.social-light textarea,
+body.social-light select,
+body.social-light .chat-compose input,
+body.social-light .profile-form input,
+body.social-light .profile-form textarea,
+body.social-light .post-composer textarea{
+  background:#f8fafc!important;color:#17243a!important;border-color:#cbd6e3!important;
+}
+body.social-light input::placeholder,
+body.social-light textarea::placeholder{color:#8290a4!important}
+body.social-light .small-action,
+body.social-light .feed-actions button,
+body.social-light .post-delete,
+body.social-light .person-actions button,
+body.social-light .friend-row button,
+body.social-light .veter-id-card button{
+  background:#f2f6fa!important;color:#33445f!important;border-color:#cbd6e3!important;
+}
+body.social-light .social-primary,
+body.social-light .composer-footer button,
+body.social-light .chat-compose button,
+body.social-light .person-card button{
+  color:#102c36!important;
+}
+body.social-light .social-footer{border-color:#dce4ef!important;color:#64748b!important}
+body.social-light .social-footer .logo{color:#17243a!important}
+body.social-light .social-safety h2{color:#17243a!important}
+body.social-light .safety-points p{color:#52627a!important;border-color:#dce4ef!important}
+body.social-light .safety-points b{color:#167c78!important}
+body.social-light .join-panel,
+body.social-light .join-side{background:#fff!important;color:#17243a!important;border-color:#dce4ef!important}
+body.social-light .join-panel>p{color:#52627a!important}
+body.social-light .join-side-mark{color:#17243a!important}
+body.social-light .join-quote{color:#33445f!important}
+body.social-light .auth-button{background:#f7f9fc!important;color:#26364d!important;border-color:#cbd6e3!important}
+body.social-light .prototype-notice{background:#fff6df!important;color:#79551a!important}
+body.social-light .social-hero h1{color:#17243a!important}
+body.social-light .social-hero-copy>p{color:#52627a!important}
+body.social-light .social-secondary{color:#33445f!important;border-color:#cbd6e3!important}
+body.social-light .social-feature-strip{background:#fff!important;border-color:#dce4ef!important}
+body.social-light .social-feature-strip h3{color:#17243a!important}
+body.social-light .social-feature-strip p{color:#64748b!important}
+body.social-light .social-feature-strip article{border-color:#e2e8f0!important}
+body.social-light .social-join-section{background:#fff!important;border-color:#dce4ef!important}
+body.social-light .social-safety{color:#17243a!important}
+body.social-light .social-toast{background:#fff!important;color:#17243a!important;border-color:#cbd6e3!important}
+body.social-light .social-tab .ai-pill{background:#7045db!important;color:#fff!important}
+@media(max-width:900px){
+ body.social-light .social-sidebar{background:#fff!important}
+}
