@@ -1,0 +1,24 @@
+/* Accessible, lightweight VETER dialog motion */
+.veter-help-trigger{position:fixed;right:22px;bottom:22px;z-index:30;display:inline-flex;align-items:center;gap:9px;padding:13px 18px;border:1px solid rgba(101,231,224,.45);border-radius:999px;background:linear-gradient(110deg,#1b4770,#126b70);color:#fff;font:700 14px system-ui,sans-serif;box-shadow:0 12px 34px rgba(0,0,0,.35);cursor:pointer;transition:transform .22s ease,box-shadow .22s ease}
+.veter-help-trigger:hover{transform:translateY(-3px);box-shadow:0 16px 38px rgba(0,0,0,.42)}
+.veter-help-trigger span{font-size:18px;color:#83fff0}
+.veter-dialog{width:min(480px,calc(100% - 28px));max-width:none;max-height:min(85vh,720px);overflow:auto;margin:auto;padding:28px;border:1px solid rgba(119,174,220,.28);border-radius:22px;background:linear-gradient(145deg,#121f34,#080f1e 78%);color:#f4f7ff;box-shadow:0 28px 90px rgba(0,0,0,.58)}
+.veter-dialog[open]{animation:veter-dialog-in .34s cubic-bezier(.2,.8,.2,1) both}
+.veter-dialog::backdrop{background:rgba(2,7,16,.68);backdrop-filter:blur(5px);animation:veter-backdrop-in .25s ease both}
+.veter-dialog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.veter-dialog-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#6baeff,#54e5e5);color:#07111b;font-weight:900;font-size:19px}
+.veter-dialog-close{width:36px;height:36px;border:1px solid #34435d;border-radius:50%;background:#18243a;color:#dce8ff;font-size:24px;line-height:1;cursor:pointer}
+.veter-dialog-eyebrow{color:#75e8e1;font-size:11px;font-weight:800;letter-spacing:.15em}
+.veter-dialog h2{margin:8px 0 9px;font-size:clamp(25px,5vw,32px);line-height:1.15;letter-spacing:-.8px}
+.veter-dialog>p{color:#aebbd1;font-size:14px}
+.veter-dialog-links{display:grid;gap:10px;margin-top:23px}
+.veter-dialog-links a{display:grid;grid-template-columns:36px 1fr 18px;align-items:center;gap:12px;padding:13px;border:1px solid #2b3c57;border-radius:13px;background:rgba(255,255,255,.035);transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.veter-dialog-links a:hover{transform:translateX(3px);border-color:#5adbd8;background:rgba(84,229,229,.07)}
+.veter-dialog-links a>span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#18364a;color:#78e9e4;font-size:18px}
+.veter-dialog-links strong,.veter-dialog-links small{display:block}.veter-dialog-links strong{font-size:14px}.veter-dialog-links small{margin-top:2px;color:#9eacc4;font-size:12px}.veter-dialog-links a>b{color:#78e9e4}
+.veter-dialog .veter-dialog-foot{margin-top:19px;font-size:12px;text-align:center;color:#8393ad}
+.veter-dialog button:focus-visible,.veter-help-trigger:focus-visible,.veter-dialog a:focus-visible{outline:3px solid #54e5e5;outline-offset:3px}
+@keyframes veter-dialog-in{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes veter-backdrop-in{from{opacity:0}to{opacity:1}}
+@media(max-width:520px){.veter-help-trigger{right:14px;bottom:14px;padding:11px 15px}.veter-dialog{padding:22px}}
+@media(prefers-reduced-motion:reduce){.veter-dialog[open],.veter-dialog::backdrop{animation:none}.veter-help-trigger,.veter-dialog-links a{transition:none}}
