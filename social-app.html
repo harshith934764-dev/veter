@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070b16">
+<meta name="description" content="Meet people and chat safely with Veter Social.">
+<link rel="canonical" href="https://theveter.in/social.html">
+<link rel="stylesheet" href="/premium.css?v=2">
+<link rel="stylesheet" href="/assets/css/social.css">
+<title>Veter Social — Connect & Chat</title>
+  <script src="/veter-loader.js?v=1" defer></script>
+</head>
+<body class="social-page">
+<header><nav class="social-nav" aria-label="Main navigation">
+<a class="logo" href="/">Veter<span>.</span></a>
+<div class="social-nav-links"><a href="/">Home</a><a href="/community.html">Community</a><a class="active" href="/social.html">Social</a><a href="/veter-ai.html">Veter AI</a></div>
+<a class="nav-cta" href="#social-app">Open Social ↗</a>
+</nav></header>
+<main>
+<section class="social-hero" id="social-welcome">
+<div class="social-hero-copy">
+<div class="social-kicker"><span class="pulse-dot"></span> VETER SOCIAL</div>
+<h1>Meet beyond<br><span>your borders.</span></h1>
+<p>Create your profile, discover people and start real conversations around the world.</p>
+<div class="hero-actions"><a class="social-primary" href="#join">Get started →</a><a class="social-secondary" href="#social-app">Explore features</a></div>
+<div class="social-proof"><span>🌍</span><span>One world. Many perspectives.</span></div>
+</div>
+<div class="world-card"><div class="world-globe">🌍</div><div class="world-caption">A global community, growing together</div></div>
+</section>
+
+<section class="social-join-section" id="join">
+<div class="join-panel">
+<div class="social-kicker">YOUR ACCOUNT</div>
+<h2>Welcome to<br><span>Veter Social.</span></h2>
+<p>Use Google to create an account or return to your existing account. The same Google account signs you back in.</p>
+<div class="auth-preview" id="auth-panel">
+<button class="auth-button google-auth" id="google-sign-in" type="button"><span class="google-mark">G</span> Continue with Google <span class="auth-arrow">→</span></button>
+<div class="auth-divider"><span>OR USE YOUR PHONE</span></div>
+<form id="phone-send-form" class="phone-login-form">
+<label for="phone-number">Mobile number (include country code)</label>
+<input id="phone-number" type="tel" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" required>
+<button class="auth-button phone-auth" id="phone-send-code" type="submit">📱 Send SMS code <span class="auth-arrow">→</span></button>
+<div id="phone-recaptcha"></div>
+</form>
+<form id="phone-verify-form" class="phone-login-form" hidden>
+<label for="phone-code">6-digit SMS code</label>
+<input id="phone-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="Enter code" required>
+<button class="auth-button phone-auth" id="phone-verify-code" type="submit">Verify and sign in <span class="auth-arrow">→</span></button>
+</form>
+<div class="prototype-notice" id="auth-status" role="status" aria-live="polite">Sign in with Google or your mobile number.</div>
+</div>
+</div>
+<div class="join-side"><div class="join-side-mark">V<span>.</span></div><p class="join-quote">“A stranger is just a friend you haven't met yet.”</p><div class="join-side-line"></div><span class="join-side-label">VETER SOCIAL · CONNECT GLOBALLY</span></div>
+</section>
+
+<section class="social-app-shell" id="social-app" hidden>
+<aside class="social-sidebar">
+<div class="social-me"><img id="my-avatar" alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="><div><b id="my-name">Your profile</b><small id="my-email"></small></div></div>
+<button class="social-tab active" data-view="discover">🌍 Explore</button>
+<button class="social-tab" data-view="following">➕ Following <span id="following-count"></span></button>
+<button class="social-tab" data-view="feed">📰 Community feed</button>
+<button class="social-tab" data-view="shorts">▶ Veter Shorts <span class="ai-pill">NEW</span></button>
+<button class="social-tab" data-view="vibes">✨ Veter Vibes <span id="vibe-count"></span></button>
+<button class="social-tab" data-view="friends">👥 Friends <span id="friend-count"></span></button>
+<button class="social-tab" data-view="notifications">🔔 Notifications <span id="notification-count"></span></button>
+<button class="social-tab" data-view="saved">🔖 Saved posts</button>
+<button class="social-tab" data-view="chats">💬 My chats <span id="chat-count"></span></button>
+<button class="social-tab" data-view="dating">❤️ Dating <span class="ai-pill">18+</span></button>
+<button class="social-tab" data-view="ai">🤖 AI Companions <span class="ai-pill">NEW</span></button><a class="social-tab" href="/veter-ai.html">✨ Open Veter AI</a>
+
+<button class="social-tab" data-view="groups">👥 Group chats</button>
+<button class="social-tab" data-view="profile">👤 Edit profile</button>
+<button class="social-tab" data-view="safety">🛡️ Safety</button>
+<button class="social-theme-toggle" id="theme-toggle" type="button">☀️ Light mode</button>
+<button class="social-signout" id="sign-out">Sign out</button>
+</aside>
+<div class="social-main">
+<div class="social-status" id="app-status" role="status" aria-live="polite">Welcome to Veter Social.</div>
+<section class="social-view" id="view-discover">
+<div class="social-view-head"><div><div class="social-kicker">YOUR COMMUNITY</div><h2>Discover people</h2><p>Find someone new and start a friendly conversation.</p></div><input id="people-search" type="search" placeholder="Search names, countries…"></div>
+<div class="add-by-id-panel"><div><b>Add a friend by Veter ID</b><small>Enter their exact Veter username, for example @harshith_01</small></div><form id="add-by-id-form"><input id="friend-veter-id" type="text" maxlength="25" autocomplete="off" placeholder="@username" aria-label="Veter username" required><button type="submit">Send request</button></form></div>
+<p class="demo-disclaimer">Some profiles are fictional demo previews to show how Veter Social works. They are not real people and cannot receive messages or friend requests.</p>
+<div class="people-grid" id="people-list"><p class="empty-state">Loading people…</p></div>
+</section>
+<section class="social-view" id="view-following" hidden>
+<div class="social-view-head"><div><div class="social-kicker">YOUR NETWORK</div><h2>People you follow</h2><p>Keep up with creators and friends you choose to follow.</p></div><button type="button" class="small-action" id="following-refresh">↻ Refresh</button></div>
+<div class="people-grid" id="following-list"><p class="empty-state">Loading your following list…</p></div>
+</section>
+<section class="social-view" id="view-feed" hidden>
+<div class="social-view-head"><div><div class="social-kicker">SHARE SOMETHING GOOD</div><h2>Community feed</h2><p>Post updates, celebrate wins and share ideas with Veter members.</p></div><div class="feed-tools"><label class="feed-sort-label">Sort posts <select id="feed-sort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="popular">Most liked</option></select></label><button type="button" class="small-action" id="feed-refresh">↻ Refresh</button></div></div>
+<div class="veter-discovery-row"><div class="veter-spark-card"><div class="social-kicker">DAILY COMMUNITY PROMPT</div><b id="daily-spark-title">Small wins count 🌱</b><p id="daily-spark-text">What is one small win you had today?</p><button type="button" id="use-daily-spark">Answer this prompt →</button></div><div class="veter-trending-card"><div class="social-kicker">TRENDING IN VETER</div><div id="trending-tags" class="trending-tags"><span>Loading community topics…</span></div><small>Based on posts currently loaded.</small></div></div><form class="post-composer" id="post-form"><textarea id="post-body" maxlength="1000" rows="3" placeholder="What would you like to share?"></textarea><div class="post-photo-picker"><label for="post-photo">📷 Add a photo</label><input id="post-photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><span id="photo-file-name">No photo selected · max 8 MB</span></div><div id="photo-preview-wrap" class="photo-preview-wrap" hidden><img id="photo-preview" alt="Photo preview"><button id="remove-photo" type="button">Remove photo</button></div><div class="composer-footer"><small><span id="post-char-count">0</span>/1000 · <span id="post-draft-status" aria-live="polite">Drafts save on this device</span></small><div class="composer-actions"><button type="button" class="small-action" id="discard-post-draft">Discard draft</button><button type="submit">Publish post ✨</button></div></div></form>
+<div class="feed-search-row"><input id="feed-search" type="search" maxlength="80" placeholder="🔎 Search posts, people or #hashtags…"><button type="button" id="feed-search-clear">Clear</button></div><div class="feed-search-hint" id="feed-search-hint">Search the posts currently loaded in your feed.</div><div class="feed-list" id="feed-list"><p class="empty-state">Loading community posts…</p></div>
+
+</section>
+<section class="social-view shorts-view" id="view-shorts" hidden>
+<div class="social-view-head"><div><div class="social-kicker">VETER ORIGINALS + COMMUNITY</div><h2>Veter Shorts</h2><p>Real videos from real members. Upload your own vertical video and discover creators.</p></div><button class="small-action" id="shorts-refresh" type="button">↻ Refresh</button></div>
+<form id="short-upload-form" class="short-upload-form">
+<label class="short-file-label" for="short-video-file">＋ Choose a video</label><input id="short-video-file" type="file" accept="video/mp4,video/webm,video/quicktime" required>
+<div id="short-video-preview" class="short-video-preview" hidden></div>
+<textarea id="short-caption" maxlength="500" rows="2" placeholder="Add a caption, topic or #hashtag…"></textarea>
+<div class="short-upload-footer"><small id="short-file-info">MP4, WebM or MOV · up to 100 MB · 90 seconds max</small><button type="submit" class="social-primary" id="short-publish">Upload Short</button></div>
+</form>
+<div id="shorts-feed" class="shorts-feed" aria-live="polite"><p class="empty-state">Sign in to see Veter Shorts.</p></div>
+</section>
+<section class="social-view" id="view-vibes" hidden>
+ <div class="social-view-head"><div><div class="social-kicker">YOUR MOMENTS · 24 HOURS</div><h2>✨ Veter Vibes</h2><p>Share a moment with your people. Stories expire after 24 hours and move to your private archive.</p></div><button class="small-action" id="vibe-archive-toggle" type="button">📦 My archive</button></div>
+ <form class="vibe-composer" id="vibe-form">
+  <label class="vibe-upload">📷 Add photo or video<input id="vibe-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"></label>
+  <span id="vibe-file-name">No media selected · max 50 MB</span>
+  <textarea id="vibe-caption" maxlength="500" rows="2" placeholder="What is your vibe today?"></textarea>
+  <div class="vibe-composer-row"><select id="vibe-visibility" aria-label="Who can see this story"><option value="friends">Friends</option><option value="everyone">Everyone</option><option value="close_friends">Close circle</option></select><input id="vibe-poll-question" maxlength="180" placeholder="Optional poll question"><input id="vibe-poll-options" placeholder="Poll options, separated by commas (2–4)"><button type="submit" class="social-primary">Share Vibe ✨</button></div>
+  <small class="vibe-note">Poll is optional. Keep stories respectful. Only share content you have permission to post.</small>
+ </form>
+ <div class="vibe-tools"><button type="button" id="vibe-close-circle">💚 Manage close circle</button><label>Replies <select id="vibe-reply-setting"><option value="friends">Friends</option><option value="everyone">Everyone</option><option value="none">Off</option></select></label><button type="button" id="vibe-save-settings">Save privacy</button></div>
+ <div id="vibe-circle-list" class="vibe-circle-list"></div>
+ <h3 class="vibe-section-title" id="vibe-list-title">Fresh Vibes</h3>
+ <div id="vibe-list" class="vibe-grid"><p class="empty-state">Loading Vibes…</p></div>
+ <div id="vibe-viewer" class="vibe-viewer" hidden></div>
+</section>
+<section class="social-view" id="view-friends" hidden>
+<div class="social-view-head"><div><div class="social-kicker">YOUR CIRCLE</div><h2>Friend requests</h2><p>Connect with people and build your Veter circle.</p></div></div>
+<div class="friends-columns"><div><h3>Incoming requests</h3><div id="incoming-friends" class="social-stack"><p class="empty-state">Loading requests…</p></div></div><div><h3>Your friends</h3><div id="accepted-friends" class="social-stack"><p class="empty-state">Loading friends…</p></div></div><div><h3>Sent requests</h3><div id="outgoing-friends" class="social-stack"><p class="empty-state">Loading sent requests…</p></div></div></div>
+</section>
+<section class="social-view" id="view-notifications" hidden>
+<div class="social-view-head"><div><div class="social-kicker">WHAT'S HAPPENING</div><h2>Notifications</h2><p>See friend requests, reactions and comments.</p></div><button id="mark-notifications-read" class="small-action">Mark all read</button></div>
+<div id="notification-list" class="social-stack"><p class="empty-state">Loading notifications…</p></div>
+</section>
+<section class="social-view" id="view-saved" hidden>
+<div class="social-view-head"><div><div class="social-kicker">YOUR COLLECTION</div><h2>Saved posts</h2><p>Posts you bookmarked for later.</p></div></div>
+<div class="feed-list" id="saved-list"><p class="empty-state">Loading saved posts…</p></div>
+</section>
+<section class="social-view" id="view-chats" hidden>
+<div class="social-view-head"><div><div class="social-kicker">KEEP IN TOUCH</div><h2>Your conversations</h2><p>Messages are private to the two conversation participants.</p></div></div>
+<div class="chat-layout"><div class="chat-list" id="chat-list"><p class="empty-state">No conversations yet. Discover someone to say hello.</p></div>
+<div class="chat-panel"><div class="chat-empty" id="chat-empty">Choose a conversation to start chatting 💬</div><div id="active-chat" hidden><div class="chat-heading"><img id="chat-avatar" alt=""><div><b id="chat-name">Conversation</b><small id="chat-presence">Private chat</small></div><button id="report-chat" class="small-action">Report</button><button id="block-chat" class="small-action">Block</button></div><div class="chat-messages" id="chat-messages"></div><form class="chat-compose" id="message-form"><input id="message-input" maxlength="2000" autocomplete="off" placeholder="Write a message…" required><button type="submit">Send ➤</button></form></div></div></div>
+</section>
+<section class="social-view" id="view-dating" hidden>
+<div class="social-view-head"><div><div class="social-kicker">VETER DATING · ADULTS ONLY</div><h2>Meet with intention ❤️</h2><p>Dating is optional and separate from your regular social profile. Only adults 18+ can use it.</p></div></div>
+<div class="dating-safety-note">🔒 Your date of birth is private and is never shown on your dating card. Age is self-declared for now; this is not government-ID verification.</div>
+<form id="dating-setup-form" class="dating-setup">
+<label>Date of birth (private)<input id="dating-birth-date" type="date" required></label>
+<label>What are you looking for?<select id="dating-looking-for"><option value="relationship">A relationship</option><option value="friendship">New friends</option><option value="chat">Just chatting</option></select></label>
+<label>City (optional)<input id="dating-city" maxlength="80" placeholder="e.g. Hyderabad"></label>
+<label>Short introduction<input id="dating-headline" maxlength="120" placeholder="A little about you"></label>
+<label>Interests (comma separated)<input id="dating-interests" maxlength="240" placeholder="Music, travel, coding"></label>
+<label class="dating-consent"><input id="dating-adult-confirm" type="checkbox" required> I confirm I am 18 or older and agree to use dating respectfully.</label>
+<label class="dating-consent"><input id="dating-enable" type="checkbox" checked> Show my dating profile to other eligible adults.</label>
+<button class="social-primary" type="submit">Save dating profile</button>
+</form>
+<div class="dating-toolbar"><h3>People you may like</h3><button type="button" class="small-action" id="dating-refresh">↻ Refresh</button></div>
+<div id="dating-matches" class="dating-match-banner" hidden></div>
+<div id="dating-people" class="people-grid"><p class="empty-state">Confirm you are 18+ and save your dating profile to begin.</p></div>
+</section>
+<section class="social-view" id="view-ai" hidden>
+<div class="ai-page-head"><div><div class="social-kicker">VETER AI STUDIO</div><h2>AI Companions <span>✦</span></h2><p>Meet friendly fictional characters. They are AI personas, not real people.</p></div><span class="ai-status-pill">● AI CHARACTERS</span></div>
+<div class="ai-workspace">
+<aside class="ai-roster"><div class="ai-roster-title"><b>Your companions</b><small>Choose someone to chat with</small></div>
+<div class="ai-character-list" id="ai-character-list"></div></aside>
+<section class="ai-chat-panel"><header class="ai-chat-head"><img id="ai-active-avatar" alt=""><div><b id="ai-active-name">Ananya</b><small><span class="ai-live-dot"></span> AI companion · Fictional</small></div><span class="ai-pill">AI</span></header>
+<div class="ai-chat-messages" id="ai-chat-messages" aria-live="polite"><div class="ai-welcome-card">👋 <b>Hi! I’m Ananya.</b><br>I’m a fictional AI character. Pick a topic and let’s chat!</div></div>
+<div class="ai-prompts" id="ai-prompts"><button type="button" data-ai-prompt="Suggest a good Telugu movie">🎬 Movie ideas</button><button type="button" data-ai-prompt="Help me plan my study day">📚 Study tips</button><button type="button" data-ai-prompt="Tell me something fun">😄 Fun chat</button><button type="button" data-ai-prompt="I want to talk about technology">💻 Technology</button></div>
+<form class="ai-compose" id="ai-message-form"><input id="ai-message-input" maxlength="500" autocomplete="off" placeholder="Message your AI companion…" required><button type="submit" aria-label="Send message">➤</button></form>
+<p class="ai-disclosure">AI character replies are an early demo and may be scripted. Do not share private information.</p>
+</section></div></section>
+<section class="social-view" id="view-groups" hidden>
+<div class="social-view-head"><div><div class="social-kicker">CHAT TOGETHER</div><h2>Your groups</h2><p>Create a group with people who are already your Veter friends.</p></div><button class="social-primary" id="create-group" type="button">＋ Create group</button></div>
+<div class="group-chat-layout"><div class="chat-list" id="group-list"><p class="empty-state">Your groups will appear here.</p></div><div class="chat-panel"><div class="chat-empty" id="group-empty">Choose a group or create a new one 💬</div><div id="active-group" hidden><div class="chat-heading"><div><b id="group-chat-name">Group</b><small>Veter group conversation</small></div></div><div class="chat-messages" id="group-messages"></div><form class="chat-compose" id="group-message-form"><input id="group-message-input" maxlength="2000" autocomplete="off" placeholder="Write to the group…" required><button type="submit">Send ➤</button></form></div></div></div>
+</section>
+<section class="social-view" id="view-profile" hidden>
+<div class="social-view-head"><div><div class="social-kicker">MAKE IT YOURS</div><h2>Your profile</h2><p>Only share details you are comfortable showing to signed-in members.</p></div></div>
+<div class="veter-id-card"><div><small>YOUR UNIQUE VETER ID</small><b id="my-veter-id">Generating your ID…</b></div><button id="copy-veter-id" type="button">Copy ID</button><button id="share-profile" type="button">Share profile</button></div>
+<div class="profile-progress-card" aria-live="polite">
+  <div class="profile-progress-top"><div><b>Profile strength</b><small id="profile-progress-label">Complete your profile to help people know you.</small></div><strong id="profile-progress-value">20%</strong></div>
+  <div class="profile-progress-track"><span id="profile-progress-fill" style="width:20%"></span></div>
+  <div class="profile-preview-card"><img id="profile-preview-avatar" alt="Profile preview"><div><b id="profile-preview-name">Your name</b><small id="profile-preview-username">@username</small><p id="profile-preview-bio">Your introduction will appear here.</p><span id="profile-preview-country">Add your country</span></div></div>
+  <small class="profile-progress-hint">This preview is private to your profile editor until you save.</small>
+</div>
+<form class="profile-form" id="profile-form">
+<label>Display name<input id="profile-name" maxlength="40" required></label>
+<label>Username<input id="profile-username" maxlength="24" placeholder="e.g. harshith_01"></label>
+<label>Country<input id="profile-country" maxlength="64" placeholder="India"></label>
+<label>About you<textarea id="profile-bio" maxlength="240" rows="4" placeholder="Tell people a little about yourself…"></textarea></label>
+<label>Profile photo URL<input id="profile-avatar" type="url" maxlength="2048" placeholder="https://…"></label>
+<button type="submit" class="social-primary">Save profile</button>
+</form>
+</section>
+<section class="social-view" id="view-safety" hidden>
+<div class="social-view-head"><div><div class="social-kicker">YOUR CONTROL</div><h2>Safety tools</h2><p>Keep conversations respectful. You can block people and report harmful behaviour.</p></div></div>
+<div class="safety-card"><h3>Community rules</h3><p>Be respectful. Never share passwords, OTPs, financial details or private contact information with strangers. Leave any conversation that makes you uncomfortable.</p><h3>Blocking and reporting</h3><p>Blocking prevents new conversations between both accounts. Reports are saved for review.</p></div>
+</section>
+</div>
+</section>
+<section class="social-safety" id="social-safety-public"><div><div class="social-kicker">SAFETY IS NOT OPTIONAL</div><h2>Good conversations<br>need <span>good boundaries.</span></h2></div><div class="safety-points"><p><b>01</b> You choose when to continue or leave a chat.</p><p><b>02</b> Block and report tools help protect the community.</p><p><b>03</b> Private contact details stay private.</p><p><b>04</b> Never share passwords or verification codes.</p></div></section>
+</main>
+<footer class="social-footer"><a class="logo" href="/">Veter<span>.</span></a><span>© 2026 Veter Social · Built for respectful connections.</span><a href="/community.html">Community</a></footer>
+<script type="module" src="/assets/js/social.js"></script>
+</body></html>
