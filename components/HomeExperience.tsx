@@ -56,10 +56,6 @@ export default function HomeExperience() {
   const selected = tracks.find((track) => track.id === activeTrack) ?? tracks[0];
   const SelectedIcon = selected.icon;
 
-  const reveal = reduceMotion
-    ? { initial: false as const, whileInView: undefined }
-    : { initial: { opacity: 0, y: 18 }, whileInView: { opacity: 1, y: 0 } };
-
   return (
     <div className="site-shell">
       <section className="hero-section">
@@ -182,7 +178,7 @@ export default function HomeExperience() {
         <div className="leaderboard">
           <div className="leaderboard-head">
             <div><p className="micro-label">ARCADE / SCOREBOARD</p><h3><Trophy size={18} /> High scores</h3></div>
-            <span className="preview-pill">UI PREVIEW</span>
+            <span className="preview-pill">SCORE FEED OFFLINE</span>
           </div>
           <div className="leaderboard-columns"><span>RANK / PLAYER</span><span>GAME</span><span>SCORE</span></div>
           {previewScores.map((entry) => (
@@ -192,6 +188,7 @@ export default function HomeExperience() {
               <span className="score-value">{entry.score}</span>
             </div>
           ))}
+          <div className="score-skeleton" aria-hidden="true"><span /><span /><span /></div>
           <div className="leaderboard-foot"><span>Awaiting verified game scores</span><span>— / —</span></div>
           <p className="leaderboard-note">Preview only. Live rankings require a connected score database.</p>
         </div>
