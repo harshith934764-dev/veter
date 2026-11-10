@@ -4,7 +4,8 @@ services:
     runtime: static
     repo: https://github.com/harshith934764-dev/veter
     branch: main
-    staticPublishPath: .
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
     autoDeployTrigger: commit
     headers:
       - path: /*
