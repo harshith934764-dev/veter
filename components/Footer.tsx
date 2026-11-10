@@ -1,2 +1,32 @@
 import Link from "next/link";
-export default function Footer(){return <footer className="border-t border-white/10 bg-[#050811]"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 px-5 py-9 text-sm text-slate-400 md:flex-row"><div><Link href="/" className="text-lg font-black text-white">VETER<span className="text-emerald-300">.</span></Link><p className="mt-2">Build. Learn. Create.</p></div><div className="flex flex-wrap gap-x-6 gap-y-3">{[["About","/about.html"],["Documentation","/docs.html"],["Community","/community.html"],["Contact","/contact.html"],["Privacy","/privacy.html"]].map(([label,href])=><Link key={href} href={href} className="hover:text-emerald-300">{label}</Link>)}</div><p>© {new Date().getFullYear()} VETER. All rights reserved.</p></div></footer>}
+import { ArrowUpRight } from "lucide-react";
+
+const footerLinks = [
+  ["About", "/about.html"],
+  ["Documentation", "/docs.html"],
+  ["Community", "/community.html"],
+  ["Contact", "/contact.html"],
+  ["Privacy", "/privacy.html"],
+];
+
+export default function Footer() {
+  return (
+    <footer className="site-footer">
+      <div className="footer-main">
+        <div>
+          <Link href="/" className="brand footer-brand">VETER<span>.</span></Link>
+          <p>Build with curiosity. Keep exploring.</p>
+        </div>
+        <div className="footer-links">
+          {footerLinks.map(([label, href]) => (
+            <Link key={href} href={href}>{label}<ArrowUpRight size={12} /></Link>
+          ))}
+        </div>
+      </div>
+      <div className="footer-bottom">
+        <span>© {new Date().getFullYear()} VETER. All rights reserved.</span>
+        <span>INDEPENDENT TECHNOLOGY ECOSYSTEM · THEVETER.IN</span>
+      </div>
+    </footer>
+  );
+}
