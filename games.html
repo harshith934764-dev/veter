@@ -62,6 +62,27 @@ header{background:rgba(2,31,40,.94);border-color:#24434a}
 .arcade-player-head{background:#0a3039;color:#DFFCF3}
 .arcade-player-head button{background:#F44D78;color:#fff;border-color:#F44D78}
 .feature a,.recent-strip a{color:#F44D78}footer{border-color:#24434a;color:#a6c9c3}
+
+/* Lazy CricketZone viewport and leaderboard */
+.cricket-frame-wrap{contain:layout paint;background:#071521}
+.cricket-frame-wrap .cricket-frame{opacity:0;transition:opacity .25s ease}
+.cricket-frame-wrap[data-loaded="true"] .cricket-frame{opacity:1}
+.cricket-frame-skeleton:before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(100deg,#0b2630 20%,#173b43 38%,#0b2630 56%);background-size:200% 100%;animation:cricketSkeleton 1.5s ease-in-out infinite}
+.cricket-loading{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;padding:20px;color:#DFFCF3}
+.cricket-loading strong{font-size:clamp(18px,3vw,26px)}
+.cricket-loading span:last-child{font-size:13px;color:#a6c9c3}
+.cricket-loader-ball{font-size:35px;filter:drop-shadow(0 0 12px #F44D7860)}
+.cricket-frame-wrap[data-loaded="true"] .cricket-loading{display:none}
+@keyframes cricketSkeleton{to{background-position:-200% 0}}
+.leaderboard-panel{max-width:780px;margin:18px auto 0;padding:8px 18px;border:1px solid #244c54;border-radius:17px;background:#0a3039}
+.leaderboard-row{display:grid;grid-template-columns:75px 1fr auto;align-items:center;gap:12px;padding:15px 5px;border-bottom:1px solid #24434a;color:#DFFCF3}
+.leaderboard-row:last-child{border-bottom:0}
+.leaderboard-heading{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#a6c9c3}
+.leaderboard-row .rank,.leaderboard-row .score{color:#F44D78}
+.leaderboard-note{text-align:center;margin:12px 0 0;color:#a6c9c3;font-size:12px}
+@media(max-width:520px){.leaderboard-panel{padding:6px 12px}.leaderboard-row{grid-template-columns:42px 1fr auto;gap:8px;padding:13px 2px;font-size:13px}.leaderboard-heading{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.cricket-frame-skeleton:before{animation:none}}
+
 .featured-cricket{margin:12px 0 32px;padding:20px;border:1px solid #F44D78;border-radius:20px;background:#0a3039;box-shadow:0 0 32px #F44D7825}
 .featured-cricket-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .featured-cricket h2{font-size:clamp(24px,4vw,34px);margin:0;color:#DFFCF3}
@@ -85,7 +106,7 @@ header{background:rgba(2,31,40,.94);border-color:#24434a}
 <div class="stats"><div class="stat"><strong>2D + 3D</strong><span>Different game styles</span></div><div class="stat"><strong>220</strong><span>Arcade challenge variations</span></div><div class="stat"><strong>Mobile</strong><span>Touch-friendly games</span></div></div>
 <section class="featured-cricket" aria-labelledby="featured-cricket-title">
 <div class="featured-cricket-head"><div><div class="eyebrow">FEATURED GAME · PLAY IN YOUR BROWSER</div><h2 id="featured-cricket-title">VETER Cricket 2D</h2><p>Step into the batting crease. Play the existing VETER cricket game right here.</p></div><a class="cricket-cta" href="/veter-cricket.html">Play fullscreen ↗</a></div>
-<div class="cricket-frame-wrap"><iframe class="cricket-frame" src="/veter-cricket.html" title="VETER 2D Cricket Game" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe></div>
+<div class="cricket-frame-wrap cricket-frame-skeleton" id="cricket-lazy-wrap" data-loaded="false"><div class="cricket-loading" id="cricket-loading" aria-live="polite"><span class="cricket-loader-ball">🏏</span><strong>Cricket Zone</strong><span>The game loads when you reach this section.</span></div><iframe class="cricket-frame" id="cricket-lazy-frame" data-src="/veter-cricket.html" title="VETER 2D Cricket Game" loading="lazy" allow="fullscreen; gamepad" allowfullscreen></iframe></div>
 </section>
 <section class="section" id="game-library"><div class="section-head"><div><h2>Game library</h2><p>Choose a game and start playing.</p></div></div>
 <div class="toolbar"><input class="search" id="game-search" type="search" placeholder="Search games…" aria-label="Search games"><div class="filters" id="filters"><button class="filter active" data-filter="all">All games</button><button class="filter" data-filter="cricket">Cricket</button><button class="filter" data-filter="sports">Sports</button><button class="filter" data-filter="arcade">Arcade</button><button class="filter" data-filter="action">Action</button><button class="filter" data-filter="3d">3D worlds</button><button class="filter" data-filter="2d">2D games</button></div></div>
@@ -111,6 +132,15 @@ header{background:rgba(2,31,40,.94);border-color:#24434a}
 </div><div class="empty" id="empty">No games match that search. Try another name or category.</div>
 <div class="arcade-player" id="arcade-player" aria-label="VETER Arcade game player"><div class="arcade-player-head"><strong id="arcade-player-title">Now playing</strong><button type="button" id="arcade-close">✕ Close game</button></div><iframe class="arcade-frame" id="arcade-frame" title="VETER Arcade game" allow="fullscreen; gamepad; autoplay" allowfullscreen loading="lazy"></iframe></div>
 </section>
+
+<section class="section" id="leaderboard"><div class="section-head"><div><div class="eyebrow">PLAYER RANKINGS</div><h2>Arcade leaderboard</h2><p>Sample high scores for the VETER leaderboard. Connect Supabase to replace these demo records with live player scores.</p></div></div>
+<div class="leaderboard-panel"><div class="leaderboard-row leaderboard-heading"><span>Rank</span><span>Player</span><span>High score</span></div>
+<div class="leaderboard-row"><b class="rank">01</b><strong>PlayerOne</strong><strong class="score">9,850 pts</strong></div>
+<div class="leaderboard-row"><b class="rank">02</b><strong>CricketKing</strong><strong class="score">8,720 pts</strong></div>
+<div class="leaderboard-row"><b class="rank">03</b><strong>VETERPro</strong><strong class="score">7,950 pts</strong></div>
+<div class="leaderboard-row"><b class="rank">04</b><strong>GameMaster</strong><strong class="score">6,800 pts</strong></div>
+<div class="leaderboard-row"><b class="rank">05</b><strong>RookiePlayer</strong><strong class="score">5,420 pts</strong></div>
+</div><p class="leaderboard-note">Demo data only · Scores are not yet connected to a live database.</p></section>
 <section class="section"><div class="section-head"><div><h2>More ways to play</h2><p>Browse the full mini-game collection and VETER projects.</p></div></div><div class="feature-row">
 <div class="feature"><h3>🎮 220 Arcade Challenges</h3><p>Twenty game mechanics with multiple challenge variations across maths, memory, typing, reaction, target, maze, words and more. These are variations of core game types, not 220 separate game engines.</p><a class="arcade-open-link" href="/arcade-100.html">Play the challenge catalogue inside Arcade →</a></div>
 <div class="feature"><h3>🕹️ All VETER Products</h3><p>Find the classic mini-games, experiments and other VETER projects in one place.</p><a class="arcade-open-link" href="/products.html#panel-games">Play classic VETER games inside Arcade →</a></div>
@@ -118,6 +148,7 @@ header{background:rgba(2,31,40,.94);border-color:#24434a}
 </main>
 <footer><div class="wrap">© VETER · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/">Home</a></div></footer>
 <script>
+(()=>{const wrap=document.getElementById('cricket-lazy-wrap'),game=document.getElementById('cricket-lazy-frame');if(!wrap||!game)return;const load=()=>{if(wrap.dataset.loaded==='true')return;game.src=game.dataset.src;wrap.dataset.loaded='true'};if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){load();observer.disconnect()}},{rootMargin:'250px 0px',threshold:0.01});observer.observe(wrap)}else{load()}})();
 (()=>{const grid=document.getElementById('games'),cards=[...grid.querySelectorAll('.game')],search=document.getElementById('game-search'),filters=[...document.querySelectorAll('#filters .filter')],empty=document.getElementById('empty'),favOnly=document.getElementById('fav-only'),sort=document.getElementById('game-sort'),recentStrip=document.getElementById('recent-strip'),recentLinks=document.getElementById('recent-links'),summary=document.getElementById('hub-summary');let kind='all',favorites=read('veter-game-favorites',[]),recent=read('veter-game-recent',[]);
 function read(key,fallback){try{return JSON.parse(localStorage.getItem(key))||fallback}catch{return fallback}}
 function write(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
