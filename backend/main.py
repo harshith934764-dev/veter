@@ -38,8 +38,13 @@ app.add_middleware(
 )
 
 bearer = HTTPBearer(auto_error=False)
-threads: dict[str, dict[str, Any]] = {}
-messages: dict[str, list[dict[str, str]]] = {}
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://qqvfphefusvbveucqbrj.supabase.co").rstrip("/")
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
+if not SUPABASE_ANON_KEY:
+    # This is the public anon key already used by the VETER website. RLS remains
+    # enforced with the signed-in Firebase ID token forwarded on each request.
+    SUPABASE_ANON_KEY = os.getenv("VETER_SUPABASE_PUBLIC_KEY", "")
+
 
 
 class ChatRequest(BaseModel):
@@ -91,43 +96,98 @@ def health():
 
 
 @app.get("/v1/threads")
-def list_threads(user: dict = Depends(current_user)):
-    owned = [t for t in threads.values() if t["uid"] == user["uid"]]
-    return sorted(owned, key=lambda t: t["updated_at"], reverse=True)
+async def list_threads(user: dict = Depends(current_user), credentials: HTTPAuthorizationCredentials = Depends(bearer)):
+    return await supabase_request(
+        "GET",
+        "/rest/v1/ai_threads",
+        credentials.credentials,
+        params={"select": "id,title,model,created_at,updated_at", "owner_uid": f"eq.{user['uid']}", "order": "updated_at.desc", "limit": "100"},
+    )
 
 
 @app.get("/v1/threads/{thread_id}/messages")
-def list_messages(thread_id: str, user: dict = Depends(current_user)):
-    thread = threads.get(thread_id)
-    if not thread or thread["uid"] != user["uid"]:
+async def list_messages(thread_id: str, user: dict = Depends(current_user), credentials: HTTPAuthorizationCredentials = Depends(bearer)):
+    try:
+        uuid.UUID(thread_id)
+    except ValueError:
         raise HTTPException(status_code=404, detail="Conversation not found.")
-    return messages.get(thread_id, [])
+    owned = await supabase_request(
+        "GET",
+        "/rest/v1/ai_threads",
+        credentials.credentials,
+        params={"select": "id", "id": f"eq.{thread_id}", "owner_uid": f"eq.{user['uid']}", "limit": "1"},
+    )
+    if not owned:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    return await supabase_request(
+        "GET",
+        "/rest/v1/ai_messages",
+        credentials.credentials,
+        params={"select": "id,role,content,provider,created_at", "thread_id": f"eq.{thread_id}", "owner_uid": f"eq.{user['uid']}", "order": "created_at.asc", "limit": "500"},
+    )
+
+
+async def supabase_request(method: str, path: str, firebase_token: str, *, params=None, json_body=None):
+    if not SUPABASE_ANON_KEY:
+        raise HTTPException(status_code=503, detail="VETER chat storage is not configured.")
+    headers = {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": f"Bearer {firebase_token}",
+        "Content-Type": "application/json",
+    }
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20.0, connect=8.0)) as client:
+            response = await client.request(method, SUPABASE_URL + path, headers=headers, params=params, json=json_body)
+        if response.status_code >= 400:
+            raise HTTPException(status_code=502, detail="VETER chat storage request failed.")
+        if response.status_code == 204 or not response.content:
+            return []
+        return response.json()
+    except HTTPException:
+        raise
+    except httpx.HTTPError:
+        raise HTTPException(status_code=503, detail="VETER chat storage is temporarily unavailable.")
 
 
 @app.post("/v1/chat")
-async def chat(payload: ChatRequest, user: dict = Depends(current_user)):
+async def chat(payload: ChatRequest, user: dict = Depends(current_user), credentials: HTTPAuthorizationCredentials = Depends(bearer)):
     direct_api = bool(CHAT_API_BASE and CHAT_API_KEY)
     legacy_model = bool(MODEL_URL and MODEL_TOKEN)
     if not direct_api and not legacy_model:
         raise HTTPException(
             status_code=503,
-            detail="VETER AI is online, but its AI provider is not connected. Add VETER_CHAT_API_BASE, VETER_CHAT_API_KEY and VETER_CHAT_MODEL in Render Environment.",
+            detail="VETER AI is online, but its AI provider is not connected. Configure the AI provider in Render Environment.",
         )
 
-    thread_id = payload.thread_id or str(uuid.uuid4())
-    thread = threads.get(thread_id)
-    if thread and thread["uid"] != user["uid"]:
-        raise HTTPException(status_code=404, detail="Conversation not found.")
-    if not thread:
-        thread = {
-            "id": thread_id,
-            "uid": user["uid"],
-            "title": payload.content[:60],
-            "updated_at": int(time.time()),
-        }
-        threads[thread_id] = thread
+    thread_id = payload.thread_id
+    if thread_id:
+        try:
+            uuid.UUID(thread_id)
+        except ValueError:
+            raise HTTPException(status_code=404, detail="Conversation not found.")
+        owned = await supabase_request(
+            "GET", "/rest/v1/ai_threads", credentials.credentials,
+            params={"select": "id,title", "id": f"eq.{thread_id}", "owner_uid": f"eq.{user['uid']}", "limit": "1"},
+        )
+        if not owned:
+            raise HTTPException(status_code=404, detail="Conversation not found.")
+        thread = owned[0]
+        history_rows = await supabase_request(
+            "GET", "/rest/v1/ai_messages", credentials.credentials,
+            params={"select": "role,content", "thread_id": f"eq.{thread_id}", "owner_uid": f"eq.{user['uid']}", "order": "created_at.asc", "limit": "40"},
+        )
+    else:
+        created = await supabase_request(
+            "POST", "/rest/v1/ai_threads", credentials.credentials,
+            json_body={"owner_uid": user["uid"], "title": payload.content[:120], "model": payload.model},
+        )
+        if not created:
+            raise HTTPException(status_code=502, detail="Could not create your conversation.")
+        thread = created[0]
+        thread_id = thread["id"]
+        history_rows = []
 
-    history = messages.setdefault(thread_id, [])
+    history = [{"role": row["role"], "content": row["content"]} for row in history_rows]
     history.append({"role": "user", "content": payload.content})
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(120.0, connect=10.0)) as client:
@@ -149,7 +209,7 @@ async def chat(payload: ChatRequest, user: dict = Depends(current_user)):
                 response = await client.post(
                     f"{MODEL_URL}/api/chat",
                     headers={"Authorization": f"Bearer {MODEL_TOKEN}"},
-                    json={"model": payload.model or (CHAT_MODEL if direct_api else MODEL_NAME), "messages": history[-20:], "stream": False},
+                    json={"model": payload.model or MODEL_NAME, "messages": history[-20:], "stream": False},
                 )
                 response.raise_for_status()
                 result = response.json()
@@ -157,14 +217,25 @@ async def chat(payload: ChatRequest, user: dict = Depends(current_user)):
         if not answer:
             raise ValueError("The VETER model returned an empty response.")
     except Exception as exc:
-        history.pop()
         raise HTTPException(status_code=502, detail=f"VETER model runtime error: {exc}")
 
-    history.append({"role": "assistant", "content": answer})
-    thread["updated_at"] = int(time.time())
+    now = int(time.time())
+    await supabase_request(
+        "POST", "/rest/v1/ai_messages", credentials.credentials,
+        json_body=[
+            {"thread_id": thread_id, "owner_uid": user["uid"], "role": "user", "content": payload.content, "provider": "VETER"},
+            {"thread_id": thread_id, "owner_uid": user["uid"], "role": "assistant", "content": answer, "provider": "VETER"},
+        ],
+    )
+    await supabase_request(
+        "PATCH", "/rest/v1/ai_threads", credentials.credentials,
+        params={"id": f"eq.{thread_id}", "owner_uid": f"eq.{user['uid']}"},
+        json_body={"updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)), "model": payload.model or CHAT_MODEL},
+    )
     return {
         "thread_id": thread_id,
         "answer": answer,
         "provider": "VETER",
-        "model": payload.model or MODEL_NAME,
+        "model": payload.model or (CHAT_MODEL if direct_api else MODEL_NAME),
     }
+
