@@ -202,7 +202,7 @@ export function LegacyHomeSections() {
 
     <section id="contact" className="mx-auto max-w-7xl px-5 py-16 text-center lg:px-8">
       <Badge>GET IN TOUCH</Badge><h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Build with VETER.</h2><p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-400">Questions, ideas or feedback? Reach the project through the official channels.</p>
-      <div className="mt-6 flex flex-wrap justify-center gap-3"><a href="mailto:9347648599"><Button>Email VETER</Button></a><a href="https://wa.me/919347648599" target="_blank" rel="noreferrer"><Button variant="secondary">WhatsApp</Button></a><a href="https://www.instagram.com/buildwithveter/" target="_blank" rel="noreferrer"><Button variant="secondary">Instagram</Button></a></div>
+      <div className="mt-6 flex flex-wrap justify-center gap-3"><a href="mailto:harshith934764@gmail.com"><Button>Email VETER</Button></a><a href="https://wa.me/919347648599" target="_blank" rel="noreferrer"><Button variant="secondary">WhatsApp</Button></a><a href="https://www.instagram.com/buildwithveter/" target="_blank" rel="noreferrer"><Button variant="secondary">Instagram</Button></a></div>
     </section>
   </>;
 }
