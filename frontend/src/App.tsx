@@ -6,6 +6,7 @@ import {
 import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardHeader } from "./components/ui/card";
+import { LegacyHomeSections } from "./LegacyHomeSections";
 
 const links = [
   { label: "Language", href: "/veter-programming-language.html" },
@@ -15,6 +16,10 @@ const links = [
   { label: "VETER World", href: "/veter-world.html" },
   { label: "Social", href: "/social.html" },
   { label: "VETER AI", href: "/veter-ai.html" },
+  { label: "Downloads", href: "/downloads.html" },
+  { label: "Studio", href: "/studio.html" },
+  { label: "Community", href: "/community.html" },
+  { label: "Developers", href: "/developers.html" },
 ];
 
 const projects = [
@@ -106,6 +111,8 @@ function App() {
             </Card>)}
           </div>
         </section>
+
+        <LegacyHomeSections />
 
         <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-8">
           <Card className="relative overflow-hidden border-blue-300/15 bg-gradient-to-br from-blue-500/[0.12] via-cyan-400/[0.06] to-transparent">
