@@ -219,6 +219,7 @@
   </style>
   <link rel="stylesheet" href="/premium.css?v=1">
   <link rel="stylesheet" href="/animations.css?v=1">
+  <link rel="stylesheet" href="/dialog-motion.css?v=1">
 
   <style>
     .nav-links{gap:clamp(10px,1.5vw,20px);flex-wrap:wrap}
@@ -554,6 +555,20 @@ say score</textarea>
     </section>
   </main>
 
+  <dialog class="veter-dialog" id="veter-help-dialog" aria-labelledby="veter-dialog-title" aria-describedby="veter-dialog-description">
+    <div class="veter-dialog-top"><span class="veter-dialog-mark" aria-hidden="true">V.</span><button class="veter-dialog-close" type="button" data-veter-dialog-close aria-label="Close dialog">×</button></div>
+    <span class="veter-dialog-eyebrow">WELCOME TO VETER</span>
+    <h2 id="veter-dialog-title">What would you like to build?</h2>
+    <p id="veter-dialog-description">Choose a starting point and explore the VETER ecosystem.</p>
+    <div class="veter-dialog-links">
+      <a href="learn.html"><span aria-hidden="true">⌘</span><span><strong>Learn Veter</strong><small>Start with beginner lessons</small></span><b aria-hidden="true">↗</b></a>
+      <a href="#code-maker"><span aria-hidden="true">⌨</span><span><strong>Try the code maker</strong><small>Run a small .vtr program</small></span><b aria-hidden="true">↗</b></a>
+      <a href="community.html"><span aria-hidden="true">◎</span><span><strong>Join the community</strong><small>Explore projects and updates</small></span><b aria-hidden="true">↗</b></a>
+    </div>
+    <p class="veter-dialog-foot">A small step is a good place to start.</p>
+  </dialog>
+  <button class="veter-help-trigger" type="button" data-veter-dialog-open aria-haspopup="dialog" aria-controls="veter-help-dialog"><span aria-hidden="true">✦</span> Explore VETER</button>
+
   <footer>
     <div class="container footer-inner">
       <div>© 2026 Veter Project. Built independently.</div>
@@ -585,5 +600,6 @@ say score</textarea>
 
   <script src="/assets/js/home.js" defer></script>
   <script src="/animations.js?v=1" defer></script>
+  <script src="/dialog-motion.js?v=1" defer></script>
 </body>
 </html>
