@@ -1,9 +1,32 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07131f"><title>VETER Arcade Duo — Football & Cricket</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07131f"><meta name="description" content="Play TheVeter Arcade Duo free in your browser: a 2D football penalty shootout and timed cricket batting game. Mobile and desktop controls, no installation required."><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://theveter.in/arcade-duo.html"><meta property="og:type" content="website"><meta property="og:title" content="Free 2D Football Penalty & Cricket Games | TheVeter"><meta property="og:description" content="Play free football penalty shootout and cricket arcade mini-games in your browser on TheVeter."><meta property="og:url" content="https://theveter.in/arcade-duo.html"><meta property="og:site_name" content="TheVeter"><title>Free 2D Football Penalty &amp; Cricket Games | TheVeter Arcade</title>
 <style>
 :root{color-scheme:dark;--bg:#07131f;--panel:#102236;--line:#29445d;--text:#f3f8ff;--muted:#b1c3d6;--mint:#8fe3d9;--lime:#9bd33c}
 *{box-sizing:border-box}body{margin:0;padding:22px 14px 30px;background:radial-gradient(ellipse at top,#19354a,var(--bg) 65%);color:var(--text);font:15px/1.5 system-ui,sans-serif}.wrap{max-width:1000px;margin:auto}header{text-align:center;margin:0 0 20px}.brand{font-size:11px;letter-spacing:5px;color:var(--mint);font-weight:900}h1{font-size:clamp(27px,5vw,44px);margin:6px 0}.sub{color:var(--muted);margin:0}.tabs{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:20px 0}.tabs button,.actions button,.overlay button{border:1px solid #49627b;border-radius:11px;padding:11px 17px;background:#172d43;color:var(--text);font-weight:850;cursor:pointer}.tabs button.active,.primary{background:var(--lime)!important;color:#142008!important;border-color:var(--lime)!important}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.stat{padding:11px;background:var(--panel);border:1px solid var(--line);border-radius:12px;text-align:center}.stat small{display:block;color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase}.stat strong{font-size:25px}.stage{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:15px;background:#10251e;box-shadow:0 16px 45px #0005}canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:manipulation}.overlay{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:#06101bd9}.overlay.hidden{display:none}.dialog{width:min(420px,100%);padding:22px;border:1px solid #48617a;border-radius:16px;background:#132941;text-align:center}.dialog h2{margin:0 0 8px;font-size:29px}.dialog p{color:var(--muted);margin:0 0 16px}.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 2px}.hint{color:var(--muted);font-size:13px}.actions{display:flex;gap:8px}.actions button{padding:9px 13px}.actions button:hover,.tabs button:hover{border-color:var(--mint)}footer{text-align:center;color:#8499ad;font-size:11px;margin-top:14px}@media(max-width:560px){body{padding:15px 8px}.stats{gap:6px}.stat{padding:9px 3px}.stat strong{font-size:20px}.actions{width:100%}.actions button{flex:1}.dialog{padding:16px}.tabs button{flex:1}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
-</style></head><body><div class="wrap"><header><div class="brand">VETER ARCADE</div><h1>Two Sports. One Challenge.</h1><p class="sub">Football penalties and timed cricket batting — play on desktop or touch screen.</p></header>
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "OnlineGame",
+  "@id": "https://theveter.in/arcade-duo.html#game",
+  "name": "TheVeter Arcade Duo",
+  "url": "https://theveter.in/arcade-duo.html",
+  "description": "Play free 2D football penalty shootout and cricket arcade games directly in your browser. No game installation is required.",
+  "genre": ["Sports", "Arcade", "Casual"],
+  "gamePlatform": ["Web Browser", "Mobile Browser", "Desktop Browser"],
+  "applicationCategory": "Game",
+  "playMode": "SinglePlayer",
+  "isAccessibleForFree": true,
+  "inLanguage": "en",
+  "publisher": {"@type": "Organization", "@id": "https://theveter.in/#organization", "name": "TheVeter", "url": "https://theveter.in/"},
+  "gameItem": [
+    {"@type": "Thing", "name": "2D Football Penalty Shootout"},
+    {"@type": "Thing", "name": "2D Cricket Game"}
+  ],
+  "keywords": ["free online sports games", "2D football penalty shootout", "browser cricket game", "HTML5 arcade games", "free browser mini-games"]
+}
+</script>
+</head><body><div class="wrap"><header><div class="brand">VETER ARCADE</div><h1>Two Sports. One Challenge.</h1><p class="sub">Football penalties and timed cricket batting — play on desktop or touch screen.</p></header>
 <div class="tabs"><button id="footballTab" class="active">⚽ Football Penalties</button><button id="cricketTab">🏏 Cricket</button></div>
 <div class="stats"><div class="stat"><small>Current Score</small><strong id="score">0</strong></div><div class="stat"><small>Personal Best</small><strong id="high">0</strong></div><div class="stat"><small id="remainingLabel">Attempts Left</small><strong id="remaining">5</strong></div></div>
 <div class="stage"><canvas id="game" width="960" height="540" aria-label="VETER arcade game"></canvas><div class="overlay" id="overlay"><div class="dialog"><h2 id="overlayTitle">⚽ Penalty Shootout</h2><p id="overlayText">Choose a target in the goal. Beat the moving goalkeeper to score. Five shots!</p><button class="primary" id="start">START GAME</button></div></div></div>
