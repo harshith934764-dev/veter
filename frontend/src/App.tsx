@@ -7,6 +7,7 @@ import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardHeader } from "./components/ui/card";
 import { LegacyHomeSections } from "./LegacyHomeSections";
+import { BatchOnePages } from "./BatchOnePages";
 
 const links = [
   { label: "Dashboard", href: "/dashboard.html" },
@@ -36,6 +37,8 @@ const projects = [
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const migratedPage = BatchOnePages();
+  if (migratedPage) return migratedPage;
 
   return (
     <div className="veter-app min-h-screen overflow-hidden bg-[#080b14] text-slate-100">
