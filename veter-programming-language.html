@@ -35,9 +35,35 @@
     .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:22px 0}
     code{color:#b8f4ff}pre{overflow:auto;background:#050914;border:1px solid var(--line);border-radius:12px;padding:18px;color:#d9f7ff}
   </style>
-  <link rel="stylesheet" href="/premium.css?v=1">\n  <script src="/veter-loader.js?v=1" defer></script>
+  <link rel="stylesheet" href="/premium.css?v=1">
+<style>
+  /* Page-specific contrast and reading improvements */
+  .veter-language-page { background:#0b1018!important; color:#f1f5f9!important; }
+  .veter-language-page main.wrap { width:min(100% - 40px, 1120px); }
+  .veter-language-page h1,.veter-language-page h2,.veter-language-page h3,
+  .veter-language-page section h2 { color:#f1f5f9!important; }
+  .veter-language-page p,.veter-language-page li { color:#b8c5d5!important; }
+  .veter-language-page .hero { padding:clamp(64px,9vw,112px) 0 48px!important; }
+  .veter-language-page .eyebrow { color:#8fe3d9!important; }
+  .veter-language-page section { margin:0 0 54px; }
+  .veter-language-page section h2 { margin:0 0 16px; font-size:clamp(24px,3vw,32px); }
+  .veter-language-page section p { max-width:78ch; }
+  .veter-language-page a { color:#8fe3d9!important; text-decoration-thickness:1px; text-underline-offset:4px; }
+  .veter-language-page a:hover { color:#c0fff5!important; }
+  .veter-language-page code { color:#aaf3e9!important; background:#102a2b!important; border:1px solid rgba(126,219,208,.18); padding:.12em .38em; border-radius:5px; }
+  .veter-language-page pre { margin:22px 0 18px; padding:24px!important; background:#050a12!important; border:1px solid #344457!important; border-radius:12px!important; box-shadow:0 10px 30px rgba(0,0,0,.2)!important; }
+  .veter-language-page pre code { display:block; padding:0; border:0; background:transparent!important; color:#b9f4eb!important; font-size:15px; line-height:1.8; }
+  .veter-language-page .panel { padding:26px!important; background:#121d29!important; border-color:#2b3b4d!important; }
+  .veter-language-page footer { color:#aab8c8!important; }
+  @media(max-width:640px) {
+    .veter-language-page main.wrap { width:min(100% - 32px,1120px); }
+    .veter-language-page .hero { padding:58px 0 34px!important; }
+    .veter-language-page section { margin-bottom:40px; }
+    .veter-language-page pre { padding:18px!important; }
+  }
+</style>\n  <script src="/veter-loader.js?v=1" defer></script>
 </head>
-<body>
+<body class="veter-language-page">
 <header><nav class="wrap" aria-label="Main navigation"><a href="/">Home</a><a href="/learn.html">Learn</a><a href="/docs.html">Documentation</a><a href="/reference.html">Language reference</a><a href="/faq.html">FAQ</a><a href="/about.html">About</a><a href="https://github.com/harshith934764-dev/veter">GitHub source</a></nav></header>
 <main class="wrap">
   <div class="hero"><div class="eyebrow">THE VETER PROJECT</div><h1>Meet the Veter programming language</h1><p>Veter is an independently developed programming-language project created by Chengepally Harshith Reddy. It is being developed around its own language design, <code>.vtr</code> source files, compiler work and learning resources.</p></div>
