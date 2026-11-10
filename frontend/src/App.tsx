@@ -10,6 +10,7 @@ import { LegacyHomeSections } from "./LegacyHomeSections";
 import { BatchOnePages } from "./BatchOnePages";
 import { BatchTwoPages } from "./BatchTwoPages";
 import { BatchThreePages } from "./BatchThreePages";
+import { BatchFourPages } from "./BatchFourPages";
 
 const links = [
   { label: "Dashboard", href: "/dashboard.html" },
@@ -39,7 +40,7 @@ const projects = [
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const migratedPage = BatchOnePages() ?? BatchTwoPages() ?? BatchThreePages();
+  const migratedPage = BatchOnePages() ?? BatchTwoPages() ?? BatchThreePages() ?? BatchFourPages();
   if (migratedPage) return migratedPage;
 
   return (
