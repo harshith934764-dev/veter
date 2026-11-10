@@ -5,6 +5,7 @@ const links = [
   { label: "Explore", href: "/#explore" },
   { label: "Language", href: "/veter-programming-language.html" },
   { label: "AI", href: "/veter-ai.html" },
+  { label: "VETER OS", href: "/veteros.html" },
   { label: "Arcade", href: "/games.html" },
   { label: "Docs", href: "/docs.html" },
 ];
