@@ -456,3 +456,106 @@ img{max-width:100%}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* VETER NEO-BRUTAL GLASS SYSTEM — v3 */
+:root{
+ --v-ink:#05060b;--v-paper:#f3f0e8;--v-acid:#c8ff35;--v-electric:#8c5cff;
+ --v-cyan:#48f3e5;--v-hot:#ff4fa3;--v-glass:rgba(255,255,255,.075);
+ --v-glass-line:rgba(255,255,255,.25);
+}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{
+ background-color:var(--v-ink)!important;
+ background-image:
+  linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
+  radial-gradient(ellipse at 12% 10%,rgba(72,243,229,.18),transparent 32%),
+  radial-gradient(ellipse at 90% 25%,rgba(140,92,255,.2),transparent 34%),
+  linear-gradient(135deg,#05060b,#10101c 55%,#080a12)!important;
+ background-size:32px 32px,32px 32px,auto,auto,auto!important;
+}
+body:before{
+ content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.11;
+ background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+}
+body>*{position:relative;z-index:1}
+header{
+ background:rgba(5,6,11,.72)!important;backdrop-filter:blur(24px) saturate(165%)!important;
+ -webkit-backdrop-filter:blur(24px) saturate(165%)!important;
+ border-bottom:2px solid rgba(255,255,255,.65)!important;
+ box-shadow:0 12px 40px rgba(0,0,0,.35)!important;
+}
+header nav{gap:18px}
+.hero{isolation:isolate}
+.hero:before{border:2px solid rgba(200,255,53,.2)!important;border-radius:0!important;transform:rotate(-5deg);animation:veter-drift 16s ease-in-out infinite alternate}
+h1,.hero h1{
+ text-transform:uppercase!important;letter-spacing:-.075em!important;
+ text-shadow:5px 5px 0 rgba(140,92,255,.32);
+}
+h2,.section-head h2{letter-spacing:-.06em!important;text-transform:uppercase}
+.gradient{
+ background:linear-gradient(100deg,var(--v-acid),var(--v-cyan),#fff,var(--v-hot))!important;
+ background-size:240% auto!important;animation:veter-gradient 7s linear infinite!important;
+ -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
+}
+.tag,.eyebrow,.label{
+ border:2px solid var(--v-acid)!important;border-radius:2px!important;
+ background:rgba(200,255,53,.09)!important;color:var(--v-acid)!important;
+ box-shadow:4px 4px 0 rgba(200,255,53,.22);backdrop-filter:blur(12px);
+}
+.card,.panel,.content,.item,.product-detail,.notice,.step,.feature,.stat,.recent-strip,.player-tools{
+ background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.035))!important;
+ border:2px solid rgba(255,255,255,.72)!important;border-radius:5px!important;
+ box-shadow:8px 8px 0 rgba(140,92,255,.38),inset 0 1px 0 rgba(255,255,255,.22)!important;
+ backdrop-filter:blur(18px) saturate(150%)!important;-webkit-backdrop-filter:blur(18px) saturate(150%)!important;
+}
+.card,.feature,.step{transition:transform .24s cubic-bezier(.2,.8,.2,1),box-shadow .24s,border-color .24s!important}
+.card:hover,.feature:hover,.step:hover{
+ transform:translate(-4px,-6px) rotate(-.35deg)!important;
+ border-color:var(--v-acid)!important;box-shadow:12px 13px 0 rgba(72,243,229,.35),0 0 35px rgba(72,243,229,.13)!important;
+}
+.btn,button,.button{
+ border:2px solid #fff!important;border-radius:3px!important;
+ background:rgba(255,255,255,.1)!important;backdrop-filter:blur(14px)!important;
+ box-shadow:5px 5px 0 var(--v-electric)!important;
+ text-transform:uppercase;letter-spacing:.035em;
+}
+.btn-primary,.btn.primary{
+ background:var(--v-acid)!important;color:#090b0c!important;border-color:var(--v-acid)!important;
+ box-shadow:5px 5px 0 #fff!important;
+}
+.btn:hover,button:hover,.button:hover{
+ transform:translate(-3px,-3px)!important;box-shadow:8px 8px 0 var(--v-cyan)!important;
+}
+input,textarea,select,pre{
+ border:2px solid rgba(255,255,255,.65)!important;border-radius:3px!important;
+ background:rgba(5,7,14,.72)!important;backdrop-filter:blur(14px)!important;
+}
+pre{box-shadow:7px 7px 0 rgba(140,92,255,.55)!important}
+footer{background:rgba(5,6,11,.62)!important;backdrop-filter:blur(18px)!important}
+img{transition:filter .35s,transform .5s}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
+ outline:3px solid var(--v-acid)!important;outline-offset:5px!important;
+}
+@keyframes veter-gradient{0%{background-position:0% center}100%{background-position:240% center}}
+@keyframes veter-drift{0%{transform:rotate(-5deg) translateY(0)}100%{transform:rotate(3deg) translateY(-18px)}}
+@keyframes veter-enter{from{opacity:0;transform:translateY(24px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes veter-pulse{0%,100%{box-shadow:0 0 0 rgba(72,243,229,0)}50%{box-shadow:0 0 28px rgba(72,243,229,.16)}}
+.hero h1,.hero .tag,.hero .eyebrow,.hero .actions{animation:veter-enter .75s both}
+.hero p{animation:veter-enter .9s .12s both}
+.card,.feature,.step{animation:veter-enter .65s both}
+.card:nth-child(2),.step:nth-child(2){animation-delay:.08s}
+.card:nth-child(3),.step:nth-child(3){animation-delay:.16s}
+.card:nth-child(4),.step:nth-child(4){animation-delay:.24s}
+@media(hover:hover){
+ .card:hover img,.game:hover .cover img{transform:scale(1.07) rotate(1deg);filter:saturate(1.25) contrast(1.08)}
+}
+@media(max-width:760px){
+ body{background-size:24px 24px,24px 24px,auto,auto,auto!important}
+ .card,.panel,.feature,.step{box-shadow:5px 5px 0 rgba(140,92,255,.35)!important}
+ h1,.hero h1{text-shadow:3px 3px 0 rgba(140,92,255,.3)}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
