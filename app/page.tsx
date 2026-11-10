@@ -1,31 +1,45 @@
 import Link from "next/link";
-import { ArrowUpRight, Braces, Cpu, Gamepad2, Sparkles } from "lucide-react";
 
-const items = [
-  { icon: Braces, title: "VETER Language", desc: "Explore the independent .vtr programming language, compiler and learning resources.", href: "/veter-programming-language.html", tag: "DEVELOPER TOOLS" },
-  { icon: Sparkles, title: "VETER AI", desc: "Discover AI experiments and the VETER assistant ecosystem.", href: "/veter-ai.html", tag: "AI & EXPERIMENTS" },
-  { icon: Gamepad2, title: "VETER Arcade", desc: "Play browser games, sports challenges and the growing game collection.", href: "/games.html", tag: "PLAY & EXPLORE" },
-  { icon: Cpu, title: "VETER OS", desc: "See the Linux-based operating system project and its development.", href: "/veteros.html", tag: "OPERATING SYSTEM" },
+const cards = [
+  { title: "VETER Language", tag: "DEVELOPER TOOLS", desc: "Explore the independent .vtr programming language, compiler and learning resources.", href: "/veter-programming-language.html" },
+  { title: "VETER AI", tag: "AI & EXPERIMENTS", desc: "Discover AI experiments and the VETER assistant ecosystem.", href: "/veter-ai.html" },
+  { title: "VETER Arcade", tag: "PLAY & EXPLORE", desc: "Play browser games, sports challenges and the growing game collection.", href: "/games.html" },
+  { title: "VETER OS", tag: "OPERATING SYSTEM", desc: "See the Linux-based operating system project and its development.", href: "/veteros.html" }
 ];
 
+const styles = {
+  page: { minHeight: "100vh", background: "#070b14", color: "#f4f7fb", fontFamily: "Arial, Helvetica, sans-serif" },
+  wrap: { width: "min(1120px, 100% - 40px)", margin: "0 auto" },
+  hero: { padding: "100px 0 90px" },
+  eyebrow: { display: "inline-block", padding: "10px 15px", border: "1px solid #28584f", borderRadius: "30px", color: "#a7f3d0", fontSize: "12px", fontWeight: 800, letterSpacing: "2px" },
+  heading: { fontSize: "clamp(48px, 8vw, 88px)", lineHeight: 1.02, letterSpacing: "-4px", fontWeight: 900, margin: "28px 0 0" },
+  accent: { color: "#6ee7b7" },
+  intro: { maxWidth: "680px", color: "#cbd5e1", fontSize: "18px", lineHeight: 1.8, marginTop: "28px" },
+  actions: { display: "flex", flexWrap: "wrap" as const, gap: "12px", marginTop: "30px" },
+  primary: { display: "inline-block", background: "#6ee7b7", color: "#06111a", padding: "15px 22px", borderRadius: "30px", fontWeight: 800, textDecoration: "none" },
+  secondary: { display: "inline-block", border: "1px solid #475569", color: "#fff", padding: "14px 22px", borderRadius: "30px", fontWeight: 700, textDecoration: "none" },
+  section: { borderTop: "1px solid #263244", background: "#0b1220", padding: "75px 0" },
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "16px", marginTop: "32px" },
+  card: { display: "block", padding: "26px", border: "1px solid #263244", borderRadius: "18px", background: "#111b2b", color: "#f8fafc", textDecoration: "none", minHeight: "190px" },
+  tag: { color: "#6ee7b7", fontSize: "11px", fontWeight: 800, letterSpacing: "1.5px" },
+  desc: { color: "#aebccc", lineHeight: 1.7 },
+  lower: { padding: "75px 0" }
+};
+
 export default function Home() {
-  return (
-    <div className="overflow-hidden">
-      <section className="relative mx-auto flex min-h-[620px] max-w-7xl items-center px-5 py-24">
-        <div aria-hidden="true" className="pointer-events-none absolute right-[-12rem] top-10 h-[34rem] w-[34rem] rounded-full bg-emerald-400/10 blur-[110px]" />
-        <div className="relative max-w-4xl">
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-xs font-bold tracking-[.18em] text-emerald-200"><Sparkles size={14} /> INDEPENDENT TECHNOLOGY ECOSYSTEM</div>
-          <h1 className="text-5xl font-black leading-[1.02] tracking-[-.055em] sm:text-7xl md:text-8xl">Build what<br /><span className="bg-gradient-to-r from-emerald-200 via-teal-300 to-cyan-300 bg-clip-text text-transparent">comes next.</span></h1>
-          <p className="mt-8 max-w-2xl text-lg leading-8 text-slate-300">Welcome to VETER — a growing technology ecosystem for programming, developer tools, AI experiments, games and learning. Explore projects, try tools and follow what is being built.</p>
-          <div className="mt-9 flex flex-wrap gap-3"><Link href="/veter-programming-language.html" className="inline-flex items-center gap-2 rounded-full bg-emerald-300 px-6 py-3.5 font-extrabold text-slate-950 transition hover:-translate-y-1">Explore VETER <ArrowUpRight size={18} /></Link><Link href="/games.html" className="rounded-full border border-white/20 px-6 py-3.5 font-bold text-white transition hover:border-emerald-200 hover:bg-white/5">Play games</Link></div>
-          <div className="mt-16 flex flex-wrap gap-x-8 gap-y-3 text-xs font-bold tracking-widest text-slate-500"><span>PROGRAMMING</span><span>AI EXPERIMENTS</span><span>GAMES</span><span>OPEN DEVELOPMENT</span></div>
-        </div>
-      </section>
-      <section id="explore" className="border-t border-white/10 bg-[#0b1220]"><div className="mx-auto max-w-7xl px-5 py-20">
-        <div className="mb-10 max-w-2xl"><p className="text-xs font-black tracking-[.2em] text-emerald-300">THE ECOSYSTEM</p><h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Explore what VETER is building.</h2><p className="mt-4 text-slate-400">Choose a project to get started. Your existing VETER tools and pages remain available.</p></div>
-        <div className="grid gap-4 sm:grid-cols-2">{items.map((item) => { const Icon = item.icon; return <Link key={item.title} href={item.href} className="group block rounded-2xl border border-white/10 bg-[#111b2b] p-7 transition duration-300 hover:-translate-y-1 hover:border-emerald-300/40 hover:bg-[#142235]"><div className="mb-7 flex items-center justify-between"><span className="rounded-xl bg-emerald-300/10 p-3 text-emerald-200"><Icon size={23} /></span><span className="text-[10px] font-black tracking-[.16em] text-slate-500">{item.tag}</span></div><h3 className="text-2xl font-extrabold">{item.title}</h3><p className="mt-3 min-h-14 leading-7 text-slate-400">{item.desc}</p><span className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-emerald-200">Explore project <ArrowUpRight size={16} /></span></Link>; })}</div>
-      </div></section>
-      <section className="mx-auto max-w-7xl px-5 py-20"><div className="rounded-3xl border border-emerald-200/20 bg-gradient-to-br from-emerald-300/10 to-cyan-400/5 p-8 sm:p-12"><p className="text-xs font-black tracking-[.2em] text-emerald-200">START BUILDING</p><h2 className="mt-3 text-3xl font-black sm:text-4xl">One ecosystem. Many possibilities.</h2><p className="mt-4 max-w-2xl leading-7 text-slate-300">Read the documentation, discover the projects and follow the next VETER releases.</p><Link href="/docs.html" className="mt-7 inline-flex items-center gap-2 font-extrabold text-emerald-200">Read documentation <ArrowUpRight size={17} /></Link></div></section>
-    </div>
-  );
+  return <div style={styles.page}>
+    <section style={{ ...styles.wrap, ...styles.hero }}>
+      <span style={styles.eyebrow}>INDEPENDENT TECHNOLOGY ECOSYSTEM</span>
+      <h1 style={styles.heading}>Build what<br /><span style={styles.accent}>comes next.</span></h1>
+      <p style={styles.intro}>Welcome to VETER — a growing technology ecosystem for programming, developer tools, AI experiments, games and learning. Explore projects, try tools and follow what is being built.</p>
+      <div style={styles.actions}><Link href="/veter-programming-language.html" style={styles.primary}>Explore VETER ↗</Link><Link href="/games.html" style={styles.secondary}>Play games</Link></div>
+      <p style={{ color: "#64748b", fontSize: "12px", fontWeight: 800, letterSpacing: "2px", marginTop: "50px" }}>PROGRAMMING　 AI EXPERIMENTS　 GAMES　 OPEN DEVELOPMENT</p>
+    </section>
+    <section style={styles.section}><div style={styles.wrap}>
+      <p style={styles.tag}>THE ECOSYSTEM</p><h2 style={{ fontSize: "clamp(30px, 5vw, 48px)", margin: "12px 0" }}>Explore what VETER is building.</h2>
+      <p style={{ color: "#94a3b8" }}>Choose a project to get started. Your existing VETER tools and pages remain available.</p>
+      <div style={styles.grid}>{cards.map(card => <Link key={card.title} href={card.href} style={styles.card}><span style={styles.tag}>{card.tag}</span><h3 style={{ fontSize: "24px", margin: "24px 0 10px" }}>{card.title}</h3><p style={styles.desc}>{card.desc}</p><strong style={{ color: "#a7f3d0" }}>Explore project ↗</strong></Link>)}</div>
+    </div></section>
+    <section style={{ ...styles.wrap, ...styles.lower }}><div style={{ padding: "35px", border: "1px solid #28584f", borderRadius: "22px", background: "#0e1b25" }}><p style={styles.tag}>START BUILDING</p><h2 style={{ fontSize: "34px", margin: "12px 0" }}>One ecosystem. Many possibilities.</h2><p style={styles.desc}>Read the documentation, discover the projects and follow the next VETER releases.</p><Link href="/docs.html" style={{ ...styles.primary, marginTop: "12px" }}>Read documentation ↗</Link></div></section>
+  </div>;
 }
