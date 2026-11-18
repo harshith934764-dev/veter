@@ -168,6 +168,39 @@ export default function HomeExperience() {
         </div>
       </section>
 
+      <section
+        id="ipl-2026"
+        aria-labelledby="ipl-2026-title"
+        style={{ padding: "clamp(56px, 8vw, 96px) 6vw", background: "linear-gradient(135deg, #071b2d 0%, #123b4b 55%, #071b2d 100%)", color: "#f8fafc" }}
+      >
+        <div style={{ maxWidth: 1120, margin: "0 auto", display: "grid", gridTemplateColumns: "minmax(0, 1.3fr) minmax(260px, .7fr)", gap: 36, alignItems: "center" }}>
+          <div>
+            <p className="eyebrow" style={{ color: "#f5c518" }}>THE VETER ARCADE · FEATURED GAME</p>
+            <h2 id="ipl-2026-title" style={{ fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.04, margin: "12px 0 18px" }}>
+              IPL 2026. <span style={{ color: "#f5c518" }}>Your team. Your trophy.</span>
+            </h2>
+            <p style={{ maxWidth: 650, color: "#d3e3ec", fontSize: 17, lineHeight: 1.7 }}>
+              Pick your franchise, build your Playing XI and take on the AI. Play a quick showdown or lead your team through a full IPL championship season.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 26 }}>
+              <Link href="/games/ipl2026/index.html" className="button-primary" style={{ background: "#f5c518", color: "#171717", borderColor: "#f5c518" }}>
+                Play IPL 2026 <ArrowUpRight size={17} />
+              </Link>
+              <Link href="/games.html" className="button-quiet" style={{ color: "#f8fafc" }}>
+                Explore all games <Gamepad2 size={17} />
+              </Link>
+            </div>
+          </div>
+          <div aria-hidden="true" style={{ minHeight: 230, border: "1px solid #ffffff2b", borderRadius: 24, background: "radial-gradient(circle at 50% 35%, #f5c51838, transparent 55%), linear-gradient(145deg, #ffffff12, #ffffff04)", display: "grid", placeItems: "center", boxShadow: "0 24px 70px #0005" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 88, lineHeight: 1 }}>🏏</div>
+              <p style={{ margin: "14px 0 0", letterSpacing: ".18em", fontSize: 12, fontWeight: 800, color: "#f5c518" }}>READY FOR THE BIG MATCH?</p>
+            </div>
+          </div>
+        </div>
+        <style>{`@media(max-width:700px){#ipl-2026>div{grid-template-columns:1fr!important}}`}</style>
+      </section>
+
       <section className="score-section">
         <div className="score-copy">
           <p className="eyebrow">02 / THE ARCADE</p>
